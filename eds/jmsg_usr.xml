@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2022 bitValence, Inc.
+    All Rights Reserved.
+
+    This program is free software; you can modify and/or redistribute it
+    under the terms of the GNU Affero General Public License
+    as published by the Free Software Foundation; version 3 with
+    attribution addendums as found in the LICENSE.txt.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+      
+    Purpose: 
+      Define user parameters for a specific deployment/instance of jmsg_lib  
+      
+    Notes:
+      1. This document adheres to the Electronic Data Sheet (EDS) XML schema 
+         as prescribed in CCSDS book 876.0. 
+      2. Comments beginning with a '@@' must be analyzed for each integration with an app
+      
+-->
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="JMSG_USR" shortDescription="">
+    <DataTypeSet>
+    
+      <!-- @@Ensure this command code does not overlap with your app's command codes -->
+      <Define name="APP_BASE_CC"  value="${APP_C_FW/APP_BASE_CC} + 10"  shortDescription="Starting command code for JSMG_LIB commands"/>
+
+      <!-- @@Ensure this base ID does not overlap with with the owning app's event IDs defined in their app_cfg.h -->
+      <Define name="LIB_BASE_EID" value="${APP_C_FW/APP_BASE_EID} + 800"  shortDescription="Starting EID for all JMSG_LIB components"/>
+      <Define name="TOPIC_PLUGIN_BASE_EID" value="${LIB_BASE_EID} +   0"  shortDescription="jmsg_topic_plugin.c"/>
+      <Define name="TOPIC_TBL_BASE_EID"    value="${LIB_BASE_EID} +  10"  shortDescription="jmsg_topic_tbl.c"/>
+
+      <Define name="MAX_TOPIC_NAME_LEN" value="48" shortDescription="Maximum number of characters in a topic name"/>
+
+
+      <!--***********************************-->
+      <!--**** DataTypeSet:  Entry Types ****-->
+      <!--***********************************-->
+
+
+      <!-- @@Use the USR_ default labels for your plugins or change the names to match your plugin names -->
+      <!-- @@Do not modify the CMD, TLM, and TEST entries -->
+      <!-- @@MAX_TOPIC_PLUGIN_CNT is needed as a constant in other EDS definitions. It must agree with the TopicPlugin definitio below -->
+      <Define name="MAX_TOPIC_PLUGIN_CNT" value="8" shortDescription="Must "/>
+      <EnumeratedDataType name="TopicPlugin" shortDescription="Used as indices so values start at 0. User name interface is 1..N" >
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="CMD"    value="0"  shortDescription="" />
+          <Enumeration label="TLM"    value="1"  shortDescription="" />
+          <Enumeration label="TEST"   value="2"  shortDescription="" />
+          <Enumeration label="USR_1"  value="3"  shortDescription="" />
+          <Enumeration label="USR_2"  value="4"  shortDescription="" />
+          <Enumeration label="USR_3"  value="5"  shortDescription="" />
+          <Enumeration label="USR_4"  value="6"  shortDescription="" />
+          <Enumeration label="USR_5"  value="7"  shortDescription="" />
+          <Enumeration label="UNDEF"  value="99" shortDescription="Value that indicates an undefined plugin" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <!-- 
+         @@These names and values should correspond to your plugins. If they don't correlate
+         @@properly in would be confusing to someone correlating event message numbers to an
+         @@app but the code will still build and run. 10 event IDs per plugin should be more
+         @@than adequate since plugins have minimal logic.
+      -->
+
+      <EnumeratedDataType name="TopicPluginBaseEid" shortDescription="" >
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="CMD"    value="${TOPIC_TBL_BASE_EID} + 10"  shortDescription="" />
+          <Enumeration label="TLM"    value="${TOPIC_TBL_BASE_EID} + 20"  shortDescription="" />
+          <Enumeration label="TEST"   value="${TOPIC_TBL_BASE_EID} + 30"  shortDescription="" />
+          <Enumeration label="USR_1"  value="${TOPIC_TBL_BASE_EID} + 40"  shortDescription="" />
+          <Enumeration label="USR_2"  value="${TOPIC_TBL_BASE_EID} + 50"  shortDescription="" />
+          <Enumeration label="USR_3"  value="${TOPIC_TBL_BASE_EID} + 60"  shortDescription="" />
+          <Enumeration label="USR_4"  value="${TOPIC_TBL_BASE_EID} + 70"  shortDescription="" />
+          <Enumeration label="USR_5"  value="${TOPIC_TBL_BASE_EID} + 80"  shortDescription="" />
+        </EnumerationList>
+      </EnumeratedDataType>
+    
+    </DataTypeSet>    
+  </Package>
+</PackageFile>

@@ -1,0 +1,30 @@
+{ "app": {
+   
+   "title": "JMSG_LIB",
+   "version": "0.9.0",
+   "supplier": "Open STEMware",
+   "copyright": "bitValence",
+   "url": "https://github.com/cfs-apps/pl_sim_lib",
+
+   "description": [
+      "Provide tools for bi-directional translation between JSON text messages and cFS Software Bus binary messages."
+   ],
+
+   "cfs": {
+      "cfe-type": "CFE_LIB",
+      "obj-file": "jmsg_lib",
+      "entry-symbol": "JMSG_LIB_Init",
+      "name": "JMSG_LIB",
+      "priority": 0,
+      "stack": 0,
+      "load_addr": 0,
+      "exception-action": 0,
+      "app-framework": "osk",
+      "tables": ["jmsg_lib_ini.json"]
+   },
+   
+   "requires": []
+
+}}
+
+
