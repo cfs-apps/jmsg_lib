@@ -118,16 +118,13 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
             break;
 @@*/
          default:
+            // Plugin should be disabled
             PluginFuncTbl[i].CfeToJson = StubCfeToJson;
             PluginFuncTbl[i].JsonToCfe = StubJsonToCfe;
             PluginFuncTbl[i].SbMsgTest = StubSbMsgTest;
-            if (TopicTbl->Topic[i].Enabled)
-            {
-               JMSG_TOPIC_TBL_DisablePlugin(i);
-               CFE_EVS_SendEvent(JMSG_TOPIC_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                                 "Disabling plugin topic ID %d(index %d) that is enabled in the topic table without a constructor installed.",
-                                 (i+1), i);
-            }         
+            CFE_EVS_SendEvent(JMSG_TOPIC_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
+                              "Plugin topic ID %d(index %d) is enabled in the topic table, but doesn't have a constructor.",
+                              (i+1), i);
             break;
                         
       } // End switch

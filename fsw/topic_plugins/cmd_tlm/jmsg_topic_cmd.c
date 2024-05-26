@@ -86,7 +86,7 @@ void JMSG_TOPIC_CMD_Constructor(JMSG_TOPIC_CMD_Class_t *JMsgTopicCmdPtr,
 **   1. Signature must match JMSG_TOPIC_TBL_CfeToJson_t
 **   2. This use case is unsupported because it is beyond Basecamp's scope. It
 **      would mean a cFE target is sending a command to another cFS target via
-**      a JSON message over some communication path like UDP or an MQTT broker.
+**      a JSON message over some communication path like UDP or a MQTT broker.
 **
 */
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)

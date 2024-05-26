@@ -73,10 +73,12 @@
 ** XX(name,type)
 */
 
+#define CFG_JMSG_LIB_TLM_TOPICID            JMSG_LIB_TLM_TOPICID
 #define CFG_JMSG_TEST_PLUGIN_TOPICID        JMSG_TEST_PLUGIN_TOPICID
 #define CFG_KIT_TO_PUB_WRAPPED_TLM_TOPICID  KIT_TO_PUB_WRAPPED_TLM_TOPICID
 
 #define LIB_CONFIG(XX) \
+   XX(JMSG_LIB_TLM_TOPICID,uint32) \
    XX(JMSG_TEST_PLUGIN_TOPICID,uint32) \
    XX(KIT_TO_PUB_WRAPPED_TLM_TOPICID,uint32)
 
@@ -96,14 +98,5 @@ DECLARE_ENUM(Config, LIB_CONFIG)
 */
 
 #define JMSG_TOPIC_SB_MSG_MAX_LEN  4096  
-
-
-/******************************************************************************
-** JMSG Topic Table
-**
-*/
-
-#define JMSG_TOPIC_TBL_JSON_FILE_MAX_CHAR  5000
-#define JMSG_TOPIC_TBL_NAME                "JMSG Topics"
 
 #endif /* _lib_cfg_ */

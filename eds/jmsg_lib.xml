@@ -37,8 +37,8 @@
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="UNDEF"     value="0" shortDescription="Role not properly defined in JSON topic table" />
-          <Enumeration label="PUBLISH"   value="1" shortDescription="Receive MQTT message from broker, convert and publish them on the SB" />
-          <Enumeration label="SUBSCRIBE" value="2" shortDescription="Receive SB messages, convert and send them to MQTT broker" />
+          <Enumeration label="PUBLISH"   value="1" shortDescription="Receive JMSG messages from remote source, convert and publish them on the SB" />
+          <Enumeration label="SUBSCRIBE" value="2" shortDescription="Receive SB messages, convert and send them to JMSG destination" />
           <Enumeration label="INVALID"   value="3" shortDescription="Role not properly defined in JSON topic table" />
         </EnumerationList>
       </EnumeratedDataType>
@@ -144,7 +144,7 @@
     </DataTypeSet>
     
     <ComponentSet>
-      <Component name="Library">
+      <Component name="Application">
 
         <!--***********************************-->
         <!--**** Component Set: Interfaces ****-->
@@ -152,6 +152,12 @@
       
         <RequiredInterfaceSet>
         
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
+            </GenericTypeMapSet>
+          </Interface>
+          
           <Interface name="TOPIC_PLUGIN_TLM" shortDescription="Software bus TOPIC PLUGIN telemetry interface" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
               <GenericTypeMap name="TelemetryDataType" type="TopicPluginTlm" />
@@ -166,10 +172,12 @@
 
         <Implementation>
           <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId"             initialValue="${CFE_MISSION/JMSG_LIB_CMD_TOPICID}" />          
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicPluginTlmTopicId"  initialValue="${CFE_MISSION/JMSG_LIB_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>          
+            <ParameterMap interface="CMD"              parameter="TopicId" variableRef="CmdTopicId" />
             <ParameterMap interface="TOPIC_PLUGIN_TLM" parameter="TopicId" variableRef="TopicPluginTlmTopicId" />
           </ParameterMapSet>
         </Implementation>

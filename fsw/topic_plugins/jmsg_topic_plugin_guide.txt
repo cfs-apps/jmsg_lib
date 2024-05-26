@@ -70,3 +70,10 @@ for a more detailed explanation
        "sb-role": "pub",
        "enabled": "false"
     }
+
+====================================================
+Creating an app that uses JMSG_LIB versus creating plugins for 
+==================================================== 
+- COnfigure JSMG_USR
+- Add topic table load/dump
+- Register JMSG_LIB commands

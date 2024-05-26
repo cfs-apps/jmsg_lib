@@ -129,7 +129,7 @@ static bool CfeToJson(const char **JsonMsgPayload, const CFE_MSG_Message_t *CfeM
 ** Convert a JSON test topic message to a cFE test message 
 **
 ** Notes:
-**   1.  Signature must match MQTT_TOPIC_TBL_JsonToCfe_t
+**   1.  Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
 **
 */
 static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, uint16 PayloadLen)

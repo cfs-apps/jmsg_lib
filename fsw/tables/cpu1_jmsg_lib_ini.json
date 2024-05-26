@@ -3,6 +3,7 @@
    "description": ["Define runtime configurations"],
    "config": {
       
+      "JMSG_LIB_TLM_TOPICID": 0,
       "JMSG_TEST_PLUGIN_TOPICID": 0,
       "KIT_TO_PUB_WRAPPED_TLM_TOPICID": 0
             

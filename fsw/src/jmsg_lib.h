@@ -82,4 +82,15 @@ typedef struct
 uint32 JMSG_LibInit(void);
 
 
+/******************************************************************************
+** Function: JMSG_LIB_
+**
+** Return a pointer to library's instance of JMSG_TOPICC_TBL
+**
+** Notes:
+**   1. Only one JMSG_LIB can exist in a cFS target
+**
+*/
+JMSG_TOPIC_TBL_Class_t *JMSG_LIB_GetInstance(void);
+
 #endif /* _jmsg_lib_ */

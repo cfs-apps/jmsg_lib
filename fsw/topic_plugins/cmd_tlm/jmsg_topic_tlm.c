@@ -116,7 +116,8 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
-**   2. Encoded discrete message that can be pasted into MQTT broker for testing:
+**   2. Encoded discrete message that can be pasted into JMSG source 
+**      (eg MQTT broker) for testing:
 **      00016B00030049001D0000005A890F00FB99000001000000000000000000000000000000
 **      00016B00030048001D0000005A890F007D59000000000000000000000000000001000000
 **      00016B00030047001D0000005A890F002A19000000000000000000000100000000000000

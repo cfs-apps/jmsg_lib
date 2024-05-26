@@ -46,7 +46,9 @@
       <!-- @@Use the USR_ default labels for your plugins or change the names to match your plugin names -->
       <!-- @@Do not modify the CMD, TLM, and TEST entries -->
       <!-- @@MAX_TOPIC_PLUGIN_CNT is needed as a constant in other EDS definitions. It must agree with the TopicPlugin definitio below -->
-      <Define name="MAX_TOPIC_PLUGIN_CNT" value="8" shortDescription="Must "/>
+      <Define name="MAX_JSON_TOPIC_TBL_CHAR" value="5000" shortDescription="Maximum number of characters in the JSON topic table"/>
+      <Define name="TOPIC_PLUGIN_UNDEF" value="99" shortDescription="Value that indicates an undefined plugin. Must not match any valid TopicPlugin enum value"/>
+      <Define name="MAX_TOPIC_PLUGIN_CNT" value="8" shortDescription="This count must match below. This define is needed so depends can size data structs. TODO: Fix this double definition"/>
       <EnumeratedDataType name="TopicPlugin" shortDescription="Used as indices so values start at 0. User name interface is 1..N" >
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
@@ -58,7 +60,6 @@
           <Enumeration label="USR_3"  value="5"  shortDescription="" />
           <Enumeration label="USR_4"  value="6"  shortDescription="" />
           <Enumeration label="USR_5"  value="7"  shortDescription="" />
-          <Enumeration label="UNDEF"  value="99" shortDescription="Value that indicates an undefined plugin" />
         </EnumerationList>
       </EnumeratedDataType>
 
