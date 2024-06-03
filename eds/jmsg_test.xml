@@ -89,7 +89,7 @@
 
         <Implementation>
           <VariableSet>
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicId"  initialValue="${CFE_MISSION/JMSG_TEST_PLUGIN_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicId"  initialValue="${CFE_MISSION/JMSG_LIB_PLUGIN_TEST_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>          

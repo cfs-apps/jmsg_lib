@@ -74,6 +74,7 @@ for a more detailed explanation
 ====================================================
 Creating an app that uses JMSG_LIB versus creating plugins for 
 ==================================================== 
-- COnfigure JSMG_USR
+- App's using JMSG_LIB: Add JMSG_LIB cmd mid to ini file, Subscribe to JMSG_LIB command topic, register command, Update ProcessCommand    
+- Configure JSMG_USR
 - Add topic table load/dump
 - Register JMSG_LIB commands

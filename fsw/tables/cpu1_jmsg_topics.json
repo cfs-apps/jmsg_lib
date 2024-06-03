@@ -1,6 +1,6 @@
 {
    
-   "title": "MQTT Topics",
+   "title": "JMSG Topics",
    "description": [ "Define the topics that are recognized and processed by the JSON Message library",
                     "'name' is the topic name that is received from a network interface and published on the SB",
                     "'cfe' is a topic id that is read from the SB and published to a JSON destination",
@@ -26,7 +26,7 @@
       
       "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-1",
       "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-2",
-      "JMSG_TEST_PLUGIN_TOPICID": "cfe-3",
+      "JMSG_LIB_PLUGIN_TEST_TLM_TOPICID": "cfe-3",
       
       "end": true
 
@@ -55,15 +55,36 @@
           "enabled": "true"
        },
        {
-          "name":  "basecamp/demo/sc/discrete",
+          "name":  "basecamp/test",
           "cfe-4": 0,
           "cfe": 0,
           "sb-role": "pub",
           "enabled": "false"
        },
        {
-          "name":  "basecamp/demo/sc/rate",
-          "cfe-4": 0,
+          "name":  "basecamp/test",
+          "cfe-5": 0,
+          "cfe": 0,
+          "sb-role": "pub",
+          "enabled": "false"
+       },
+       {
+          "name":  "basecamp/test",
+          "cfe-6": 0,
+          "cfe": 0,
+          "sb-role": "pub",
+          "enabled": "false"
+       },
+       {
+          "name":  "basecamp/test",
+          "cfe-7": 0,
+          "cfe": 0,
+          "sb-role": "pub",
+          "enabled": "false"
+       },
+       {
+          "name":  "basecamp/test",
+          "cfe-8": 0,
           "cfe": 0,
           "sb-role": "pub",
           "enabled": "false"

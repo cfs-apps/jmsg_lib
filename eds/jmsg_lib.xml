@@ -33,7 +33,7 @@
       
       <StringDataType name="TopicName" length="${JMSG_USR/MAX_TOPIC_NAME_LEN}" shortDescription="Topic name Text" />
 
-      <EnumeratedDataType name="TopicSbRole" shortDescription="" >
+      <EnumeratedDataType name="PluginSbRole" shortDescription="Communication role from SB perspective" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="UNDEF"     value="0" shortDescription="Role not properly defined in JSON topic table" />
@@ -47,7 +47,7 @@
         <EntryList>
           <Entry name="Name"     type="TopicName"              shortDescription="See type" />
           <Entry name="Enabled"  type="APP_C_FW/BooleanUint8"  shortDescription="See type" />
-          <Entry name="SbRole"   type="TopicSbRole"            shortDescription="See type" />
+          <Entry name="SbRole"   type="PluginSbRole"           shortDescription="See type" />
        </EntryList>
       </ContainerDataType>
 
@@ -68,7 +68,7 @@
        </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ConfigSbTopicTest_CmdPayload" shortDescription="Start or stop a SB topic test">
+      <ContainerDataType name="ConfigTopicPluginTest_CmdPayload" shortDescription="Start or stop a topic plugin test">
         <EntryList>
           <Entry name="Id"     type="JMSG_USR/TopicPlugin"      shortDescription="Plugin Topic identifier" />
           <Entry name="Action" type="APP_C_FW/ConfigExeAction"  shortDescription="Start/stop a test" />
@@ -76,7 +76,7 @@
        </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SendTopicPluginTlm_CmdPayload" shortDescription="Send a telemetry message containing topc plugin information">
+      <ContainerDataType name="SendTopicPluginTlm_CmdPayload" shortDescription="Send a telemetry message containing topic plugin information">
         <EntryList>
           <Entry name="Id"     type="JMSG_USR/TopicPlugin"      shortDescription="Plugin Topic identifier" />
           <Entry name="Action" type="APP_C_FW/ConfigExeAction"  shortDescription="Start/stop a test" />
@@ -90,11 +90,11 @@
     
       <ContainerDataType name="TopicPluginTlm_Payload" shortDescription="">
         <EntryList>
-          <Entry name="TopicPluginCnt"     type="BASE_TYPES/uint16"     />
-          <Entry name="SbTopicTestActive"  type="APP_C_FW/BooleanUint8" />
-          <Entry name="SbTopicTestId"      type="JMSG_USR/TopicPlugin"  />
-          <Entry name="SbTopicTestParam"   type="BASE_TYPES/int16"      />
-          <Entry name="TopicPlugin"        type="PluginDescrArray"      />
+          <Entry name="TopicPluginCnt"         type="BASE_TYPES/uint16"     />
+          <Entry name="TopicPluginTestActive"  type="APP_C_FW/BooleanUint8" />
+          <Entry name="TopicPluginTestId"      type="JMSG_USR/TopicPlugin"  />
+          <Entry name="TopicPluginTestParam"   type="BASE_TYPES/int16"      />
+          <Entry name="TopicPlugin"            type="PluginDescrArray"      />
         </EntryList>
       </ContainerDataType>
 
@@ -115,16 +115,16 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ConfigSbTopicTest" baseType="CommandBase" shortDescription="Enable/disable topic test">
+      <ContainerDataType name="ConfigTopicPluginTest" baseType="CommandBase" shortDescription="Enable/disable topic test">
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="${JMSG_USR/APP_BASE_CC} + 1" />
         </ConstraintSet>
         <EntryList>
-          <Entry type="ConfigSbTopicTest_CmdPayload" name="Payload" />
+          <Entry type="ConfigTopicPluginTest_CmdPayload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SendTopicPluginTlm" baseType="CommandBase" shortDescription="Send a telemetry message containing topc plugin information">
+      <ContainerDataType name="SendTopicPluginTlm" baseType="CommandBase" shortDescription="Send a telemetry message containing topic plugin information">
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="${JMSG_USR/APP_BASE_CC} + 2" />
         </ConstraintSet>
@@ -173,7 +173,7 @@
         <Implementation>
           <VariableSet>
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId"             initialValue="${CFE_MISSION/JMSG_LIB_CMD_TOPICID}" />          
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicPluginTlmTopicId"  initialValue="${CFE_MISSION/JMSG_LIB_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicPluginTlmTopicId"  initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>          

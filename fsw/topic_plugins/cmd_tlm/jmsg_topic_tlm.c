@@ -33,7 +33,7 @@
 
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg);
 static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint16 PayloadLen);
-static void SbMsgTest(bool Init, int16 Param);
+static void PluginTest(bool Init, int16 Param);
 
 /**********************/
 /** Global File Data **/
@@ -59,9 +59,9 @@ void JMSG_TOPIC_TLM_Constructor(JMSG_TOPIC_TLM_Class_t *JMsgTopicTlmPtr,
    JMsgTopicTlm = JMsgTopicTlmPtr;
    memset(JMsgTopicTlm, 0, sizeof(JMSG_TOPIC_TLM_Class_t));
 
-   PluginFuncTbl->CfeToJson = CfeToJson;
-   PluginFuncTbl->JsonToCfe = JsonToCfe;  
-   PluginFuncTbl->SbMsgTest = SbMsgTest;
+   PluginFuncTbl->CfeToJson  = CfeToJson;
+   PluginFuncTbl->JsonToCfe  = JsonToCfe;  
+   PluginFuncTbl->PluginTest = PluginTest;
    
    JMsgTopicTlm->TestPluginTlmMsgLen = sizeof(JMSG_TEST_PluginTlmMsg_t);
    CFE_MSG_Init(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg), WrappedTlmMid, sizeof(KIT_TO_WrappedSbMsgTlm_t));
@@ -158,7 +158,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 
 
 /******************************************************************************
-** Function: SbMsgTest
+** Function: PluginTest
 **
 ** Test plugin by converting a JMSG test SB telemetry message to an JMSG test
 ** JSON message 
@@ -171,7 +171,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 **   3. A walking bit pattern is used in the dsicrete data to help validation.
 **
 */
-static void SbMsgTest(bool Init, int16 Param)
+static void PluginTest(bool Init, int16 Param)
 {
    
    JMSG_TEST_PluginTlm_Payload_t *Payload = &JMsgTopicTlm->TestPluginTlmMsg.Payload;
@@ -198,6 +198,6 @@ static void SbMsgTest(bool Init, int16 Param)
    CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg.TelemetryHeader));
    CFE_SB_TransmitMsg(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg.TelemetryHeader), true);
 
-} /* End SbMsgTest() */
+} /* End PluginTest() */
 
 

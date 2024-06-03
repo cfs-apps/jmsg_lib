@@ -33,7 +33,7 @@
 static bool CfeToJson(const char **JsonMsgPayload, const CFE_MSG_Message_t *CfeMsg);
 static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, uint16 PayloadLen);
 static bool LoadJsonData(const char *JsonMsgPayload, uint16 PayloadLen);
-static void SbMsgTest(bool Init, int16 Param);
+static void PluginTest(bool Init, int16 Param);
 
 
 /**********************/
@@ -75,9 +75,9 @@ void JMSG_TOPIC_TEST_Constructor(JMSG_TOPIC_TEST_Class_t *JMsgTopicTestPtr,
    JMsgTopicTest = JMsgTopicTestPtr;
    memset(JMsgTopicTest, 0, sizeof(JMSG_TOPIC_TEST_Class_t));
 
-   PluginFuncTbl->CfeToJson = CfeToJson;
-   PluginFuncTbl->JsonToCfe = JsonToCfe;  
-   PluginFuncTbl->SbMsgTest = SbMsgTest;
+   PluginFuncTbl->CfeToJson  = CfeToJson;
+   PluginFuncTbl->JsonToCfe  = JsonToCfe;  
+   PluginFuncTbl->PluginTest = PluginTest;
    
    JMsgTopicTest->JsonObjCnt = (sizeof(JsonTblObjs)/sizeof(CJSON_Obj_t));
    
@@ -153,7 +153,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, ui
 
 
 /******************************************************************************
-** Function: SbMsgTest
+** Function: PluginTest
 **
 ** Generate and send SB test topic messages on SB that are read back by JMSG
 ** and cause JSON messages to be generated from the SB messages.  
@@ -171,7 +171,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, ui
 **      KIT_TO_PUB_WRAPPED_CMD_TOPICID
 **   3. Incrementing values are used in the test data to help validation.
 */
-static void SbMsgTest(bool Init, int16 Param)
+static void PluginTest(bool Init, int16 Param)
 {
 
    JMSG_TEST_PluginTlm_Payload_t *Payload = &JMsgTopicTest->TlmMsg.Payload;
@@ -199,7 +199,7 @@ static void SbMsgTest(bool Init, int16 Param)
    CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicTest->TlmMsg.TelemetryHeader));
    CFE_SB_TransmitMsg(CFE_MSG_PTR(JMsgTopicTest->TlmMsg.TelemetryHeader), true);
    
-} /* End SbMsgTest() */
+} /* End PluginTest() */
 
 
 /******************************************************************************

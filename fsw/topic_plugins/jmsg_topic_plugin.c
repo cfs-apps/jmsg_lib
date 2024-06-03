@@ -49,7 +49,7 @@
 
 static bool StubCfeToJson(const char **JsonMsgPayload, const CFE_MSG_Message_t *CfeMsg);
 static bool StubJsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, uint16 PayloadLen);
-static void StubSbMsgTest(bool Init, int16 Param);
+static void StubPluginTestTest(bool Init, int16 Param);
 
 
 /**********************/
@@ -84,10 +84,10 @@ static JMSG_TOPIC_RATE_Class_t      JMsgTopicRate;
 */
 void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
                                    JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
-                                   uint32 TestTlmTopicId)
+                                   uint32 PluginTestTlmTopicId)
 {
-
-   for (enum JMSG_USR_TopicPlugin i=0; i < JMSG_USR_TopicPlugin_Enum_t_MAX; i++)
+   
+   for (enum JMSG_USR_TopicPlugin i=JMSG_USR_TopicPlugin_Enum_t_MIN; i <= JMSG_USR_TopicPlugin_Enum_t_MAX; i++)
    {
       switch (i)
       {
@@ -98,7 +98,7 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
          case JMSG_USR_TopicPlugin_TLM:
             JMSG_TOPIC_TLM_Constructor(&JMsgTopicTlm, &PluginFuncTbl[i],
                                        CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe),
-                                       CFE_SB_ValueToMsgId(TestTlmTopicId));         
+                                       CFE_SB_ValueToMsgId(PluginTestTlmTopicId));         
             break;
 
          case JMSG_USR_TopicPlugin_TEST:
@@ -119,12 +119,21 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
 @@*/
          default:
             // Plugin should be disabled
-            PluginFuncTbl[i].CfeToJson = StubCfeToJson;
-            PluginFuncTbl[i].JsonToCfe = StubJsonToCfe;
-            PluginFuncTbl[i].SbMsgTest = StubSbMsgTest;
-            CFE_EVS_SendEvent(JMSG_TOPIC_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                              "Plugin topic ID %d(index %d) is enabled in the topic table, but doesn't have a constructor.",
-                              (i+1), i);
+            PluginFuncTbl[i].CfeToJson  = StubCfeToJson;
+            PluginFuncTbl[i].JsonToCfe  = StubJsonToCfe;
+            PluginFuncTbl[i].PluginTest = StubPluginTestTest;
+            if (TopicTbl->Topic[i].Enabled)
+            {
+               CFE_EVS_SendEvent(JMSG_TOPIC_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
+                                 "Plugin topic ID %d(index %d) is enabled in the topic table without a constructor. Stub functions installed.",
+                                 (i+1), i);
+            }
+            else
+            {
+               CFE_EVS_SendEvent(JMSG_TOPIC_PLUGIN_EID, CFE_EVS_EventType_INFORMATION, 
+                                 "Plugin topic ID %d(index %d) is undefined. Stub functions installed.",
+                                 (i+1), i);
+            }
             break;
                         
       } // End switch
@@ -173,19 +182,19 @@ static bool StubJsonToCfe(CFE_MSG_Message_t **CfeMsg,
 
 
 /******************************************************************************
-** Function: StubSbMsgTest
+** Function: StubPluginTestTest
 **
 ** Provide a CfeToJson stub function to be used as a non-NULL pointer in the
 ** PluginFuncTbl default values.
 **
 */
-static void StubSbMsgTest(bool Init, int16 Param)
+static void StubPluginTestTest(bool Init, int16 Param)
 {
 
    CFE_EVS_SendEvent(JMSG_TOPIC_PLUGIN_STUB_EID, CFE_EVS_EventType_ERROR, 
-                     "SbMsgTest stub");
+                     "PluginTestTest stub");
    
-} /* End StubSbMsgTest() */
+} /* End StubPluginTestTest() */
 
 
 

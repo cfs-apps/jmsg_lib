@@ -43,7 +43,7 @@
 
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg);
 static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint16 PayloadLen);
-static void SbMsgTest(bool Init, int16 Param);
+static void PluginTest(bool Init, int16 Param);
 
 /**********************/
 /** Global File Data **/
@@ -70,9 +70,9 @@ void JMSG_TOPIC_CMD_Constructor(JMSG_TOPIC_CMD_Class_t *JMsgTopicCmdPtr,
 
    JMsgTopicCmd->SbBufPtr = NULL;
 
-   PluginFuncTbl->CfeToJson = CfeToJson;
-   PluginFuncTbl->JsonToCfe = JsonToCfe;  
-   PluginFuncTbl->SbMsgTest = SbMsgTest;
+   PluginFuncTbl->CfeToJson  = CfeToJson;
+   PluginFuncTbl->JsonToCfe  = JsonToCfe;  
+   PluginFuncTbl->PluginTest = PluginTest;
             
 } /* End JMSG_TOPIC_CMD_Constructor() */
 
@@ -247,7 +247,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 
 
 /******************************************************************************
-** Function: SbMsgTest
+** Function: PluginTest
 **
 ** Test plugin stub 
 **
@@ -255,7 +255,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 **   None
 **
 */
-static void SbMsgTest(bool Init, int16 Param)
+static void PluginTest(bool Init, int16 Param)
 {
 
    if (Init)
@@ -271,5 +271,5 @@ static void SbMsgTest(bool Init, int16 Param)
       JMsgTopicCmd->SbTestCnt++;
    }
    
-} /* End SbMsgTest() */
+} /* End PluginTest() */
 

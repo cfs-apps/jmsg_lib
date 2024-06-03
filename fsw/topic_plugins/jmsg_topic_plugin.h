@@ -57,7 +57,7 @@
 */
 void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
                                    JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
-                                   uint32 TestTlmTopicId);
+                                   uint32 PluginTestTlmTopicId);
 
 
 #endif /* _jmsg_topic_plugins_ */

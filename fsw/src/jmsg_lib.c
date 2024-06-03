@@ -86,8 +86,8 @@ uint32 JMSG_LibInit(void)
       JMsgLib.ToPubWrappedTlmTopicId = INITBL_GetIntConfig(INITBL_OBJ, CFG_KIT_TO_PUB_WRAPPED_TLM_TOPICID);
 
       JMSG_TOPIC_TBL_Constructor(&JMsgLib.TopicTbl, 
-                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_LIB_TLM_TOPICID),
-                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_TEST_PLUGIN_TOPICID));
+                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_LIB_TOPIC_TBL_TLM_TOPICID),
+                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_LIB_PLUGIN_TEST_TLM_TOPICID));
 
       JMsgLib.Initialized = true;
 
@@ -117,7 +117,7 @@ uint32 JMSG_LibInit(void)
 **   1. Only one JMSG_LIB can exist in a cFS target
 **
 */
-JMSG_TOPIC_TBL_Class_t *JMSG_LIB_GetTopicTbl(void)
+const JMSG_TOPIC_TBL_Class_t *JMSG_LIB_GetTopicTbl(void)
 {
    
    return  &JMsgLib.TopicTbl;
