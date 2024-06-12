@@ -39,8 +39,8 @@
 ** Event Message IDs
 */
 
-#define JMSG_TOPIC_TEST_INIT_SB_MSG_TEST_EID  (JMSG_USR_TopicPluginBaseEid_TEST + 0)
-#define JMSG_TOPIC_TEST_SB_MSG_TEST_EID       (JMSG_USR_TopicPluginBaseEid_TEST + 1)
+#define JMSG_TOPIC_TEST_INIT_PLUGIN_TEST_EID  (JMSG_USR_TopicPluginBaseEid_TEST + 0)
+#define JMSG_TOPIC_TEST_PLUGIN_TEST_EID       (JMSG_USR_TopicPluginBaseEid_TEST + 1)
 #define JMSG_TOPIC_TEST_LOAD_JSON_DATA_EID    (JMSG_USR_TopicPluginBaseEid_TEST + 2)
 #define JMSG_TOPIC_TEST_JSON_TO_CCSDS_ERR_EID (JMSG_USR_TopicPluginBaseEid_TEST + 3)
 
@@ -65,7 +65,7 @@ typedef struct
    JMSG_TEST_PluginTlmMsg_t  TlmMsg;
    char                      JsonMsgPayload[1024];
    
-   uint32  SbTestCnt;
+   uint32  PluginTestCnt;
    int32   IntData;
    float   FloatData;
    

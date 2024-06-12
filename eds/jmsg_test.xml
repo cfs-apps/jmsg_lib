@@ -30,6 +30,13 @@
       <!--**** DataTypeSet:  Entry Types ****-->
       <!--***********************************-->
 
+      <EnumeratedDataType name="TestParam" shortDescription="">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="UDP"  value="1"  shortDescription="Use the JSON format used by the JMSG_UDP app" />
+          <Enumeration label="MQTT" value="2"  shortDescription="Use the JSON format used by the JMSG_MQTT app" />
+        </EnumerationList>
+      </EnumeratedDataType>
       
       <!--***************************************-->
       <!--**** DataTypeSet: Command Payloads ****-->

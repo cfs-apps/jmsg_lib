@@ -1,5 +1,41 @@
+============
+INTRODUCTION
+============
 
-These are the instructions for adding an MQTT topic plugin. Topic plugins 
+These are the instructions for managing JMSG topic plugins for the JMSG_UDP
+and JMSG_MQTT apps. The term JMSG generically refers to a Basecamp JSON text
+message. The UDP and MQTT JSON message conventions are nearly identical and 
+are based on the MQTT standard. Each message has a topic name that uses the
+MQTT path standard. Basecamp's UDP topics have a colon appended to the end
+of the topic name to serve as a delimeter between the topic name and JSON
+payload. The payloads for botH UDP and MQTT are JSON objects.
+ 
+Both apps require JMSG_LIB and JMSG_APP to be installed. Technically,
+JMSG_APP is not required but it provides a command and telemetry interface
+to JMSG_LIB that is helpful.
+
+The design supports using either JSMG_MQTT or JSMG_UDP seperately or isntalling
+both apps. See the JMSG_LIB documentation for different use cases.
+
+These instruction cover the following material:
+
+1. Configuring default plugins provided by JMSG_LIB, JMSG_UDP, and JMSG_MQTT
+2. Add new plugins
+
+See the JMSG_LIB documentation for creating a new JMSG network app equivalent
+to JMSG_UDP and JMSG_MQTT
+
+==============================
+1. Configuring Default Plugins
+==============================
+
+
+=====================
+2. Adding New Plugins
+=====================
+
+
+adding an MQTT topic plugin. Topic plugins 
 define functions for converting between MQTT messages and cFE SB messages.
 - The MQTT_GW app is typically located in cfs-basecamp/usr/apps/
 - [app] is your user app name. SC_SIM is commented out in MQTT files to
@@ -71,6 +107,8 @@ for a more detailed explanation
        "enabled": "false"
     }
 
+KIT_TO packet filter table
+
 ====================================================
 Creating an app that uses JMSG_LIB versus creating plugins for 
 ==================================================== 
@@ -78,3 +116,7 @@ Creating an app that uses JMSG_LIB versus creating plugins for
 - Configure JSMG_USR
 - Add topic table load/dump
 - Register JMSG_LIB commands
+- Dynamic registration
+1. Create plugins following MQTT discrete
+2. Configure CPU1 jmsg_topics.json table: map top id, and enabled
+3. Create app test that repeatedly calls JMSG_LIB function

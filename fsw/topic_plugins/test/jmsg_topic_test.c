@@ -25,6 +25,7 @@
 */
 
 #include "jmsg_topic_test.h"
+#include "jmsg_test_eds_typedefs.h"
 
 /************************************/
 /** Local File Function Prototypes **/
@@ -155,8 +156,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, ui
 /******************************************************************************
 ** Function: PluginTest
 **
-** Generate and send SB test topic messages on SB that are read back by JMSG
-** and cause JSON messages to be generated from the SB messages.  
+** Generate and send plugin test topic messages on the SB that are read back
+** by JMSG and cause JSON messages to be generated from the SB messages.  
 **
 ** Notes:
 **   1. Param is not used
@@ -181,19 +182,19 @@ static void PluginTest(bool Init, int16 Param)
    if (Init)
    {
 
-      JMsgTopicTest->SbTestCnt = 1;      
-      CFE_EVS_SendEvent(JMSG_TOPIC_TEST_INIT_SB_MSG_TEST_EID, CFE_EVS_EventType_INFORMATION,
+      JMsgTopicTest->PluginTestCnt = 1;      
+      CFE_EVS_SendEvent(JMSG_TOPIC_TEST_INIT_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
                         "Test topic test started");
    }
    else
    {   
-      JMsgTopicTest->SbTestCnt++;
+      JMsgTopicTest->PluginTestCnt++;
    }
   
-   Payload->Int32 = JMsgTopicTest->SbTestCnt;
-   Payload->Float = (float)JMsgTopicTest->SbTestCnt;
+   Payload->Int32 = JMsgTopicTest->PluginTestCnt;
+   Payload->Float = (float)JMsgTopicTest->PluginTestCnt;
    
-   CFE_EVS_SendEvent(JMSG_TOPIC_TEST_SB_MSG_TEST_EID, CFE_EVS_EventType_DEBUG,
+   CFE_EVS_SendEvent(JMSG_TOPIC_TEST_PLUGIN_TEST_EID, CFE_EVS_EventType_DEBUG,
                      "Test topic test sending %d, %f", Payload->Int32, Payload->Float);
                            
    CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicTest->TlmMsg.TelemetryHeader));

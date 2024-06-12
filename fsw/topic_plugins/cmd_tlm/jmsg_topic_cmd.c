@@ -144,6 +144,9 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
    EdsId  = EDSLIB_MAKE_ID(EDS_INDEX(CFE_HDR), CFE_HDR_CommandHeader_DATADICTIONARY);
    Status = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &CmdHdrInfo);
 
+   CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_INFORMATION,
+                     "JMSG_TOPIC_CMD:JsonToCfe() EdsId=%d, EDSLib Status=%d",(int)EdsId, (int)Status);
+
    if (Status == EDSLIB_SUCCESS)
    {
       DecodedLen = PktUtil_HexDecode((uint8 *)&JMsgTopicCmd->MsgPackedBuf, JMsgPayload, PayloadLen);
@@ -209,6 +212,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                Status = CFE_SB_TransmitBuffer(JMsgTopicCmd->SbBufPtr, false);
                if (Status == CFE_SUCCESS)
                {
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "Command plugin failed to send SB message, status=%d",(int)Status);
                   /* Set NULL so a new buffer will be obtained next time around */
                   JMsgTopicCmd->SbBufPtr = NULL;
                   JMsgTopicCmd->JMsgToCfeCnt++;
@@ -216,8 +221,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                }
                else
                {
-                   CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
-                                     "Command plugin failed to send SB message, status=%d",(int)Status);
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "Command plugin failed to send SB message, status=%d",(int)Status);
                }
                
             } /* If allocate SB buffer */

@@ -27,15 +27,23 @@
   <Package name="JMSG_USR" shortDescription="">
     <DataTypeSet>
     
-      <!-- @@Ensure this command code does not overlap with your app's command codes -->
-      <Define name="APP_BASE_CC"  value="${APP_C_FW/APP_BASE_CC} + 10"  shortDescription="Starting command code for JSMG_LIB commands"/>
-
       <!-- @@Ensure this base ID does not overlap with with the owning app's event IDs defined in their app_cfg.h -->
       <Define name="LIB_BASE_EID" value="${APP_C_FW/APP_BASE_EID} + 800"  shortDescription="Starting EID for all JMSG_LIB components"/>
       <Define name="TOPIC_PLUGIN_BASE_EID" value="${LIB_BASE_EID} +   0"  shortDescription="jmsg_topic_plugin.c"/>
       <Define name="TOPIC_TBL_BASE_EID"    value="${LIB_BASE_EID} +  10"  shortDescription="jmsg_topic_tbl.c"/>
 
       <Define name="MAX_TOPIC_NAME_LEN" value="48" shortDescription="Maximum number of characters in a topic name"/>
+
+      <Define name="TOPIC_PLUGIN_CMD"    value="0" shortDescription="Value must start at zero since these are used as indices"/>
+      <Define name="TOPIC_PLUGIN_TLM"    value="1" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_TEST"   value="2" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_1"  value="3" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_2"  value="4" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_3"  value="5" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_4"  value="6" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_5"  value="7" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_MAX"    value="8" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_UNDEF"  value="99" shortDescription="Value that indicates an undefined plugin. Must not match any valid TopicPlugin enum value"/>
 
 
       <!--***********************************-->
@@ -47,19 +55,18 @@
       <!-- @@Do not modify the CMD, TLM, and TEST entries -->
       <!-- @@MAX_TOPIC_PLUGIN_CNT is needed as a constant in other EDS definitions. It must agree with the TopicPlugin definitio below -->
       <Define name="MAX_JSON_TOPIC_TBL_CHAR" value="5000" shortDescription="Maximum number of characters in the JSON topic table"/>
-      <Define name="TOPIC_PLUGIN_UNDEF" value="99" shortDescription="Value that indicates an undefined plugin. Must not match any valid TopicPlugin enum value"/>
-      <Define name="MAX_TOPIC_PLUGIN_CNT" value="8" shortDescription="This count must match below. This define is needed so dependants can size data structs. TODO: Fix this double definition"/>
-      <EnumeratedDataType name="TopicPlugin" shortDescription="Used as indices so values start at 0. User name interface is 1..N" >
+     
+     <EnumeratedDataType name="TopicPlugin" shortDescription="Used as indices so values start at 0. User name interface is 1..N" >
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
-          <Enumeration label="CMD"    value="0"  shortDescription="Value must start at zero. Commands encoded hextex." />
-          <Enumeration label="TLM"    value="1"  shortDescription="Telemetry encoded hextex." />
-          <Enumeration label="TEST"   value="2"  shortDescription="Test plugin provided by JMSG_LIB" />
-          <Enumeration label="USR_1"  value="3"  shortDescription="" />
-          <Enumeration label="USR_2"  value="4"  shortDescription="" />
-          <Enumeration label="USR_3"  value="5"  shortDescription="" />
-          <Enumeration label="USR_4"  value="6"  shortDescription="" />
-          <Enumeration label="USR_5"  value="7"  shortDescription="" />
+          <Enumeration label="CMD"    value="${TOPIC_PLUGIN_CMD}"    shortDescription="Commands encoded hextex." />
+          <Enumeration label="TLM"    value="${TOPIC_PLUGIN_TLM}"    shortDescription="Telemetry encoded hextex." />
+          <Enumeration label="TEST"   value="${TOPIC_PLUGIN_TEST}"   shortDescription="Test plugin provided by JMSG_LIB" />
+          <Enumeration label="USR_1"  value="${TOPIC_PLUGIN_USR_1}"  shortDescription="" />
+          <Enumeration label="USR_2"  value="${TOPIC_PLUGIN_USR_2}"  shortDescription="" />
+          <Enumeration label="USR_3"  value="${TOPIC_PLUGIN_USR_3}"  shortDescription="" />
+          <Enumeration label="USR_4"  value="${TOPIC_PLUGIN_USR_4}"  shortDescription="" />
+          <Enumeration label="USR_5"  value="${TOPIC_PLUGIN_USR_5}"  shortDescription="" />
         </EnumerationList>
       </EnumeratedDataType>
 

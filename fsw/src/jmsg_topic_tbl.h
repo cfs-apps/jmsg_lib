@@ -23,8 +23,12 @@
 **      library supports the following data flows:
 **      - Translated from JSON to binary cFE message and published on the SB
 **      - Read from the SB and translated from binary cFE message to JSON
-**   3. The app using this library manages the communication
-**   4. See jsmg_lib/topic_plugins/jmsg_topic_plugin_guide.txt for 
+**   3. Apps using this library manage the JSON network routing
+**   4. The plugin tests provided by JMSG_LIB are "one shots" which means they
+**      cause a single message to be generated. these are intended as integration
+**      to demonstrate the topic table and plugin functions are oeprational. The
+**      JSON network apps (e.g. JSMG_UDP) provide functional and performance tests. 
+**   5. See jsmg_lib/topic_plugins/jmsg_topic_plugin_guide.txt for 
 **      customization details. 
 **
 */
@@ -65,7 +69,7 @@
 #define JMSG_TOPIC_TBL_DIS_PLUGIN_EID    (JMSG_USR_TOPIC_TBL_BASE_EID + 5)
 #define JMSG_TOPIC_TBL_CONFIG_PLUGIN_EID (JMSG_USR_TOPIC_TBL_BASE_EID + 6)
 #define JMSG_TOPIC_TBL_SUBSCRIBE_EID     (JMSG_USR_TOPIC_TBL_BASE_EID + 7)
-#define JMSG_TOPIC_TBL_CONFIG_TEST_EID   (JMSG_USR_TOPIC_TBL_BASE_EID + 8)
+#define JMSG_TOPIC_TBL_RUN_TEST_EID      (JMSG_USR_TOPIC_TBL_BASE_EID + 8)
 
 /**********************/
 /** Type Definitions **/
@@ -91,7 +95,7 @@ typedef enum
    
 } JMSG_TOPIC_TBL_TopicSubscribeToEnum_t;
 
-
+                               
 /******************************************************************************
 ** Topic Table 
 ** 
@@ -114,7 +118,7 @@ typedef struct
 typedef struct
 {
 
-  JMSG_TOPIC_TBL_Topic_t Topic[JMSG_USR_MAX_TOPIC_PLUGIN_CNT];
+  JMSG_TOPIC_TBL_Topic_t Topic[JMSG_USR_TOPIC_PLUGIN_MAX];
    
 } JMSG_TOPIC_TBL_Data_t;
 
@@ -164,11 +168,12 @@ typedef struct
    /*
    ** Topic Table
    */
-
-   bool    PluginTestActive;
-   int16   PluginTestParam;
+   
    uint32  PluginTestTlmTopicId;
+
+   int16   PluginTestParam;
    JMSG_USR_TopicPlugin_Enum_t  PluginTestId;
+
    
    JMSG_TOPIC_TBL_Data_t  Data;
    
@@ -334,6 +339,19 @@ uint8 JMSG_TOPIC_TBL_MsgIdToTopicPlugin(CFE_SB_MsgId_t MsgId);
 */
 void JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_TOPIC_TBL_ConfigSubscription_t ConfigSubscription);
 
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_RegisterPlugin
+**
+** Register a user topic plugin.
+** TODO: Verify the TopicPlugin ID is in the USR range.
+**
+*/
+ CFE_SB_MsgId_t JMSG_TOPIC_TBL_RegisterPlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
+                                              JMSG_TOPIC_TBL_CfeToJson_t  CfeToJson,
+                                              JMSG_TOPIC_TBL_JsonToCfe_t  JsonToCfe,
+                                              JMSG_TOPIC_TBL_PluginTest_t PluginTest);
+
                                 
 /******************************************************************************
 ** Function: JMSG_TOPIC_TBL_ResetStatus
@@ -355,7 +373,20 @@ void JMSG_TOPIC_TBL_ResetStatus(void);
 **   1. Index must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
 **
 */
-void JMSG_TOPIC_TBL_RunTopicPluginTest(JMSG_USR_TopicPlugin_Enum_t TopicPlugin, bool Init, int16 Param);
+void JMSG_TOPIC_TBL_RunTopicPluginTest(JMSG_USR_TopicPlugin_Enum_t TopicPlugin, 
+                                       bool Init, int16 Param);
+
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_RunTopicPluginTestCmd
+**
+** Execute a topic's SB message test.
+** 
+** Notes:
+**   1. Index must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
+**
+*/
+bool JMSG_TOPIC_TBL_RunTopicPluginTestCmd(void* DataObjPtr, const CFE_MSG_Message_t *MsgPtr);
 
 
 /******************************************************************************
@@ -376,14 +407,28 @@ bool JMSG_TOPIC_TBL_SendTopicTPluginTlmCmd(void *DataObjPtr, const CFE_MSG_Messa
 ** determines which type of subscription will be performed.
 **
 ** Notes:
-**   1. This function is public versus SubscribeToTopicMsg() so the network
-**      layer make one request and when this function calls SubscribeToTopicMsg()
-**      the network layer's subscription callback function can perform specific
-**      tasks.
+**   1. This should only be used when only one JMSG network app is using
+**      JMSG_LIB because when it is called the app's ConfigSubscription()
+**      function is called for every enabled topic table entry.
+**   2. JMSG_TOPIC_TBL_SubscribeToTopicMsg() to configure individual entries.
+**   TODO: Current design requires code changes to the JMSG network app's
+**   TODO: constructor. Create a scheme that is table or EDS based.
+**
 */
 void JMSG_TOPIC_TBL_SubscribeToAll(JMSG_TOPIC_TBL_TopicSubscribeToEnum_t SubscribeTo);
 
 
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_SubscribeToTopicMsg
+**
+** Subscribe to a topic defined in the topic table. A topic's SbRole
+** determines which type of subscription will be performed.
+**
+*/
+JMSG_TOPIC_TBL_SubscriptionOptEnum_t JMSG_TOPIC_TBL_SubscribeToTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
+                                                                        JMSG_TOPIC_TBL_TopicSubscribeToEnum_t SubscribeTo);
+                                                                               
+                                                                               
 /******************************************************************************
 ** Function: JMSG_TOPIC_TBL_ValidTopicPlugin
 **
