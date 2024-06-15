@@ -104,7 +104,7 @@ typedef enum
 typedef struct
 {
 
-   char    Name[JMSG_USR_MAX_TOPIC_NAME_LEN];
+   char    Name[JMSG_USR_TOPIC_NAME_MAX_LEN];
    uint16  Cfe;
    char    SbStr[JSON_MAX_KW_LEN];
    char    EnaStr[JSON_MAX_KW_LEN];

@@ -93,7 +93,7 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
    CfeStatus = CFE_MSG_GetSize((CFE_MSG_Message_t *)PayloadSbMsg, &MsgSize);
    if (CfeStatus == CFE_SUCCESS)
    {
-       if (MsgSize < JMSG_TOPIC_SB_MSG_MAX_LEN)
+       if (MsgSize < JMSG_USR_TOPIC_SB_MSG_MAX_LEN)
        {
            PktUtil_HexEncode(JMsgTopicTlm->JMsgPayload, (uint8 *)PayloadSbMsg, MsgSize, true);
            JMsgTopicTlm->CfeToJMsgCnt++;

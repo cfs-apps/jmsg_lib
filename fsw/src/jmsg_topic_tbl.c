@@ -35,7 +35,7 @@
 /** Macro Definitions **/
 /***********************/
 
-#define JSON_MAX_TOPIC_LEN  JMSG_USR_MAX_TOPIC_NAME_LEN  // Shorter & more ledgable for table use
+#define JSON_MAX_TOPIC_LEN  JMSG_USR_TOPIC_NAME_MAX_LEN  // Shorter & more ledgable for table use
 
 
 /********************************** **/
@@ -537,7 +537,7 @@ bool JMSG_TOPIC_TBL_SendTopicTPluginTlmCmd(void *DataObjPtr, const CFE_MSG_Messa
       JMSG_LIB_PluginDescr_t *PluginDescr  = &Payload->TopicPlugin[i];
       const JMSG_TOPIC_TBL_Topic_t *Topic = &JMsgTopicTbl->Data.Topic[i];
       
-      strncpy(PluginDescr->Name, Topic->Name, JMSG_USR_MAX_TOPIC_NAME_LEN);
+      strncpy(PluginDescr->Name, Topic->Name, JMSG_USR_TOPIC_NAME_MAX_LEN);
       PluginDescr->Enabled = Topic->Enabled;
       PluginDescr->SbRole  = Topic->PluginSbRole;
    }

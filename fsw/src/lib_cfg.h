@@ -47,11 +47,11 @@
 /*
 ** Versions:
 **
-** 1.0 - Initial release tested with json_gw
+** 1.0 - Initial release tested with jmsg_mqtt and jmsg_udp
 */
 
-#define  JMSG_LIB_MAJOR_VER      0
-#define  JMSG_LIB_MINOR_VER      9
+#define  JMSG_LIB_MAJOR_VER      1
+#define  JMSG_LIB_MINOR_VER      0
 
 
 /******************************************************************************
@@ -85,18 +85,5 @@
 
 DECLARE_ENUM(Config, LIB_CONFIG)
 
-
-/******************************************************************************
-** JMSG Topic CCSDS
-**
-** The CCSDS topic contains a CCSDS message as its payload so this length must
-** be large enough to accomodate the largest CCSDS packet that will be sent as
-** a JSGM payload.
-**
-** JMSG_TOPIC_SB_MSG_MAX_LEN can't be defined in EDS because it is used for 
-** data structures.
-*/
-
-#define JMSG_TOPIC_SB_MSG_MAX_LEN  4096  
 
 #endif /* _lib_cfg_ */

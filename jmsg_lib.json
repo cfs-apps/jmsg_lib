@@ -1,10 +1,10 @@
 { "app": {
    
    "title": "JMSG_LIB",
-   "version": "0.9.0",
+   "version": "1.0.0",
    "supplier": "Open STEMware",
    "copyright": "bitValence",
-   "url": "https://github.com/cfs-apps/pl_sim_lib",
+   "url": "https://github.com/cfs-apps/jmsg_lib",
 
    "description": [
       "Provide tools for bi-directional translation between JSON text messages and cFS Software Bus binary messages."

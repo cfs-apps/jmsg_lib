@@ -70,7 +70,7 @@ typedef struct
    ** JSON message data
    */
    
-   char  JMsgPayload[JMSG_TOPIC_SB_MSG_MAX_LEN*2]; /* Endcoded hex is twice as long as the binary */
+   char  JMsgPayload[JMSG_USR_TOPIC_SB_MSG_MAX_LEN*2]; /* Endcoded hex is twice as long as the binary */
 
    uint32  CfeToJMsgCnt;
    uint32  JMsgToCfeCnt;

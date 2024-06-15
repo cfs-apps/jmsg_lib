@@ -31,7 +31,7 @@
       <!--**** DataTypeSet:  Entry Types ****-->
       <!--***********************************-->
       
-      <StringDataType name="TopicName" length="${JMSG_USR/MAX_TOPIC_NAME_LEN}" shortDescription="Topic name Text" />
+      <StringDataType name="TopicName" length="${JMSG_USR/TOPIC_NAME_MAX_LEN}" shortDescription="Topic name Text" />
 
       <EnumeratedDataType name="PluginSbRole" shortDescription="Communication role from SB perspective" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
