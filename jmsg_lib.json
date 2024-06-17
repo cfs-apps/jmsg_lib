@@ -20,7 +20,7 @@
       "load_addr": 0,
       "exception-action": 0,
       "app-framework": "osk",
-      "tables": ["jmsg_lib_ini.json" "jmsg_topics.json"]
+      "tables": ["jmsg_lib_ini.json","jmsg_topics.json"]
    },
    
    "requires": []
