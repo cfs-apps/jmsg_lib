@@ -29,7 +29,6 @@
 #include "jmsg_lib.h"
 #include "lib_cfg.h"
 #include "jmsg_topic_plugin.h"
-#include "jmsg_app_eds_typedefs.h" // Needed for command packet defs. Not sure I like teh dependency
 
 /***********************/
 /** Macro Definitions **/
@@ -42,10 +41,8 @@
 /** Local File Function Prototypes **/
 /************************************/
 
-static bool DisablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
-static bool EnablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
 static bool LoadJsonData(size_t JsonFileLen);
-static bool UnsubscribeFromTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+
 
 /**********************/
 /** Global File Data **/
@@ -147,64 +144,45 @@ void JMSG_TOPIC_TBL_Constructor(JMSG_TOPIC_TBL_Class_t *JMsgTopicTblPtr,
 
 
 /******************************************************************************
-** Function: JMSG_TOPIC_TBL_ConfigTopicPluginCmd
+** Function: JMSG_TOPIC_TBL_DisablePlugin
 **
-** Enable/disable a plugin topic
-**
+** Disable a topic plugin
+** 
 ** Notes:
-**   1. Signature must match CMDMGR_CmdFuncPtr_t
-**   2. DataObjPtr is not used.
-**   3. The functions called send error events so this function only needs to
-**      report a successful command. 
-**   4. TODO: No protection against enabling a topic plugin that was never constructed
+**   1. This function operates at the table scope so it is only concerned with
+**      validating table parameters. If this returns true then the calling
+**      function can take action such as managing subscriptions.
 **
 */
-bool JMSG_TOPIC_TBL_ConfigTopicPluginCmd(void *DataObjPtr, const CFE_MSG_Message_t *MsgPtr)
+bool JMSG_TOPIC_TBL_DisablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
 {
-
-   const JMSG_LIB_ConfigTopicPlugin_CmdPayload_t *ConfigTopicPlugin = CMDMGR_PAYLOAD_PTR(MsgPtr, JMSG_APP_ConfigTopicPlugin_t);
-   bool RetStatus = false;
-   JMSG_TOPIC_TBL_SubscriptionOptEnum_t TopicSubscription;
    
-   if (ConfigTopicPlugin->Action == APP_C_FW_ConfigEnaAction_ENABLE)
+   bool RetStatus = false;
+   
+   if (TopicPlugin < JMSG_USR_TOPIC_PLUGIN_MAX)
    {
-      if (EnablePlugin(ConfigTopicPlugin->Id))
+      if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled)
       {
-         TopicSubscription = JMSG_TOPIC_TBL_SubscribeToTopicMsg(ConfigTopicPlugin->Id, JMSG_TOPIC_TBL_SUB_TO_ROLE);
-         if ((TopicSubscription == JMSG_TOPIC_TBL_SUB_JMSG) || (TopicSubscription == JMSG_TOPIC_TBL_SUB_SB))
-         {
-            RetStatus = true;
-            CFE_EVS_SendEvent(JMSG_TOPIC_TBL_CONFIG_PLUGIN_EID, CFE_EVS_EventType_INFORMATION, 
-                              "Sucessfully enabled plugin topic %d",ConfigTopicPlugin->Id);
-         }
-         else
-         {
-            DisablePlugin(ConfigTopicPlugin->Id);            
-         }
+         JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled = false;
+         RetStatus = true;
       }
-   }
-   else if (ConfigTopicPlugin->Action == APP_C_FW_ConfigEnaAction_DISABLE)
-   {
-      if (DisablePlugin(ConfigTopicPlugin->Id))
+      else
       {
-         if (UnsubscribeFromTopicMsg(ConfigTopicPlugin->Id))
-         {
-            RetStatus = true;
-            CFE_EVS_SendEvent(JMSG_TOPIC_TBL_CONFIG_PLUGIN_EID, CFE_EVS_EventType_INFORMATION, 
-                              "Sucessfully disabled plugin topic %d",ConfigTopicPlugin->Id);
-         }
+         CFE_EVS_SendEvent(JMSG_TOPIC_TBL_DIS_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
+                           "Attempt to disable topic plugin ID %d that is already disabled",
+                           TopicPlugin);
       }
    }
    else
    {
-      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_CONFIG_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                        "Configure plugin topic %d command rejected. Invalid action %d",
-                        ConfigTopicPlugin->Id, ConfigTopicPlugin->Action);
+      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_DIS_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
+                        "Attempt to disable a topic plugin with an invalid topic plugin ID %d",
+                        TopicPlugin);             
    }
-  
+   
    return RetStatus;
-    
-} /* End JMSG_TOPIC_TBL_ConfigTopicPluginCmd() */
+   
+} /* JMSG_TOPIC_TBL_DisablePlugin() */
 
 
 /******************************************************************************
@@ -245,6 +223,58 @@ bool JMSG_TOPIC_TBL_DumpCmd(osal_id_t  FileHandle)
    return true;
    
 } /* End of JMSG_TOPIC_TBL_DumpCmd() */
+
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_EnablePlugin
+**
+** Enable a topic plugin
+** 
+** Notes:
+**   1. This function operates at the table scope so it is only concerned with
+**      validating table parameters. If this returns true then the calling
+**      function can take action such as managing subscriptions. 
+**
+*/
+bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
+{
+   
+   bool RetStatus = false;
+   
+   if (TopicPlugin < JMSG_USR_TOPIC_PLUGIN_MAX)
+   {      
+      if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled)
+      {
+         CFE_EVS_SendEvent(JMSG_TOPIC_TBL_ENA_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
+                           "Attempt to enable topic plugin %d that is already enabled",
+                            TopicPlugin);
+      }
+      else
+      {
+         if ((JMsgTopicTbl->Data.Topic[TopicPlugin].PluginSbRole == JMSG_LIB_PluginSbRole_PUBLISH) ||
+             (JMsgTopicTbl->Data.Topic[TopicPlugin].PluginSbRole == JMSG_LIB_PluginSbRole_SUBSCRIBE))
+         {
+            JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled = true;
+            RetStatus = true;   
+         }
+         else
+         {
+            CFE_EVS_SendEvent(JMSG_TOPIC_TBL_ENA_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
+                              "Attempt to enable topic plugin ID %d with an invalid sb-role definition",
+                              TopicPlugin);             
+         }
+      }
+   }
+   else
+   {
+      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_ENA_PLUGIN_EID, CFE_EVS_EventType_ERROR,
+                        "Attempt to enable a topic plugin with an invalid topic plugin ID %d",
+                        TopicPlugin);           
+   }
+   
+   return RetStatus;
+   
+} /* JMSG_TOPIC_TBL_EnablePlugin() */
 
 
 /******************************************************************************
@@ -475,48 +505,12 @@ void JMSG_TOPIC_TBL_ResetStatus(void)
 void JMSG_TOPIC_TBL_RunTopicPluginTest(JMSG_USR_TopicPlugin_Enum_t TopicPlugin, 
                                        bool Init, int16 Param)
 {
-
+   
+   JMsgTopicTbl->PluginTestId    = TopicPlugin;
+   JMsgTopicTbl->PluginTestParam = Param;
    (PluginFuncTbl[TopicPlugin].PluginTest)(Init, Param);
 
 } /* End JMSG_TOPIC_TBL_RunTopicPluginTest() */
-
-
-/******************************************************************************
-** Function: JMSG_TOPIC_TBL_RunTopicPluginTestCmd
-**
-** Call a plugin's test function.
-**
-** Notes:
-**   1. The function is called once. Teh JMSG network apps (e.g. JMSG_UDP) 
-**      supply test that run multiple times.
-*/
-bool JMSG_TOPIC_TBL_RunTopicPluginTestCmd(void* DataObjPtr, const CFE_MSG_Message_t *MsgPtr)
-{
-
-   const JMSG_LIB_RunTopicPluginTest_CmdPayload_t *PluginTest = CMDMGR_PAYLOAD_PTR(MsgPtr, JMSG_APP_RunTopicPluginTest_t);
-   bool RetStatus = false;
-
-   if (JMSG_TOPIC_TBL_ValidTopicPlugin(PluginTest->Id))
-   {
-      JMsgTopicTbl->PluginTestId    = PluginTest->Id;
-      JMsgTopicTbl->PluginTestParam = PluginTest->Param;
-
-      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_RUN_TEST_EID, CFE_EVS_EventType_INFORMATION, 
-                        "Running test for plugin topic %d", PluginTest->Id);
-      JMSG_TOPIC_TBL_RunTopicPluginTest(JMsgTopicTbl->PluginTestId, true, PluginTest->Param);
-      RetStatus = true;
-   }
-   else
-   {
-      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_RUN_TEST_EID, CFE_EVS_EventType_ERROR, 
-                        "Run plugin topic test command rejected. Id %d either invalid or not loaded", 
-                        PluginTest->Id);
-
-   }
-  
-   return RetStatus;
-   
-} /* End JMSG_TOPIC_TBL_RunTopicPluginTestCmd() */
 
 
 /******************************************************************************
@@ -659,7 +653,49 @@ JMSG_TOPIC_TBL_SubscriptionOptEnum_t JMSG_TOPIC_TBL_SubscribeToTopicMsg(JMSG_USR
 
 
 /******************************************************************************
-** Function: JMSG_TOPIC_TBL_ValidId
+** Function: JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg
+**
+** Performs all processing relevant to the topic table and calls the table
+** owner's callback function so it can perform network level unsubscribe
+** functions.
+**
+*/
+bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
+{
+
+   const JMSG_TOPIC_TBL_Topic_t *Topic;
+   bool RetStatus = false;
+
+
+   Topic = JMSG_TOPIC_TBL_GetDisabledTopic(TopicPlugin);
+   if (Topic != NULL)   
+   {
+      if (Topic->Enabled == false)
+      {
+         if (Topic->PluginSbRole == JMSG_LIB_PluginSbRole_PUBLISH)
+         {
+            if (JMsgTopicTbl->ConfigSubscription != NULL)
+            {
+               RetStatus = (JMsgTopicTbl->ConfigSubscription)(Topic, JMSG_TOPIC_TBL_UNSUB_JMSG);
+            }
+         }
+         else if (Topic->PluginSbRole == JMSG_LIB_PluginSbRole_SUBSCRIBE)
+         {
+            if (JMsgTopicTbl->ConfigSubscription != NULL)
+            {
+               RetStatus = (JMsgTopicTbl->ConfigSubscription)(Topic, JMSG_TOPIC_TBL_UNSUB_SB);
+            }
+         }
+      } /* End if disabled */
+   } /* End if not NULL */
+
+   return RetStatus;
+ 
+} /* End JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg() */
+
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_ValidTopicPlugin
 **
 ** In addition to being in range, valid means that the ID has been defined.
 */
@@ -688,100 +724,6 @@ bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
    
 
 } /* End JMSG_TOPIC_TBL_ValidTopicPlugin() */
-
-
-/******************************************************************************
-** Function: DisablePlugin
-**
-** Disable a topic plugin
-** 
-** Notes:
-**   1. This function operates at the table scope so it is only concerned with
-**      validating table parameters. If this returns true then the calling
-**      function can take action such as managing subscriptions.
-**
-*/
-static bool DisablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
-{
-   
-   bool RetStatus = false;
-   
-   if (TopicPlugin < JMSG_USR_TOPIC_PLUGIN_MAX)
-   {
-      if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled)
-      {
-         JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled = false;
-         RetStatus = true;
-      }
-      else
-      {
-         CFE_EVS_SendEvent(JMSG_TOPIC_TBL_DIS_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                           "Attempt to disable topic plugin ID %d that is already disabled",
-                           TopicPlugin);
-      }
-   }
-   else
-   {
-      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_DIS_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                        "Attempt to disable a topic plugin with an invalid topic plugin ID %d",
-                        TopicPlugin);             
-   }
-   
-   return RetStatus;
-   
-} /* DisablePlugin() */
-
-
-/******************************************************************************
-** Function: EnablePlugin
-**
-** Enable a topic plugin
-** 
-** Notes:
-**   1. This function operates at the table scope so it is only concerned with
-**      validating table parameters. If this returns true then the calling
-**      function can take action such as managing subscriptions. 
-**
-*/
-static bool EnablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
-{
-   
-   bool RetStatus = false;
-   
-   if (TopicPlugin < JMSG_USR_TOPIC_PLUGIN_MAX)
-   {      
-      if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled)
-      {
-         CFE_EVS_SendEvent(JMSG_TOPIC_TBL_ENA_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                           "Attempt to enable topic plugin %d that is already enabled",
-                            TopicPlugin);
-      }
-      else
-      {
-         if ((JMsgTopicTbl->Data.Topic[TopicPlugin].PluginSbRole == JMSG_LIB_PluginSbRole_PUBLISH) ||
-             (JMsgTopicTbl->Data.Topic[TopicPlugin].PluginSbRole == JMSG_LIB_PluginSbRole_SUBSCRIBE))
-         {
-            JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled = true;
-            RetStatus = true;   
-         }
-         else
-         {
-            CFE_EVS_SendEvent(JMSG_TOPIC_TBL_ENA_PLUGIN_EID, CFE_EVS_EventType_ERROR, 
-                              "Attempt to enable topic plugin ID %d with an invalid sb-role definition",
-                              TopicPlugin);             
-         }
-      }
-   }
-   else
-   {
-      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_ENA_PLUGIN_EID, CFE_EVS_EventType_ERROR,
-                        "Attempt to enable a topic plugin with an invalid topic plugin ID %d",
-                        TopicPlugin);           
-   }
-   
-   return RetStatus;
-   
-} /* EnablePlugin() */
 
 
 /******************************************************************************
@@ -852,45 +794,3 @@ static bool LoadJsonData(size_t JsonFileLen)
    return RetStatus;
    
 } /* End LoadJsonData() */
-
-
-/******************************************************************************
-** Function: UnsubscribeFromTopicMsg
-**
-** Performs all processing relevant to the topic table and calls the table
-** owner's callback function so it can perform network level unsubscribe
-** functions.
-**
-*/
-static bool UnsubscribeFromTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin)
-{
-
-   const JMSG_TOPIC_TBL_Topic_t *Topic;
-   bool RetStatus = false;
-
-
-   Topic = JMSG_TOPIC_TBL_GetDisabledTopic(TopicPlugin);
-   if (Topic != NULL)   
-   {
-      if (Topic->Enabled == false)
-      {
-         if (Topic->PluginSbRole == JMSG_LIB_PluginSbRole_PUBLISH)
-         {
-            if (JMsgTopicTbl->ConfigSubscription != NULL)
-            {
-               RetStatus = (JMsgTopicTbl->ConfigSubscription)(Topic, JMSG_TOPIC_TBL_UNSUB_JMSG);
-            }
-         }
-         else if (Topic->PluginSbRole == JMSG_LIB_PluginSbRole_SUBSCRIBE)
-         {
-            if (JMsgTopicTbl->ConfigSubscription != NULL)
-            {
-               RetStatus = (JMsgTopicTbl->ConfigSubscription)(Topic, JMSG_TOPIC_TBL_UNSUB_SB);
-            }
-         }
-      } /* End if disabled */
-   } /* End if not NULL */
-
-   return RetStatus;
- 
-} /* End UnsubscribeFromTopicMsg() */

@@ -67,9 +67,8 @@
 #define JMSG_TOPIC_TBL_STUB_EID          (JMSG_USR_TOPIC_TBL_BASE_EID + 3)
 #define JMSG_TOPIC_TBL_ENA_PLUGIN_EID    (JMSG_USR_TOPIC_TBL_BASE_EID + 4)
 #define JMSG_TOPIC_TBL_DIS_PLUGIN_EID    (JMSG_USR_TOPIC_TBL_BASE_EID + 5)
-#define JMSG_TOPIC_TBL_CONFIG_PLUGIN_EID (JMSG_USR_TOPIC_TBL_BASE_EID + 6)
-#define JMSG_TOPIC_TBL_SUBSCRIBE_EID     (JMSG_USR_TOPIC_TBL_BASE_EID + 7)
-#define JMSG_TOPIC_TBL_RUN_TEST_EID      (JMSG_USR_TOPIC_TBL_BASE_EID + 8)
+#define JMSG_TOPIC_TBL_SUBSCRIBE_EID     (JMSG_USR_TOPIC_TBL_BASE_EID + 6)
+
 
 /**********************/
 /** Type Definitions **/
@@ -214,29 +213,15 @@ void JMSG_TOPIC_TBL_Constructor(JMSG_TOPIC_TBL_Class_t *JMsgTopicTblPtr,
 
 
 /******************************************************************************
-** Function: JMSG_TOPIC_TBL_ConfigTopicPluginTestCmd
+** Function: JMSG_TOPIC_TBL_DisablePlugin
+**
+** Disable a topic plugin
 **
 ** Notes:
-**   1. Signature must match CMDMGR_CmdFuncPtr_t
-**   2. DataObjPtr is not used
-**   3. This command causes the plugin's test to be executed once. For 
-**      automated periodic test execution the JMSG app using this library 
-**      needs to provide the mechanisms to periodically call this function. 
-*/
-bool JMSG_TOPIC_TBL_ConfigTopicPluginTestCmd(void* DataObjPtr, const CFE_MSG_Message_t *MsgPtr);
-
-
-/******************************************************************************
-** Function: JMSG_TOPIC_TBL_ConfigTopicPluginCmd
-**
-** Enable/disable a plugin topic
-**
-** Notes:
-**   1. Signature must match CMDMGR_CmdFuncPtr_t
-**   2. DataObjPtr is not used
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
 **
 */
-bool JMSG_TOPIC_TBL_ConfigTopicPluginCmd(void* DataObjPtr, const CFE_MSG_Message_t *MsgPtr);
+bool JMSG_TOPIC_TBL_DisablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
 
 
 /******************************************************************************
@@ -252,13 +237,25 @@ bool JMSG_TOPIC_TBL_DumpCmd(osal_id_t  FileHandle);
 
 
 /******************************************************************************
+** Function: JMSG_TOPIC_TBL_EnablePlugin
+**
+** Command to write the table data from memory to a JSON file.
+**
+** Notes:
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**
+*/
+bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+
+
+/******************************************************************************
 ** Function: JMSG_TOPIC_TBL_GetCfeToJson
 **
 ** Return a pointer to the CfeToJson conversion function for 'TopicPlugin'
 ** and return a pointer to the JSON topic string in JsonMsgTopic.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_M
 **
 */
 JMSG_TOPIC_TBL_CfeToJson_t JMSG_TOPIC_TBL_GetCfeToJson(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
@@ -286,7 +283,7 @@ const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetDisabledTopic(JMSG_USR_TopicPlug
 ** Return a pointer to the table entry identified by 'TopicPlugin'.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
 **
 */
 const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetTopic(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
@@ -298,7 +295,7 @@ const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetTopic(JMSG_USR_TopicPlugin_Enum_
 ** Return a pointer to the JsonToCfe conversion function for 'TopicPlugin'.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
 **
 */
 JMSG_TOPIC_TBL_JsonToCfe_t JMSG_TOPIC_TBL_GetJsonToCfe(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
@@ -370,23 +367,11 @@ void JMSG_TOPIC_TBL_ResetStatus(void);
 ** Execute a topic's SB message test.
 ** 
 ** Notes:
-**   1. Index must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
 **
 */
 void JMSG_TOPIC_TBL_RunTopicPluginTest(JMSG_USR_TopicPlugin_Enum_t TopicPlugin, 
                                        bool Init, int16 Param);
-
-
-/******************************************************************************
-** Function: JMSG_TOPIC_TBL_RunTopicPluginTestCmd
-**
-** Execute a topic's SB message test.
-** 
-** Notes:
-**   1. Index must be less than JMSG_LIB_TopicPlugin_Enum_t_MAX
-**
-*/
-bool JMSG_TOPIC_TBL_RunTopicPluginTestCmd(void* DataObjPtr, const CFE_MSG_Message_t *MsgPtr);
 
 
 /******************************************************************************
@@ -428,7 +413,19 @@ void JMSG_TOPIC_TBL_SubscribeToAll(JMSG_TOPIC_TBL_TopicSubscribeToEnum_t Subscri
 JMSG_TOPIC_TBL_SubscriptionOptEnum_t JMSG_TOPIC_TBL_SubscribeToTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
                                                                         JMSG_TOPIC_TBL_TopicSubscribeToEnum_t SubscribeTo);
                                                                                
-                                                                               
+                             
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg
+**
+** Unsubscribe from a topic message
+**
+** Notes:
+**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**
+*/
+bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+
+                             
 /******************************************************************************
 ** Function: JMSG_TOPIC_TBL_ValidTopicPlugin
 **

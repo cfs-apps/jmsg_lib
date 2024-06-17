@@ -116,8 +116,10 @@
       <!--**** DataTypeSet: Command Packets ****-->
       <!--**************************************-->
 
-      <!-- Commands defined in JMSG_APP's EDS -->
-
+      <!-- Command packets defined in jmsg_app.xml. See -->
+      <!-- JMSG_APP's jmsg_lib_cmd.h fiel prologue for  -->
+      <!-- details.                                     -->
+      
       <!--****************************************-->
       <!--**** DataTypeSet: Telemetry Packets ****-->
       <!--****************************************-->
