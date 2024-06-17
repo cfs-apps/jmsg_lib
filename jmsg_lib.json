@@ -13,7 +13,7 @@
    "cfs": {
       "cfe-type": "CFE_LIB",
       "obj-file": "jmsg_lib",
-      "entry-symbol": "JMSG_LIB_Init",
+      "entry-symbol": "JMSG_LibInit",
       "name": "JMSG_LIB",
       "priority": 0,
       "stack": 0,
