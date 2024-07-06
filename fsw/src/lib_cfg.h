@@ -29,16 +29,13 @@
 ** Includes
 */
 
-#include "jmsg_usr_eds_defines.h"
-#include "jmsg_usr_eds_typedefs.h"
+#include "jmsg_platform_eds_defines.h"
+#include "jmsg_platform_eds_typedefs.h"
 #include "jmsg_lib_eds_defines.h"
 #include "jmsg_lib_eds_typedefs.h"
-#include "jmsg_test_eds_defines.h"
-#include "jmsg_test_eds_typedefs.h"
-
-#include "jmsg_lib_platform_cfg.h"
 #include "app_c_fw.h"
-
+#include "jmsg_lib_platform_cfg.h"
+#include "jmsg_topic_tbl.h"
 
 /******************************************************************************
 ** Application Macros
@@ -74,12 +71,10 @@
 */
 
 #define CFG_JMSG_LIB_TOPIC_TBL_TLM_TOPICID    JMSG_LIB_TOPIC_TBL_TLM_TOPICID
-#define CFG_JMSG_LIB_PLUGIN_TEST_TLM_TOPICID  JMSG_LIB_PLUGIN_TEST_TLM_TOPICID
 #define CFG_KIT_TO_PUB_WRAPPED_TLM_TOPICID    KIT_TO_PUB_WRAPPED_TLM_TOPICID
 
 #define LIB_CONFIG(XX) \
    XX(JMSG_LIB_TOPIC_TBL_TLM_TOPICID,uint32) \
-   XX(JMSG_LIB_PLUGIN_TEST_TLM_TOPICID,uint32) \
    XX(KIT_TO_PUB_WRAPPED_TLM_TOPICID,uint32)
 
 

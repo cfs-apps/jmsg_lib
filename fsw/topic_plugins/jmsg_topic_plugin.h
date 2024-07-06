@@ -28,7 +28,7 @@
 ** Include Files:
 */
 
-#include "jmsg_topic_tbl.h"
+#include "lib_cfg.h"
 
 /***********************/
 /** Macro Definitions **/
@@ -38,8 +38,8 @@
 ** Event Message IDs
 */
 
-#define JMSG_TOPIC_PLUGIN_EID        (JMSG_USR_TOPIC_PLUGIN_BASE_EID + 0)
-#define JMSG_TOPIC_PLUGIN_STUB_EID   (JMSG_USR_TOPIC_PLUGIN_BASE_EID + 1)
+#define JMSG_TOPIC_PLUGIN_EID        (JMSG_PLATFORM_TOPIC_PLUGIN_BASE_EID + 0)
+#define JMSG_TOPIC_PLUGIN_STUB_EID   (JMSG_PLATFORM_TOPIC_PLUGIN_BASE_EID + 1)
 
 /************************/
 /** Exported Functions **/

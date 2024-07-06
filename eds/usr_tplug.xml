@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2022 bitValence, Inc.
+    All Rights Reserved.
+
+    This program is free software; you can modify and/or redistribute it
+    under the terms of the GNU Affero General Public License
+    as published by the Free Software Foundation; version 3 with
+    attribution addendums as found in the LICENSE.txt.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+      
+    Purpose: 
+      Define user topic plugin interfaces 
+
+    Notes:
+      1. This document adheres to the Electronic Data Sheet (EDS) XML schema 
+         as prescribed in CCSDS book 876.0. 
+      2. Define user topic plugin (TPLUG) base event message IDs (EID) and
+         telemetry messages. see jsmg_lib/docs/jmsg_topic_plugin_guide.txt
+         for  plugin creation and installation instructions
+      
+-->
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="USR_TPLUG" shortDescription="User topic plugins">
+    <DataTypeSet>
+
+      <!--******************************************-->
+      <!--**** DataTypeSet:  Plugin Identifiers ****-->
+      <!--******************************************-->
+
+      <EnumeratedDataType name="Id" shortDescription="Assign JMSG_PLATFORM TopicPlugin values to user names" >
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="WebDiscrete" value="${JMSG_PLATFORM/TOPIC_PLUGIN_USR_1}"  shortDescription="" />
+          <Enumeration label="WebRate"     value="${JMSG_PLATFORM/TOPIC_PLUGIN_USR_2}"  shortDescription="" />
+          <Enumeration label="RpiDemo"     value="${JMSG_PLATFORM/TOPIC_PLUGIN_USR_3}"  shortDescription="" />
+        </EnumerationList>
+      </EnumeratedDataType>
+ 
+      <EnumeratedDataType name="BaseEid" shortDescription="Assign JMSG_PLATFORM base EID values to user EID names" >
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="WebDiscrete" value="${JMSG_PLATFORM/TOPIC_PLUGIN_BASE_EID_USR_1}"  shortDescription="" />
+          <Enumeration label="WebRate"     value="${JMSG_PLATFORM/TOPIC_PLUGIN_BASE_EID_USR_2}"  shortDescription="" />
+          <Enumeration label="RpiDemo"     value="${JMSG_PLATFORM/TOPIC_PLUGIN_BASE_EID_USR_3}"  shortDescription="" />          
+        </EnumerationList>
+      </EnumeratedDataType>
+            
+      <!--*****************************************-->
+      <!--**** DataTypeSet: Telemetry Payloads ****-->
+      <!--*****************************************-->
+ 
+
+      <ContainerDataType name="WebDiscreteTlm_Payload" shortDescription="Generic discrete integer items">
+        <EntryList>
+          <Entry name="Item_1" type="BASE_TYPES/int32"  />
+          <Entry name="Item_2" type="BASE_TYPES/int32"  />
+          <Entry name="Item_3" type="BASE_TYPES/int32"  />
+          <Entry name="Item_4" type="BASE_TYPES/int32"  />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="WebRateTlm_Payload" shortDescription="3 axis coordinates">
+        <EntryList>
+          <Entry name="X" type="BASE_TYPES/float"  />
+          <Entry name="Y" type="BASE_TYPES/float"  />
+          <Entry name="Z" type="BASE_TYPES/float"  />
+        </EntryList>
+      </ContainerDataType>
+      
+      <ContainerDataType name="RpiDemoTlm_Payload" shortDescription="Generic discrete integer items">
+        <EntryList>
+          <Entry name="Rate_X" type="BASE_TYPES/float"  />
+          <Entry name="Rate_Y" type="BASE_TYPES/float"  />
+          <Entry name="Rate_Z" type="BASE_TYPES/float"  />
+          <Entry name="Lux"    type="BASE_TYPES/int32"  />
+        </EntryList>
+      </ContainerDataType>
+      
+      
+      <!--****************************************-->
+      <!--**** DataTypeSet: Telemetry Packets ****-->
+      <!--****************************************-->
+
+      <ContainerDataType name="WebDiscreteTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="WebDiscreteTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="WebRateTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="WebRateTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType> 
+
+      <ContainerDataType name="RpiDemoTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="RpiDemoTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+      
+    </DataTypeSet>
+    
+    <ComponentSet>
+      <Component name="Application">
+
+        <!--***********************************-->
+        <!--**** Component Set: Interfaces ****-->
+        <!--***********************************-->
+      
+        <RequiredInterfaceSet>
+        
+          <Interface name="WEB_DISCRETE_TLM" shortDescription="Software bus telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="WebDiscreteTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+
+          <Interface name="WEB_RATE_TLM" shortDescription="Software bus telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="WebRateTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+
+          <Interface name="RPI_DEMO_TLM" shortDescription="Software bus telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="RpiDemoTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          
+        </RequiredInterfaceSet>
+ 
+        <!--***************************************-->
+        <!--**** Component Set: Implementation ****-->
+        <!--***************************************-->
+
+        <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="WebDiscreteTopicId"  initialValue="${CFE_MISSION/TPLUG_WEB_DISCRETE_PLUGIN_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="WebRateTopicId"      initialValue="${CFE_MISSION/TPLUG_WEB_RATE_PLUGIN_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="RpiDemoTopicId"      initialValue="${CFE_MISSION/TPLUG_RPI_DEMO_PLUGIN_TLM_TOPICID}" />
+          </VariableSet>
+          <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
+          <ParameterMapSet>          
+            <ParameterMap interface="WEB_DISCRETE_TLM"  parameter="TopicId" variableRef="WebDiscreteTopicId" />
+            <ParameterMap interface="WEB_RATE_TLM"      parameter="TopicId" variableRef="WebRateTopicId" />
+            <ParameterMap interface="RPI_DEMO_TLM"      parameter="TopicId" variableRef="RpiDemoTopicId" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+    </ComponentSet>
+    
+  </Package>
+</PackageFile>

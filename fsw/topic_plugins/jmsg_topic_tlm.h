@@ -42,8 +42,8 @@
 ** Event Message IDs
 */
 
-#define JMSG_TOPIC_TLM_INIT_SB_MSG_TEST_EID  (JMSG_USR_TopicPluginBaseEid_TLM + 0)
-#define JMSG_TOPIC_TLM_HEX_DECODE_EID        (JMSG_USR_TopicPluginBaseEid_TLM + 1)
+#define JMSG_TOPIC_TLM_INIT_SB_MSG_TEST_EID  (JMSG_PLATFORM_TopicPluginBaseEid_TLM + 0)
+#define JMSG_TOPIC_TLM_HEX_DECODE_EID        (JMSG_PLATFORM_TopicPluginBaseEid_TLM + 1)
 
 /**********************/
 /** Type Definitions **/
@@ -63,14 +63,13 @@ typedef struct
    ** Telemetry
    */
 
-   uint16 TestPluginTlmMsgLen;
    KIT_TO_WrappedSbMsgTlm_t  WrappedTlmMsg;
 
    /*
    ** JSON message data
    */
    
-   char  JMsgPayload[JMSG_USR_TOPIC_SB_MSG_MAX_LEN*2]; /* Endcoded hex is twice as long as the binary */
+   char  JMsgPayload[JMSG_PLATFORM_TOPIC_SB_MSG_MAX_LEN*2]; /* Endcoded hex is twice as long as the binary */
 
    uint32  CfeToJMsgCnt;
    uint32  JMsgToCfeCnt;
@@ -80,7 +79,6 @@ typedef struct
    */
    
    uint32 SbTestCnt;
-   JMSG_TEST_PluginTlmMsg_t  TestPluginTlmMsg;
    
 } JMSG_TOPIC_TLM_Class_t;
 
@@ -101,6 +99,6 @@ typedef struct
 */
 void JMSG_TOPIC_TLM_Constructor(JMSG_TOPIC_TLM_Class_t *JMsgTopicTlmPtr,
                                 JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
-                                CFE_SB_MsgId_t WrappedTlmMid, CFE_SB_MsgId_t TestPluginTlmMid);
+                                CFE_SB_MsgId_t WrappedTlmMid);
 
 #endif /* _jmsg_topic_tlm_ */

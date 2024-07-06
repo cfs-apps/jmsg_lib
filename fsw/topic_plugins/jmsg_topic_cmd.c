@@ -168,7 +168,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                                                         sizeof(CFE_HDR_CommandHeader_Buffer_t), BitSize, 0);
                if (Status != EDSLIB_SUCCESS)
                {
-                  OS_printf("EdsLib_DataTypeDB_UnpackPartialObject(1): %d\n", (int)Status);
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "EdsLib_DataTypeDB_UnpackPartialObject(1): %d",(int)Status);
                   return false;
                }
 
@@ -180,7 +181,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                                                        ListenerParams.Telecommand.TopicId, 1, 1, &EdsId);
                if (Status != CFE_MISSIONLIB_SUCCESS)
                {
-                  OS_printf("CFE_MissionLib_GetArgumentType(): %d\n", (int)Status);
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "CFE_MissionLib_GetArgumentType(): %d",(int)Status);
                   return false;
                }
 
@@ -189,7 +191,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                   BitSize, sizeof(CFE_HDR_CommandHeader_t));
                if (Status != EDSLIB_SUCCESS)
                {
-                  OS_printf("EdsLib_DataTypeDB_UnpackPartialObject(2): %d\n", (int)Status);
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "EdsLib_DataTypeDB_UnpackPartialObject(2): %d",(int)Status);
                   return false;
                }
 
@@ -198,24 +201,26 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                    EDS_DB, EdsId, JMsgTopicCmd->SbBufPtr, JMsgTopicCmd->MsgPackedBuf, EDSLIB_DATATYPEDB_RECOMPUTE_LENGTH);
                if (Status != EDSLIB_SUCCESS)
                {
-                  OS_printf("EdsLib_DataTypeDB_VerifyUnpackedObject(): %d\n", (int)Status);
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "EdsLib_DataTypeDB_VerifyUnpackedObject(): %d",(int)Status);
                   return false;
                }
 
                Status = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &FullCmdInfo);
                if (Status != EDSLIB_SUCCESS)
                {
-                  OS_printf("EdsLib_DataTypeDB_GetTypeInfo(): %d\n", (int)Status);
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
+                                    "EdsLib_DataTypeDB_GetTypeInfo(): %d",(int)Status);
                   return false;
                }
 
                Status = CFE_SB_TransmitBuffer(JMsgTopicCmd->SbBufPtr, false);
                if (Status == CFE_SUCCESS)
                {
-                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
-                                    "Command plugin failed to send SB message, status=%d",(int)Status);
-                  /* Set NULL so a new buffer will be obtained next time around */
-                  JMsgTopicCmd->SbBufPtr = NULL;
+                  const uint8 *Buf = (const uint8 *)&JMsgTopicCmd->SbBufPtr;
+                  CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_INFORMATION,
+                                    "Command plugin successfully sent SB message 0x%02X%02X 0x%02X%02X",
+                                    Buf[0],Buf[1],Buf[2],Buf[3]);
                   JMsgTopicCmd->JMsgToCfeCnt++;
                   RetStatus = true;
                }
@@ -231,6 +236,10 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
                                  "SB buffer allocation failed");
             }
+            
+            CFE_SB_ReleaseMessageBuffer(JMsgTopicCmd->SbBufPtr);
+            JMsgTopicCmd->SbBufPtr = NULL;  // Set NULL so a new buffer will be obtained next time around
+                  
          } /* End if allocated SB buffer */
       } /* End if valid payload length */
       else

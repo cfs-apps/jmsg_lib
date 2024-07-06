@@ -12,30 +12,43 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Affero General Public License for more details.
 **
-**  Purpose:
-**    Define platform configurations for the JSON message(JMSG) library
+** Purpose:
+**   Export TPLUG_RPI Demo constructor
 **
-**  Notes:
-**    None
+** Notes:
+**   1. Other than the constructor, no other plugin definitions should be
+**      exported. Plugin interfaces are through the callback functions
+**      that are registered by the plugin's constructor.
+**
 **
 */
 
-#ifndef _jmsg_lib_platform_cfg_
-#define _jmsg_lib_platform_cfg_
+#ifndef _tplug_rpi_demo_
+#define _tplug_rpi_demo_
+
 
 /*
 ** Includes
 */
 
-#include "jmsg_lib_mission_cfg.h"
+#include "jmsg_platform_eds_typedefs.h"
+
+
+/************************/
+/** Exported Functions **/
+/************************/
 
 
 /******************************************************************************
-** Platform Deployment Configurations
+** Function: TPLUG_RPI_DEMO_Constructor
+**
+** Initialize TPLUG_RPI Demo 
+
+** Notes:
+**   None
+**
 */
-
-#define JMSG_LIB_PLATFORM_REV   0
-#define JMSG_LIB_INI_FILENAME   "/cf/jmsg_lib_ini.json"
+void TPLUG_RPI_DEMO_Constructor(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
 
-#endif /* _jmsg_lib_platform_cfg_ */
+#endif /* _tplug_rpi_demo_ */

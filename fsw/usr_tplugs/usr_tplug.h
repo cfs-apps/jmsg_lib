@@ -13,29 +13,30 @@
 ** GNU Affero General Public License for more details.
 **
 **  Purpose:
-**    Define platform configurations for the JSON message(JMSG) library
+**    Provide an interface for JSON Message topic plugins.
 **
 **  Notes:
-**    None
+**    1. Can't include lib_cfg.h because the "CFG_" macro definitions
+**       will conflict
 **
 */
 
-#ifndef _jmsg_lib_platform_cfg_
-#define _jmsg_lib_platform_cfg_
+#ifndef _usr_tplug_
+#define _usr_tplug_
 
-/*
-** Includes
-*/
 
-#include "jmsg_lib_mission_cfg.h"
+/************************/
+/** Exported Functions **/
+/************************/
 
 
 /******************************************************************************
-** Platform Deployment Configurations
+** Function: USR_TPLUG_Constructor
+**
+** Call constructors for each user topic plugin.
+**
 */
-
-#define JMSG_LIB_PLATFORM_REV   0
-#define JMSG_LIB_INI_FILENAME   "/cf/jmsg_lib_ini.json"
+void USR_TPLUG_Constructor(void);
 
 
-#endif /* _jmsg_lib_platform_cfg_ */
+#endif /* _usr_tplug_ */

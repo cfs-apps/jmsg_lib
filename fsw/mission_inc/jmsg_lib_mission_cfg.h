@@ -13,7 +13,7 @@
 ** GNU Affero General Public License for more details.
 **
 ** Purpose:
-**   Define configurations for the JSON Message library
+**   Define configurations for the JSON Message(JMSG) library
 **
 ** Notes:
 **   None

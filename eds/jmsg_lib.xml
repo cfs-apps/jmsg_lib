@@ -15,12 +15,16 @@
     GNU Affero General Public License for more details.
 
     Purpose: 
-      This defines the Software Bus messages that can be repesented in JSON
+      Define topic table interface
 
     Notes:
       1. This document adheres to the Electronic Data Sheet (EDS) XML schema 
          as prescribed in CCSDS book 876.0.
-      2. 
+      2. The JMSG topic table is contained in a library with a C function
+         API. JSMG_APP provides a ground interface to the library. 
+      3. This spec defines JMSG_LIB data types and telemetry packets that only
+         contain JMSG_LIB data and are created by JMSG_LIB functions. SubscribePluginTlm
+         is an exception. See its comment block below for details.
 
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
@@ -31,12 +35,22 @@
       <!--**** DataTypeSet:  Entry Types ****-->
       <!--***********************************-->
       
-      <StringDataType name="TopicName" length="${JMSG_USR/TOPIC_NAME_MAX_LEN}" shortDescription="Topic name Text" />
+      <StringDataType name="TopicName" length="${JMSG_PLATFORM/TOPIC_NAME_MAX_LEN}" shortDescription="Topic name Text" />
 
-      <EnumeratedDataType name="PluginSbRole" shortDescription="Communication role from SB perspective" >
+      <EnumeratedDataType name="TopicProtocol" shortDescription="JMSG protocol/format options">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="UNDEF"   value="0"   shortDescription="Initial value prior to table being loaded" />
+          <Enumeration label="MQTT"    value="1"   shortDescription="JSON protocol/format used by the JMSG_MQTT app" />
+          <Enumeration label="UDP"     value="2"   shortDescription="JSON protocol/format used by the JMSG_UDP app" />
+          <Enumeration label="INVALID" value="3"   shortDescription="Protocol not properly defined in JSON topic table" />
+        </EnumerationList>
+      </EnumeratedDataType>
+           
+      <EnumeratedDataType name="TopicSbRole" shortDescription="Communication role from SB perspective" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
-          <Enumeration label="UNDEF"     value="0" shortDescription="Role not properly defined in JSON topic table" />
+          <Enumeration label="UNDEF"     value="0" shortDescription="Initial value prior to table being loaded" />
           <Enumeration label="PUBLISH"   value="1" shortDescription="Receive JMSG messages from remote source, convert and publish them on the SB" />
           <Enumeration label="SUBSCRIBE" value="2" shortDescription="Receive SB messages, convert and send them to JMSG destination" />
           <Enumeration label="INVALID"   value="3" shortDescription="Role not properly defined in JSON topic table" />
@@ -47,92 +61,63 @@
         <EntryList>
           <Entry name="Name"     type="TopicName"              shortDescription="See type" />
           <Entry name="Enabled"  type="APP_C_FW/BooleanUint8"  shortDescription="See type" />
-          <Entry name="SbRole"   type="PluginSbRole"           shortDescription="See type" />
+          <Entry name="Protocol" type="TopicProtocol"          shortDescription="See type" />
+          <Entry name="SbRole"   type="TopicSbRole"            shortDescription="See type" />
        </EntryList>
       </ContainerDataType>
 
       <ArrayDataType name="PluginDescrArray" dataTypeRef="PluginDescr">
         <DimensionList>
-           <Dimension size="${JMSG_USR/TOPIC_PLUGIN_MAX}"/>
+           <Dimension size="${JMSG_PLATFORM/TOPIC_PLUGIN_MAX}"/>
         </DimensionList>
       </ArrayDataType>
-  
-      <EnumeratedDataType name="TblId" shortDescription="Table Identifiers. See app_c_fw.xml guidelines" >
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
-        <EnumerationList>
-          <Enumeration label="JMSG_TOPIC" value="0" shortDescription="JSON Message topics" />
-        </EnumerationList>
-      </EnumeratedDataType>
-            
-            
-      <!--***************************************-->
-      <!--**** DataTypeSet: Command Payloads ****-->
-      <!--***************************************-->
-      
-      <ContainerDataType name="LoadTbl_CmdPayload" shortDescription="Load an app's JSON table">
-        <EntryList>
-          <Entry name="Id"       type="TblId"                   shortDescription="Table identifier" />
-          <Entry name="Type"     type="APP_C_FW/TblLoadOptions" shortDescription="Replace entire table or perform sparse entry updates" />
-          <Entry name="Filename" type="BASE_TYPES/PathName"     shortDescription="Full path and file name of table to be loaded" />
-       </EntryList>
-      </ContainerDataType>
-      
-      <ContainerDataType name="DumpTbl_CmdPayload" shortDescription="Dump an app's JSON table">
-        <EntryList>
-          <Entry name="Id"       type="TblId"               shortDescription="Table identifier" />
-          <Entry name="Filename" type="BASE_TYPES/PathName" shortDescription="Full path and file name of table to be dumped" />
-       </EntryList>
-      </ContainerDataType>
 
-       <ContainerDataType name="ConfigTopicPlugin_CmdPayload" shortDescription="Enable/disable a topic plugin">
-        <EntryList>
-          <Entry name="Id"     type="JMSG_USR/TopicPlugin"     shortDescription="Plugin Topic identifier" />
-          <Entry name="Action" type="APP_C_FW/ConfigEnaAction" shortDescription="Enable/disable a plugin" />
-       </EntryList>
-      </ContainerDataType>
-      
-      <ContainerDataType name="RunTopicPluginTest_CmdPayload" shortDescription="Run a topic plugin test">
-        <EntryList>
-          <Entry name="Id"     type="JMSG_USR/TopicPlugin"      shortDescription="Plugin Topic identifier" />
-          <Entry name="Param"  type="BASE_TYPES/int16"          shortDescription="Test specific  parameter" />
-       </EntryList>
-      </ContainerDataType>
-      
+  
       <!--*****************************************-->
       <!--**** DataTypeSet: Telemetry Payloads ****-->
       <!--*****************************************-->
 
-      <ContainerDataType name="TopicPluginTlm_Payload" shortDescription="">
+      <!--
+         I didn't see a way to define a command that is needed by both JMSG_MQTT and
+         JMSG_UDP without impacting their command codes. Therefore I created a telemetry
+         packet that they can subscribe to and respond to as if it is a command.
+      -->
+      <ContainerDataType name="TopicSubscribeTlm_Payload" shortDescription="Request a topic subscription">
+        <EntryList>
+          <Entry name="Id"       type="JMSG_PLATFORM/TopicPlugin" shortDescription="Plugin Topic identifier" />          
+          <Entry name="Protocol" type="TopicProtocol"             shortDescription="Network protocol" />
+       </EntryList>
+      </ContainerDataType>
+      
+      <ContainerDataType name="TopicTblTlm_Payload" shortDescription="">
         <EntryList>
           <Entry name="TopicPluginCnt"         type="BASE_TYPES/uint16"         />
           <Entry name="TopicPluginTestActive"  type="APP_C_FW/BooleanUint8"     />
-          <Entry name="TopicPluginTestId"      type="JMSG_USR/TopicPlugin"      />
+          <Entry name="TopicPluginTestId"      type="JMSG_PLATFORM/TopicPlugin" />
           <Entry name="TopicPluginTestParam"   type="BASE_TYPES/int16"          />
           <Entry name="TopicPlugin"            type="JMSG_LIB/PluginDescrArray" />
         </EntryList>
       </ContainerDataType>
       
-      <!--**************************************-->
-      <!--**** DataTypeSet: Command Packets ****-->
-      <!--**************************************-->
-
-      <!-- Command packets defined in jmsg_app.xml. See -->
-      <!-- JMSG_APP's jmsg_lib_cmd.h fiel prologue for  -->
-      <!-- details.                                     -->
       
       <!--****************************************-->
       <!--**** DataTypeSet: Telemetry Packets ****-->
       <!--****************************************-->
 
-      <ContainerDataType name="TopicPluginTlm" baseType="CFE_HDR/TelemetryHeader">
+      <ContainerDataType name="TopicSubscribeTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
-          <Entry type="TopicPluginTlm_Payload" name="Payload" />
+          <Entry type="TopicSubscribeTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>   
-      
+            
+      <ContainerDataType name="TopicTblTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="TopicTblTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>   
+                  
     </DataTypeSet>
         
-    
     <ComponentSet>
       <Component name="Application">
 
@@ -142,9 +127,15 @@
       
         <RequiredInterfaceSet>
         
-          <Interface name="TOPIC_PLUGIN_TLM" shortDescription="Software bus TOPIC PLUGIN telemetry interface" type="CFE_SB/Telemetry">
+          <Interface name="TOPIC_SUBSCRIBE_TLM" shortDescription="Software bus topic subscription telemetry interface" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelemetryDataType" type="TopicPluginTlm" />
+              <GenericTypeMap name="TelemetryDataType" type="TopicSubscribeTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+
+          <Interface name="TOPIC_TBL_TLM" shortDescription="Software bus topic plugin telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="TopicTblTlm" />
             </GenericTypeMapSet>
           </Interface>
           
@@ -156,11 +147,13 @@
 
         <Implementation>
           <VariableSet>
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicPluginTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicSubscribeTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SUBSCRIBE_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicTblTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
-            <ParameterMap interface="TOPIC_PLUGIN_TLM" parameter="TopicId" variableRef="TopicPluginTlmTopicId" />
+            <ParameterMap interface="TOPIC_SUBSCRIBE_TLM" parameter="TopicId" variableRef="TopicSubscribeTlmTopicId" />
+            <ParameterMap interface="TOPIC_TBL_TLM"       parameter="TopicId" variableRef="TopicTblTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>

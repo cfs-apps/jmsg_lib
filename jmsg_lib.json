@@ -7,7 +7,8 @@
    "url": "https://github.com/cfs-apps/jmsg_lib",
 
    "description": [
-      "Provide tools for bi-directional translation between JSON text messages and cFS Software Bus binary messages."
+      "Provide tools for bi-directional translation between JSON text messages(JMSG) and",
+      "cFS Software Bus binary messages. Each message type requires a Message-specific 'Topic Plugins' are used to  "
    ],
 
    "cfs": {

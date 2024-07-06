@@ -2,37 +2,97 @@
 INTRODUCTION
 ============
 
-These are the instructions for managing JMSG topic plugins for the JMSG_UDP
-and JMSG_MQTT apps. The term JMSG generically refers to a Basecamp JSON text
-message. The UDP and MQTT JSON message conventions are nearly identical and 
-are based on the MQTT standard. Each message has a topic name that uses the
+These instructions describe how to use JSON message (JMSG) topic plugins for
+the JMSG_UDP and JMSG_MQTT apps. The term JMSG generically refers to a Basecamp
+JSON text message. The UDP and MQTT JSON message conventions are nearly identical
+and are based on the MQTT standard. Each message has a topic name that uses the
 MQTT path standard. Basecamp's UDP topics have a colon appended to the end
 of the topic name to serve as a delimeter between the topic name and JSON
 payload. The payloads for botH UDP and MQTT are JSON objects.
- 
-Both apps require JMSG_LIB and JMSG_APP to be installed. Technically,
-JMSG_APP is not required but it provides a command and telemetry interface
-to JMSG_LIB that is helpful.
 
-The design supports using either JSMG_MQTT or JSMG_UDP seperately or isntalling
-both apps. See the JMSG_LIB documentation for different use cases.
+The design supports using either JSMG_MQTT or JSMG_UDP seperately or intalling
+both apps. JMSG_LIB and JMSG_APP must be installed to use JMSGs. See the JMSG_LIB
+documentation for different use cases.
 
-These instruction cover the following material:
+These instructions are a quick reference for the following material:
 
-1. Configuring default plugins provided by JMSG_LIB, JMSG_UDP, and JMSG_MQTT
-2. Add new plugins
+1. Configure & verify a JMSG_MQTT topic plugin
+2. Configure & verify a JMSG_UDP topic plugin
+3. Add new topic plugin
 
-See the JMSG_LIB documentation for creating a new JMSG network app equivalent
-to JMSG_UDP and JMSG_MQTT
+See the JMSG_LIB documentation for more details.
 
-==============================
-1. Configuring Default Plugins
-==============================
+============================================
+1. Configure & Verify JMSG_MQTT Topic Plugin
+============================================
+
+After installing JMSG_LIB, JMSG_APP, MQTT_LIB, and JMSG_MQTT these
+steps can be used to verify the installation. TPLUG_WEB_DISCRETE is
+configured for MQTT-to-SB and TPLUG_WEB_RATE is configured for
+SB-to-MQTT data flows. 
+
+Note only one topic array entry can be enabled and configured as MQTT
+with a publish sb-role.  This is because MQTT_LIB only supports one
+MQTT topic subscription.
 
 
-=====================
-2. Adding New Plugins
-=====================
+1. /cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_jmsg_topics.json
+
+Configure the TPLUG_WEB_* entries as follows:
+
+   "topic-id-map": { 
+      "TPLUG_WEB_DISCRETE_PLUGIN_TLM_TOPICID": "cfe-3",
+      "TPLUG_WEB_RATE_PLUGIN_TLM_TOPICID": "cfe-4",
+   }
+
+   "topic": [   
+      {
+          "name":  "basecamp/demo/sc/discrete",
+          "cfe-3": 0,
+          "cfe": 0,
+          "protocol": "mqtt",
+          "sb-role": "pub",
+          "enabled": "true"
+      },
+          
+      {
+          "name":  "basecamp/demo/sc/rate",
+          "cfe-4": 0,
+          "cfe": 0,
+          "protocol": "mqtt",
+          "sb-role": "sub",
+          "enabled": "true"
+      }
+   ]
+
+The cfe entries correspond to the following USR_TPLUGS:
+cfe-3 = USR1
+cfe-4 = USR2
+
+2. Perform a 'make topicids' fill in the cfe topic ID values and install 
+   the table into the cFS target
+       
+4. Start Basecamp, start the cFS, and open the USR_TPLUG WEB_DISCRETE and
+   JMSG_MQTT Status telemetry pages 
+
+3. Open the HiveMQ's websocket at https://www.hivemq.com/demos/websocket-client/?
+   Using HiveMQ assumes Basecamps defaults have not been changed.
+
+   A. Connect the MQTT broker and publish 
+      Topic: basecamp/demo/sc/discrete  
+      Message: {"integer":{"item-1": 1,"item-2": 2,"item-3": 3,"item-4": 4}}
+   B. The USR_TPLUG WEB_DISCRETE telemetry page should be filled in and
+      MSG_MQTT Status's ValidMqttMsgCnt should increment by 1
+      
+
+===========================================
+2. Configure & Verify JMSG_UDP Topic Plugin
+===========================================
+
+
+==========================
+3. Add a New Topic Plugins
+==========================
 
 
 adding an MQTT topic plugin. Topic plugins 
@@ -109,14 +169,4 @@ for a more detailed explanation
 
 KIT_TO packet filter table
 
-====================================================
-Creating an app that uses JMSG_LIB versus creating plugins for 
-==================================================== 
-- App's using JMSG_LIB: Add JMSG_LIB cmd mid to ini file, Subscribe to JMSG_LIB command topic, register command, Update ProcessCommand    
-- Configure JSMG_USR
-- Add topic table load/dump
-- Register JMSG_LIB commands
-- Dynamic registration
-1. Create plugins following MQTT discrete
-2. Configure CPU1 jmsg_topics.json table: map top id, and enabled
-3. Create app test that repeatedly calls JMSG_LIB function
+ 

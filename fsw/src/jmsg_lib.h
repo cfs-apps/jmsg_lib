@@ -16,7 +16,9 @@
 **    Define the JSON Message library 
 **
 **  Notes:
-**    None
+**    1. Can't include lib_cfg.h because the "CFG_" macro definitions
+**       will conflict with an app's app_cfg defnitions when an app
+**       includes this header
 **
 */
 #ifndef _jmsg_lib_

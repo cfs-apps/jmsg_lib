@@ -28,8 +28,7 @@
 **      cause a single message to be generated. these are intended as integration
 **      to demonstrate the topic table and plugin functions are oeprational. The
 **      JSON network apps (e.g. JSMG_UDP) provide functional and performance tests. 
-**   5. See jsmg_lib/topic_plugins/jmsg_topic_plugin_guide.txt for 
-**      customization details. 
+**   5. See jsmg_lib/docs/ for documents on how to customize plugins. 
 **
 */
 
@@ -41,12 +40,11 @@
 */
 
 #include "app_c_fw.h"
-#include "jmsg_usr_eds_defines.h"
-#include "jmsg_usr_eds_typedefs.h"
+#include "jmsg_platform_eds_defines.h"
+#include "jmsg_platform_eds_typedefs.h"
 #include "jmsg_lib_eds_defines.h"
 #include "jmsg_lib_eds_typedefs.h"
-#include "jmsg_test_eds_defines.h"
-#include "jmsg_test_eds_typedefs.h"
+
 
 /***********************/
 /** Macro Definitions **/
@@ -61,13 +59,13 @@
 ** Event Message IDs
 */
 
-#define JMSG_TOPIC_TBL_INDEX_ERR_EID     (JMSG_USR_TOPIC_TBL_BASE_EID + 0)
-#define JMSG_TOPIC_TBL_DUMP_ERR_EID      (JMSG_USR_TOPIC_TBL_BASE_EID + 1)
-#define JMSG_TOPIC_TBL_LOAD_ERR_EID      (JMSG_USR_TOPIC_TBL_BASE_EID + 2)
-#define JMSG_TOPIC_TBL_STUB_EID          (JMSG_USR_TOPIC_TBL_BASE_EID + 3)
-#define JMSG_TOPIC_TBL_ENA_PLUGIN_EID    (JMSG_USR_TOPIC_TBL_BASE_EID + 4)
-#define JMSG_TOPIC_TBL_DIS_PLUGIN_EID    (JMSG_USR_TOPIC_TBL_BASE_EID + 5)
-#define JMSG_TOPIC_TBL_SUBSCRIBE_EID     (JMSG_USR_TOPIC_TBL_BASE_EID + 6)
+#define JMSG_TOPIC_TBL_INDEX_ERR_EID     (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 0)
+#define JMSG_TOPIC_TBL_DUMP_ERR_EID      (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 1)
+#define JMSG_TOPIC_TBL_LOAD_ERR_EID      (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 2)
+#define JMSG_TOPIC_TBL_STUB_EID          (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 3)
+#define JMSG_TOPIC_TBL_ENA_PLUGIN_EID    (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 4)
+#define JMSG_TOPIC_TBL_DIS_PLUGIN_EID    (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 5)
+#define JMSG_TOPIC_TBL_SUBSCRIBE_EID     (JMSG_PLATFORM_TOPIC_TBL_BASE_EID + 6)
 
 
 /**********************/
@@ -100,33 +98,42 @@ typedef enum
 ** 
 */
 
-typedef struct
-{
-
-   char    Name[JMSG_USR_TOPIC_NAME_MAX_LEN];
-   uint16  Cfe;
-   char    SbStr[JSON_MAX_KW_LEN];
-   char    EnaStr[JSON_MAX_KW_LEN];
-   
-   // These are set based on JSON strings
-   bool    Enabled;
-   JMSG_LIB_PluginSbRole_Enum_t PluginSbRole;
-   
-} JMSG_TOPIC_TBL_Topic_t;
-
-typedef struct
-{
-
-  JMSG_TOPIC_TBL_Topic_t Topic[JMSG_USR_TOPIC_PLUGIN_MAX];
-   
-} JMSG_TOPIC_TBL_Data_t;
-
+typedef struct JMSG_TOPIC_TBL_Topic JMSG_TOPIC_TBL_Topic_t;  // Forward reference
 
 /*
 ** Callback function that is called when a topic plugin's configuration is changed. This allows the table
 ** owner to subscribe/unsubscribe when a topic is enabled/disabled.
 */ 
-typedef bool (*JMSG_TOPIC_TBL_ConfigSubscription_t)(const JMSG_TOPIC_TBL_Topic_t *Topic, JMSG_TOPIC_TBL_SubscriptionOptEnum_t ConfigOpt);
+typedef bool (*JMSG_TOPIC_TBL_SubscriptionCallback_t)(const JMSG_TOPIC_TBL_Topic_t *Topic, JMSG_TOPIC_TBL_SubscriptionOptEnum_t ConfigOpt);
+
+
+struct JMSG_TOPIC_TBL_Topic
+{
+
+   // JSON table data
+   char    Name[JMSG_PLATFORM_TOPIC_NAME_MAX_LEN];
+   uint16  Cfe;
+   char    ProtStr[JSON_MAX_KW_LEN];
+   char    SbStr[JSON_MAX_KW_LEN];
+   char    EnaStr[JSON_MAX_KW_LEN];
+   
+   // These are set based on JSON table strings
+   bool                          Enabled;
+   JMSG_LIB_TopicProtocol_Enum_t Protocol;
+   JMSG_LIB_TopicSbRole_Enum_t   SbRole;
+   
+   // Set via function API
+   JMSG_TOPIC_TBL_SubscriptionCallback_t  SubscriptionCallback;
+      
+};
+
+typedef struct
+{
+
+  JMSG_TOPIC_TBL_Topic_t Topic[JMSG_PLATFORM_TOPIC_PLUGIN_MAX];
+   
+} JMSG_TOPIC_TBL_Data_t;
+
 
 /******************************************************************************
 ** Topic 'virtual' function signatures
@@ -162,7 +169,7 @@ typedef struct
    ** JMSG Library
    */
 
-   JMSG_LIB_TopicPluginTlm_t   TopicPluginTlm;
+   JMSG_LIB_TopicTblTlm_t   TopicTblTlm;
       
    /*
    ** Topic Table
@@ -171,12 +178,10 @@ typedef struct
    uint32  PluginTestTlmTopicId;
 
    int16   PluginTestParam;
-   JMSG_USR_TopicPlugin_Enum_t  PluginTestId;
+   JMSG_PLATFORM_TopicPlugin_Enum_t  PluginTestId;
 
    
    JMSG_TOPIC_TBL_Data_t  Data;
-   
-   JMSG_TOPIC_TBL_ConfigSubscription_t  ConfigSubscription;
    
    /*
    ** Standard CJSON table data
@@ -186,7 +191,7 @@ typedef struct
    uint16      LastLoadCnt;
    
    size_t      JsonObjCnt;
-   char        JsonBuf[JMSG_USR_MAX_JSON_TOPIC_TBL_CHAR];   
+   char        JsonBuf[JMSG_PLATFORM_MAX_JSON_TOPIC_TBL_CHAR];   
    size_t      JsonFileLen;
    
 } JMSG_TOPIC_TBL_Class_t;
@@ -208,8 +213,7 @@ typedef struct
 **
 */
 void JMSG_TOPIC_TBL_Constructor(JMSG_TOPIC_TBL_Class_t *JMsgTopicTblPtr,
-                                uint32 TopicTblTlmTopicId, 
-                                uint32 PluginTestTlmTopicId);
+                                uint32 TopicTblTlmTopicId);
 
 
 /******************************************************************************
@@ -218,10 +222,10 @@ void JMSG_TOPIC_TBL_Constructor(JMSG_TOPIC_TBL_Class_t *JMsgTopicTblPtr,
 ** Disable a topic plugin
 **
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_MAX
 **
 */
-bool JMSG_TOPIC_TBL_DisablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+bool JMSG_TOPIC_TBL_DisablePlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
 
 /******************************************************************************
@@ -242,10 +246,10 @@ bool JMSG_TOPIC_TBL_DumpCmd(osal_id_t  FileHandle);
 ** Command to write the table data from memory to a JSON file.
 **
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_MAX
 **
 */
-bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
 
 /******************************************************************************
@@ -255,10 +259,10 @@ bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
 ** and return a pointer to the JSON topic string in JsonMsgTopic.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_M
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_M
 **
 */
-JMSG_TOPIC_TBL_CfeToJson_t JMSG_TOPIC_TBL_GetCfeToJson(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
+JMSG_TOPIC_TBL_CfeToJson_t JMSG_TOPIC_TBL_GetCfeToJson(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
                                                        const char **JsonMsgTopic);
 
 
@@ -274,19 +278,7 @@ JMSG_TOPIC_TBL_CfeToJson_t JMSG_TOPIC_TBL_GetCfeToJson(JMSG_USR_TopicPlugin_Enum
 **      some duplicate functionality.
 **
 */
-const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetDisabledTopic(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
-
-
-/******************************************************************************
-** Function: JMSG_TOPIC_TBL_GetTopic
-**
-** Return a pointer to the table entry identified by 'TopicPlugin'.
-** 
-** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
-**
-*/
-const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetTopic(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetDisabledTopic(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
 
 /******************************************************************************
@@ -295,10 +287,34 @@ const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetTopic(JMSG_USR_TopicPlugin_Enum_
 ** Return a pointer to the JsonToCfe conversion function for 'TopicPlugin'.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_MAX
 **
 */
-JMSG_TOPIC_TBL_JsonToCfe_t JMSG_TOPIC_TBL_GetJsonToCfe(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+JMSG_TOPIC_TBL_JsonToCfe_t JMSG_TOPIC_TBL_GetJsonToCfe(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
+
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_GetTopic
+**
+** Return a pointer to the table entry identified by 'TopicPlugin'.
+** 
+** Notes:
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_MAX
+**
+*/
+const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetTopic(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
+
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_GetTopicProtocol
+**
+** Return a pointer to the table topic entry identified by 'TopicPlugin'.
+** 
+** Notes:
+**   1. TopicPlugin must be less than JMSG_TopicPlugin_Enum_t_MAX
+**
+*/
+JMSG_LIB_TopicProtocol_Enum_t JMSG_TOPIC_TBL_GetTopicProtocol(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
 
 /******************************************************************************
@@ -331,10 +347,11 @@ uint8 JMSG_TOPIC_TBL_MsgIdToTopicPlugin(CFE_SB_MsgId_t MsgId);
 ** Function: JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback
 **
 ** Register the callback function that will be called when a topic is enabled
-** or disabled and the table owner needs to manage netwrok layer subscriptions. 
+** or disabled and the table owner needs to manage network layer subscriptions. 
 **
 */
-void JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_TOPIC_TBL_ConfigSubscription_t ConfigSubscription);
+bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
+                                                       JMSG_TOPIC_TBL_SubscriptionCallback_t SubscriptionCallback);
 
 
 /******************************************************************************
@@ -344,7 +361,7 @@ void JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_TOPIC_TBL_ConfigSubs
 ** TODO: Verify the TopicPlugin ID is in the USR range.
 **
 */
- CFE_SB_MsgId_t JMSG_TOPIC_TBL_RegisterPlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
+ CFE_SB_MsgId_t JMSG_TOPIC_TBL_RegisterPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
                                               JMSG_TOPIC_TBL_CfeToJson_t  CfeToJson,
                                               JMSG_TOPIC_TBL_JsonToCfe_t  JsonToCfe,
                                               JMSG_TOPIC_TBL_PluginTest_t PluginTest);
@@ -367,22 +384,22 @@ void JMSG_TOPIC_TBL_ResetStatus(void);
 ** Execute a topic's SB message test.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_MAX
 **
 */
-void JMSG_TOPIC_TBL_RunTopicPluginTest(JMSG_USR_TopicPlugin_Enum_t TopicPlugin, 
+void JMSG_TOPIC_TBL_RunTopicPluginTest(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin, 
                                        bool Init, int16 Param);
 
 
 /******************************************************************************
-** Function: JMSG_TOPIC_TBL_SendTopicTPluginTlmCmd
+** Function: JMSG_TOPIC_TBL_SendTlmCmd
 **
 ** Notes:
 **   1. Signature must match CMDMGR_CmdFuncPtr_t
 **   2. DataObjPtr is not used.
 **
 */
-bool JMSG_TOPIC_TBL_SendTopicTPluginTlmCmd(void *DataObjPtr, const CFE_MSG_Message_t *MsgPtr);
+bool JMSG_TOPIC_TBL_SendTlmCmd(void *DataObjPtr, const CFE_MSG_Message_t *MsgPtr);
 
 
 /******************************************************************************
@@ -393,7 +410,7 @@ bool JMSG_TOPIC_TBL_SendTopicTPluginTlmCmd(void *DataObjPtr, const CFE_MSG_Messa
 **
 ** Notes:
 **   1. This should only be used when only one JMSG network app is using
-**      JMSG_LIB because when it is called the app's ConfigSubscription()
+**      JMSG_LIB because when it is called the app's SubscriptionCallback()
 **      function is called for every enabled topic table entry.
 **   2. JMSG_TOPIC_TBL_SubscribeToTopicMsg() to configure individual entries.
 **   TODO: Current design requires code changes to the JMSG network app's
@@ -410,7 +427,7 @@ void JMSG_TOPIC_TBL_SubscribeToAll(JMSG_TOPIC_TBL_TopicSubscribeToEnum_t Subscri
 ** determines which type of subscription will be performed.
 **
 */
-JMSG_TOPIC_TBL_SubscriptionOptEnum_t JMSG_TOPIC_TBL_SubscribeToTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin,
+JMSG_TOPIC_TBL_SubscriptionOptEnum_t JMSG_TOPIC_TBL_SubscribeToTopicMsg(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
                                                                         JMSG_TOPIC_TBL_TopicSubscribeToEnum_t SubscribeTo);
                                                                                
                              
@@ -420,10 +437,10 @@ JMSG_TOPIC_TBL_SubscriptionOptEnum_t JMSG_TOPIC_TBL_SubscribeToTopicMsg(JMSG_USR
 ** Unsubscribe from a topic message
 **
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_USR_TopicPlugin_Enum_t_MAX
+**   1. TopicPlugin must be less than JMSG_PLATFORM_TopicPlugin_Enum_t_MAX
 **
 */
-bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
                              
 /******************************************************************************
@@ -432,7 +449,7 @@ bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_USR_TopicPlugin_Enum_t TopicPlu
 ** In addition to being in range, valid means that the TopicPlugin has been
 ** defined.
 */
-bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_USR_TopicPlugin_Enum_t TopicPlugin);
+bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
 
 
 #endif /* _jmsg_topic_tbl_ */

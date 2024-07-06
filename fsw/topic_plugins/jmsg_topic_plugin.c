@@ -18,9 +18,6 @@
 ** Notes:
 **   1. See jsmg_lib/topic_plugins/jmsg_topic_plugin_guide.txt for 
 **      plugin creation and installation instructions
-**   2. SC_SIM is commented out to serve as an example topic plugin.
-**      To use SC_SIM the '**' comment lines can be commented out
-**      using the '//' syntax.
 ** 
 */
 
@@ -37,11 +34,7 @@
 
 #include "jmsg_topic_cmd.h"
 #include "jmsg_topic_tlm.h"
-#include "jmsg_topic_test.h"
-/*@@ Example user Plugins
-#include "jmsg_topic_discrete.h"
-#include "jmsg_topic_rate.h"
-@@*/
+
 
 /************************************/
 /** Local File Function Prototypes **/
@@ -59,14 +52,6 @@ static void StubPluginTestTest(bool Init, int16 Param);
 // JMSG_LIB topic plugin objects
 static JMSG_TOPIC_CMD_Class_t   JMsgTopicCmd;
 static JMSG_TOPIC_TLM_Class_t   JMsgTopicTlm;
-static JMSG_TOPIC_TEST_Class_t  JMsgTopicTest;
-
-// User topic plugin objects
-
-/*@@ Example user Plugins
-static JMSG_TOPIC_DISCRETE_Class_t  JMsgTopicDiscrete;
-static JMSG_TOPIC_RATE_Class_t      JMsgTopicRate;
-@@*/
 
 
 /******************************************************************************
@@ -87,36 +72,19 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
                                    uint32 PluginTestTlmTopicId)
 {
    
-   for (enum JMSG_USR_TopicPlugin i=JMSG_USR_TopicPlugin_Enum_t_MIN; i <= JMSG_USR_TopicPlugin_Enum_t_MAX; i++)
+   for (enum JMSG_PLATFORM_TopicPlugin i=JMSG_PLATFORM_TopicPlugin_Enum_t_MIN; i < JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
    {
       switch (i)
       {
-         case JMSG_USR_TopicPlugin_CMD:
+         case JMSG_PLATFORM_TopicPlugin_CMD:
             JMSG_TOPIC_CMD_Constructor(&JMsgTopicCmd, &PluginFuncTbl[i]);
             break;
             
-         case JMSG_USR_TopicPlugin_TLM:
+         case JMSG_PLATFORM_TopicPlugin_TLM:
             JMSG_TOPIC_TLM_Constructor(&JMsgTopicTlm, &PluginFuncTbl[i],
-                                       CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe),
-                                       CFE_SB_ValueToMsgId(PluginTestTlmTopicId));         
+                                       CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
             break;
 
-         case JMSG_USR_TopicPlugin_TEST:
-            JMSG_TOPIC_TEST_Constructor(&JMsgTopicTest, &PluginFuncTbl[i],
-                                        CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));
-            break;
-
-/*@@ Example user Plugins
-         case JMSG_USR_TopicPlugin_USR_1:
-            JMSG_TOPIC_DISCRETE_Constructor(&JMsgTopicDiscrete, &PluginFuncTbl[i],
-                                            CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));
-            break;
-
-         case JMSG_USR_TopicPlugin_USR_2:
-            JMSG_TOPIC_RATE_Constructor(&JMsgTopicRate, &PluginFuncTbl[i],
-                                        CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));
-            break;
-@@*/
          default:
             // Plugin should be disabled
             PluginFuncTbl[i].CfeToJson  = StubCfeToJson;
@@ -195,6 +163,3 @@ static void StubPluginTestTest(bool Init, int16 Param)
                      "PluginTestTest stub");
    
 } /* End StubPluginTestTest() */
-
-
-

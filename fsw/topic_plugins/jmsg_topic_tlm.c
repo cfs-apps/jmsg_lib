@@ -53,7 +53,7 @@ static JMSG_TOPIC_TLM_Class_t* JMsgTopicTlm = NULL;
 */
 void JMSG_TOPIC_TLM_Constructor(JMSG_TOPIC_TLM_Class_t *JMsgTopicTlmPtr,
                                 JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
-                                     CFE_SB_MsgId_t WrappedTlmMid, CFE_SB_MsgId_t TestPluginTlmMid)
+                                CFE_SB_MsgId_t WrappedTlmMid)
 {
 
    JMsgTopicTlm = JMsgTopicTlmPtr;
@@ -63,9 +63,7 @@ void JMSG_TOPIC_TLM_Constructor(JMSG_TOPIC_TLM_Class_t *JMsgTopicTlmPtr,
    PluginFuncTbl->JsonToCfe  = JsonToCfe;  
    PluginFuncTbl->PluginTest = PluginTest;
    
-   JMsgTopicTlm->TestPluginTlmMsgLen = sizeof(JMSG_TEST_PluginTlmMsg_t);
    CFE_MSG_Init(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg), WrappedTlmMid, sizeof(KIT_TO_WrappedSbMsgTlm_t));
-   CFE_MSG_Init(CFE_MSG_PTR(JMsgTopicTlm->TestPluginTlmMsg), TestPluginTlmMid, JMsgTopicTlm->TestPluginTlmMsgLen);
          
 } /* End JMSG_TOPIC_TLM_Constructor() */
 
@@ -93,7 +91,7 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
    CfeStatus = CFE_MSG_GetSize((CFE_MSG_Message_t *)PayloadSbMsg, &MsgSize);
    if (CfeStatus == CFE_SUCCESS)
    {
-       if (MsgSize < JMSG_USR_TOPIC_SB_MSG_MAX_LEN)
+       if (MsgSize < JMSG_PLATFORM_TOPIC_SB_MSG_MAX_LEN)
        {
            PktUtil_HexEncode(JMsgTopicTlm->JMsgPayload, (uint8 *)PayloadSbMsg, MsgSize, true);
            JMsgTopicTlm->CfeToJMsgCnt++;
@@ -160,8 +158,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 /******************************************************************************
 ** Function: PluginTest
 **
-** Test plugin by converting a JMSG test SB telemetry message to an JMSG test
-** JSON message 
+** TODO: Implement hmsg_topic_tlm plugin test 
 **
 ** Notes:
 **   1. KIT_TO's packet table entry for JMSG_TEST_PLUGIN_TOPICID must have
@@ -174,30 +171,19 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 static void PluginTest(bool Init, int16 Param)
 {
    
-   JMSG_TEST_PluginTlm_Payload_t *Payload = &JMsgTopicTlm->TestPluginTlmMsg.Payload;
-   
-   memset(Payload, 0, sizeof(JMSG_TEST_PluginTlmMsg_t));
-
    if (Init)
    {
-
-      JMsgTopicTlm->SbTestCnt = 1;      
+         
+      JMsgTopicTlm->SbTestCnt = 0;
+      
       CFE_EVS_SendEvent(JMSG_TOPIC_TLM_INIT_SB_MSG_TEST_EID, CFE_EVS_EventType_INFORMATION,
-                        "Telemetry topic test started");
+                        "Telemetry topic does not have an automated built in test");
    }
    else
    {   
       JMsgTopicTlm->SbTestCnt++;
    }
-  
-   Payload->Int32 = JMsgTopicTlm->SbTestCnt;
-   Payload->Float = (float)JMsgTopicTlm->SbTestCnt;
    
-   CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicTlm->TestPluginTlmMsg.TelemetryHeader));   
-   memcpy(&(JMsgTopicTlm->WrappedTlmMsg.Payload), &JMsgTopicTlm->TestPluginTlmMsg, JMsgTopicTlm->TestPluginTlmMsgLen);
-   CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg.TelemetryHeader));
-   CFE_SB_TransmitMsg(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg.TelemetryHeader), true);
-
 } /* End PluginTest() */
 
 

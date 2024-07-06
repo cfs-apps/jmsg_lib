@@ -86,12 +86,11 @@ uint32 JMSG_LibInit(void)
       JMsgLib.ToPubWrappedTlmTopicId = INITBL_GetIntConfig(INITBL_OBJ, CFG_KIT_TO_PUB_WRAPPED_TLM_TOPICID);
 
       JMSG_TOPIC_TBL_Constructor(&JMsgLib.TopicTbl, 
-                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_LIB_TOPIC_TBL_TLM_TOPICID),
-                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_LIB_PLUGIN_TEST_TLM_TOPICID));
+                                 INITBL_GetIntConfig(INITBL_OBJ, CFG_JMSG_LIB_TOPIC_TBL_TLM_TOPICID));
 
       JMsgLib.Initialized = true;
 
-      OS_printf("JSON Message Library Initialized. Version %d.%d.%d\n",
+      OS_printf("JSON Message(JMSG) Library Initialized. Version %d.%d.%d\n",
                 JMSG_LIB_MAJOR_VER, JMSG_LIB_MINOR_VER, JMSG_LIB_PLATFORM_REV);
    }
    else
@@ -99,7 +98,7 @@ uint32 JMSG_LibInit(void)
 
       // Keep library loaded: RetStatus = OS_ERROR;
       JMsgLib.Initialized = false;
-      OS_printf("Error initializing JSON Message Library. Version %d.%d.%d\n",
+      OS_printf("Error initializing JSON Message(JMSG) Library. Version %d.%d.%d\n",
                 JMSG_LIB_MAJOR_VER, JMSG_LIB_MINOR_VER, JMSG_LIB_PLATFORM_REV);      
             
    }
