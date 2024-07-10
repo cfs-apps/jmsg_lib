@@ -217,6 +217,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                Status = CFE_SB_TransmitBuffer(JMsgTopicCmd->SbBufPtr, false);
                if (Status == CFE_SUCCESS)
                {
+                  JMsgTopicCmd->SbBufPtr = NULL;  // Set NULL so a new buffer will be obtained next time around
                   const uint8 *Buf = (const uint8 *)&JMsgTopicCmd->SbBufPtr;
                   CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_INFORMATION,
                                     "Command plugin successfully sent SB message 0x%02X%02X 0x%02X%02X",
@@ -236,10 +237,6 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_ERROR,
                                  "SB buffer allocation failed");
             }
-            
-            CFE_SB_ReleaseMessageBuffer(JMsgTopicCmd->SbBufPtr);
-            JMsgTopicCmd->SbBufPtr = NULL;  // Set NULL so a new buffer will be obtained next time around
-                  
          } /* End if allocated SB buffer */
       } /* End if valid payload length */
       else
@@ -255,6 +252,11 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                         "Error accessing EDS database. Status = %d\n", (int)Status);
    }
       
+   if (JMsgTopicCmd->SbBufPtr != NULL)
+   {
+      CFE_SB_ReleaseMessageBuffer(JMsgTopicCmd->SbBufPtr);
+   }               
+
    return RetStatus;
    
 } /* End JsonToCfe() */
