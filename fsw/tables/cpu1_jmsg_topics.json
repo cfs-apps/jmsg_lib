@@ -28,7 +28,7 @@
       "start": true,
       
       "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-1",
-      "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-2",
+      "KIT_TO_PUB_WRAPPED_TLM_TOPICID": "cfe-2",
       "TPLUG_WEB_DISCRETE_PLUGIN_TLM_TOPICID": "cfe-3",
       "TPLUG_WEB_RATE_PLUGIN_TLM_TOPICID": "cfe-4",
       "TPLUG_RPI_DEMO_PLUGIN_TLM_TOPICID": "cfe-5",
@@ -41,32 +41,32 @@
    "topic": [
        {
           "name":  "basecamp/cfs/cmd",
-          "cfe-1": 2145,
-          "cfe": 2145,
-          "protocol": "mqtt",
+          "cfe-1": 0,
+          "cfe": 0,
+          "protocol": "udp",
           "sb-role": "pub",
           "enabled": "false"
        },
        {
           "name":  "basecamp/cfs/tlm",
-          "cfe-2": 2145,
-          "cfe": 2145,
-          "protocol": "mqtt",
+          "cfe-2": 0,
+          "cfe": 0,
+          "protocol": "udp",
           "sb-role": "sub",
           "enabled": "false"
        },
        {
           "name":  "basecamp/demo/sc/discrete",
-          "cfe-3": 2173,
-          "cfe": 2173,
+          "cfe-3": 0,
+          "cfe": 0,
           "protocol": "mqtt",
-          "sb-role": "sub",
+          "sb-role": "pub",
           "enabled": "false"
        },
        {
           "name":  "basecamp/demo/sc/rate",
-          "cfe-4": 2174,
-          "cfe": 2174,
+          "cfe-4": 0,
+          "cfe": 0,
           "protocol": "mqtt",
           "sb-role": "sub",
           "enabled": "false"

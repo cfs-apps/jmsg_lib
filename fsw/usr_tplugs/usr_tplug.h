@@ -13,7 +13,7 @@
 ** GNU Affero General Public License for more details.
 **
 **  Purpose:
-**    Provide an interface for JSON Message topic plugins.
+**    Construct JSON Message Lib user topic plugins
 **
 **  Notes:
 **    1. Can't include lib_cfg.h because the "CFG_" macro definitions
@@ -33,7 +33,7 @@
 /******************************************************************************
 ** Function: USR_TPLUG_Constructor
 **
-** Call constructors for each user topic plugin.
+** Call constructors for each user topic plugin
 **
 */
 void USR_TPLUG_Constructor(void);

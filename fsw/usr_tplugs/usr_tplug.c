@@ -19,7 +19,7 @@
 **   1. Always construct plugins regardless of whether they are enabled. This
 **      allows plugins to be enabled/disabled during runtime. If a topic's
 **      JSON is invalid the plugin will be automatically disabled.
-**   1. See jmsg_lib/docs/jmsg_topic_plugin_guide.txt for 
+**   2. See jmsg_lib/docs/jmsg_topic_plugin_guide.txt for 
 **      plugin creation and installation instructions
 ** 
 */
@@ -29,9 +29,12 @@
 */
 
 #include "usr_tplug_eds_typedefs.h"
+#include "usr_tplug.h"
 #include "tplug_web_discrete.h"
 #include "tplug_web_rate.h"
 #include "tplug_rpi_demo.h"
+
+//Example app with TPLUGs: #include "sc_sim_tplug.h" 
 
 /******************************************************************************
 ** Function: USR_TPLUG_Constructor
@@ -46,5 +49,7 @@ void USR_TPLUG_Constructor(void)
    TPLUG_WEB_RATE_Constructor(USR_TPLUG_Id_WebRate);
        
    TPLUG_RPI_DEMO_Constructor(USR_TPLUG_Id_RpiDemo);
-       
+
+   //Example app with TPLUGs: SC_SIM_TPLUG_Constructor();
+     
 } /* USR_TPLUG_Constructor() */
