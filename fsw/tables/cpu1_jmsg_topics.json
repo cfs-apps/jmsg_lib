@@ -97,7 +97,7 @@
        },
        {
           "name":  "spare",
-          "cfe-7": 0,
+          "cfe-8": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",

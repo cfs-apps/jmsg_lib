@@ -256,10 +256,10 @@ JMSG_MQTT                                            HiveMQ
    |                                                   |
    |  'basecamp/demo/sc/discrete' topic, JSON payload  |
    | <------------------------------------------------ |
-   |    cfe-3(USR_1) pub SB discreete message          |
+   |    cfe-3(USR_1) pub SB discrete message           |
    | ========================================>         |
    |                                                   |
-   |  Run cfe-4(USR_2) topic test                      |
+   |  Run JMSG_APP's StartTopicTest USR_2(cfe-4)       |
    |  'basecamp/demo/sc/discrete' topic, JSON payload  |
    | ------------------------------------------------> |
    |                                                   |

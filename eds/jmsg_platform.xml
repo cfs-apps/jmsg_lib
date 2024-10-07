@@ -62,15 +62,15 @@
          used as array indices.
       -->
       
-      <Define name="TOPIC_PLUGIN_CMD"    value="0" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_TLM"    value="1" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_1"  value="2" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_2"  value="3" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_3"  value="4" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_4"  value="5" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_5"  value="6" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_6"  value="7" shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_MAX"    value="8" shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_CMD"    value="0"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_TLM"    value="1"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_1"  value="2"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_2"  value="3"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_3"  value="4"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_4"  value="5"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_5"  value="6"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_6"  value="7"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_MAX"    value="8"  shortDescription=""/>
       <Define name="TOPIC_PLUGIN_UNDEF"  value="99" shortDescription="Value that indicates an undefined plugin. Must not match any valid TopicPlugin enum value"/>
 
       <!--***********************************-->
