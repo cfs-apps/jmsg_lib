@@ -2,6 +2,7 @@
    
    "title": "JMSG Topics",
    "description": [ "Define the topics that are recognized and processed by the JSON Message library",
+                    "'id': Same identifier defined in jmsg_lib's EDS jmsg_playform.xml file",
                     "'name': Topic name that is received from a network interface and published on the SB",
                     "'cfe': Topic id that is read from the SB and published to a JSON destination",
                     "'protocol': Define network protocol",
@@ -40,6 +41,7 @@
    
    "topic": [
        {
+          "id": "CMD",
           "name":  "basecamp/cfs/cmd",
           "cfe-1": 0,
           "cfe": 0,
@@ -48,6 +50,7 @@
           "enabled": "false"
        },
        {
+          "id": "TLM",
           "name":  "basecamp/cfs/tlm",
           "cfe-2": 0,
           "cfe": 0,
@@ -56,6 +59,7 @@
           "enabled": "false"
        },
        {
+          "id": "USR_1",
           "name":  "basecamp/demo/sc/discrete",
           "cfe-3": 0,
           "cfe": 0,
@@ -64,6 +68,7 @@
           "enabled": "false"
        },
        {
+          "id": "USR_2",
           "name":  "basecamp/demo/sc/rate",
           "cfe-4": 0,
           "cfe": 0,
@@ -72,6 +77,7 @@
           "enabled": "false"
        },
        {
+          "id": "USR_3",
           "name":  "basecamp/rpi/demo",
           "cfe-5": 0,
           "cfe": 0,
@@ -80,6 +86,7 @@
           "enabled": "false"
        },
        {
+          "id": "USR_4",
           "name":  "basecamp/rpi/demo",
           "cfe-6": 0,
           "cfe": 0,
@@ -88,6 +95,7 @@
           "enabled": "false"
        },
        {
+          "id": "USR_5",
           "name":  "spare",
           "cfe-7": 0,
           "cfe": 0,
@@ -96,6 +104,7 @@
           "enabled": "false"
        },
        {
+          "id": "USR_6",
           "name":  "spare",
           "cfe-8": 0,
           "cfe": 0,
