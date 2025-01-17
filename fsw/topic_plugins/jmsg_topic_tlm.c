@@ -16,7 +16,7 @@
 **   Manage the conversion of JSON telemetry messages
 **
 ** Notes:
-**   1. SB messages are not interpretted. A single JMSG topic is used
+**   1. SB messages are not interpreted. A single JMSG topic is used
 **      to transport any SB message as its payload
 **
 */
@@ -165,7 +165,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 **      the forward attribute set to true.
 **   2. The jmsg_topics.json entry must be set to subscribe to
 **      KIT_TO_PUB_WRAPPED_TLM_TOPICID
-**   3. A walking bit pattern is used in the dsicrete data to help validation.
+**   3. A walking bit pattern is used in the discrete data to help validation.
 **
 */
 static void PluginTest(bool Init, int16 Param)

@@ -55,10 +55,10 @@ static JMSG_TOPIC_CMD_Class_t* JMsgTopicCmd = NULL;
 /******************************************************************************
 ** Function: JMSG_TOPIC_CMD_Constructor
 **
-** Initialize the telemetry topic
+** Initialize the command topic
 **
 ** Notes:
-**   1. The test telemetry message is used for the built in test.
+**   1. The test command message is used for the built in test.
 **
 */
 void JMSG_TOPIC_CMD_Constructor(JMSG_TOPIC_CMD_Class_t *JMsgTopicCmdPtr,
@@ -117,7 +117,7 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
-**   2. See the CI_LAB app for EDS provcessing details
+**   2. See the CI_LAB app for EDS processing details
 **   3. Encoded app_c_demo commands that can be used for testing. The communciation
 **      mechanism depends on the app using JMSG_LIB.
 **      NOOP: 185cc0000001007a
