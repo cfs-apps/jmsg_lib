@@ -205,7 +205,7 @@ static bool CfeToJson(const char **JsonMsgPayload, const CFE_MSG_Message_t *CfeM
 ** Convert a UDP JSON RPI Demo topic message to a cFE SB RPI Demo message 
 **
 ** Notes:
-**   1. Signature must match MQTT_TOPIC_TBL_JsonToCfe_t
+**   1. Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
 **   2. Messages that can be sent over UDP for testing
 **      {"rpi-demo":{"rate-x": 1.0, "rate-y": 2.0, "rate-z": 3.0, "lux": 456}}
 **
@@ -228,6 +228,42 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JsonMsgPayload, ui
    return RetStatus;
    
 } /* End JsonToCfe() */
+
+
+/******************************************************************************
+** Function: LoadJsonData
+**
+** Notes:
+**  1. See file prologue for full/partial table load scenarios
+*/
+static bool LoadJsonData(const char *JsonMsgPayload, uint16 PayloadLen)
+{
+
+   bool      RetStatus = false;
+   size_t    ObjLoadCnt;
+
+   memset(&TPlugRpiDemo.TlmMsg.Payload, 0, sizeof(USR_TPLUG_RpiDemoTlm_Payload_t));
+   
+   ObjLoadCnt = CJSON_LoadObjArray(JsonTblObjs, TPlugRpiDemo.JsonObjCnt, JsonMsgPayload, PayloadLen);
+   
+   CFE_EVS_SendEvent(TPLUG_RPI_DEMO_LOAD_JSON_DATA_EID, CFE_EVS_EventType_DEBUG,
+                     "TPLUG RPI Demo LoadJsonData() processed %d JSON objects", (uint16)ObjLoadCnt);
+
+   if (ObjLoadCnt == TPlugRpiDemo.JsonObjCnt)
+   {
+      memcpy(&TPlugRpiDemo.TlmMsg.Payload, &RpiDemoTlm, sizeof(USR_TPLUG_RpiDemoTlm_Payload_t));      
+      RetStatus = true;
+   }
+   else
+   {
+      CFE_EVS_SendEvent(TPLUG_RPI_DEMO_JSON_TO_CCSDS_ERR_EID, CFE_EVS_EventType_ERROR, 
+                        "Error processing TPLUG RPI Demo, payload contained %d of %d data objects",
+                        (unsigned int)ObjLoadCnt, (unsigned int)TPlugRpiDemo.JsonObjCnt);
+   }
+   
+   return RetStatus;
+   
+} /* End LoadJsonData() */
 
 
 /******************************************************************************
@@ -274,41 +310,5 @@ static void PluginTest(bool Init, int16 Param)
    CFE_SB_TimeStampMsg(CFE_MSG_PTR(TPlugRpiDemo.TlmMsg.TelemetryHeader));
    CFE_SB_TransmitMsg(CFE_MSG_PTR(TPlugRpiDemo.TlmMsg.TelemetryHeader), true);
    
-} /* End SbMsgTest() */
-
-
-/******************************************************************************
-** Function: LoadJsonData
-**
-** Notes:
-**  1. See file prologue for full/partial table load scenarios
-*/
-static bool LoadJsonData(const char *JsonMsgPayload, uint16 PayloadLen)
-{
-
-   bool      RetStatus = false;
-   size_t    ObjLoadCnt;
-
-   memset(&TPlugRpiDemo.TlmMsg.Payload, 0, sizeof(USR_TPLUG_RpiDemoTlm_Payload_t));
-   
-   ObjLoadCnt = CJSON_LoadObjArray(JsonTblObjs, TPlugRpiDemo.JsonObjCnt, JsonMsgPayload, PayloadLen);
-   
-   CFE_EVS_SendEvent(TPLUG_RPI_DEMO_LOAD_JSON_DATA_EID, CFE_EVS_EventType_DEBUG,
-                     "TPLUG RPI Demo LoadJsonData() process %d JSON objects", (uint16)ObjLoadCnt);
-
-   if (ObjLoadCnt == TPlugRpiDemo.JsonObjCnt)
-   {
-      memcpy(&TPlugRpiDemo.TlmMsg.Payload, &RpiDemoTlm, sizeof(USR_TPLUG_RpiDemoTlm_Payload_t));      
-      RetStatus = true;
-   }
-   else
-   {
-      CFE_EVS_SendEvent(TPLUG_RPI_DEMO_JSON_TO_CCSDS_ERR_EID, CFE_EVS_EventType_ERROR, 
-                        "Error processing TPLUG RPI Demo, payload contained %d of %d data objects",
-                        (unsigned int)ObjLoadCnt, (unsigned int)TPlugRpiDemo.JsonObjCnt);
-   }
-   
-   return RetStatus;
-   
-} /* End LoadJsonData() */
+} /* End PluginTest() */
 

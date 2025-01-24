@@ -434,7 +434,7 @@ bool JMSG_TOPIC_TBL_LoadCmd(APP_C_FW_TblLoadOptions_Enum_t LoadType, const char 
 
    bool  RetStatus = false;
 
-   if (CJSON_ProcessFile(Filename, JMsgTopicTbl->JsonBuf, JMSG_PLATFORM_MAX_JSON_TOPIC_TBL_CHAR, LoadJsonData))
+   if (CJSON_ProcessFile(Filename, JMsgTopicTbl->JsonBuf, JMSG_PLATFORM_JSON_TOPIC_TBL_MAX_CHAR, LoadJsonData))
    {
       JMsgTopicTbl->Loaded = true;
       RetStatus = true;

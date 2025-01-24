@@ -191,7 +191,7 @@ typedef struct
    uint16      LastLoadCnt;
    
    size_t      JsonObjCnt;
-   char        JsonBuf[JMSG_PLATFORM_MAX_JSON_TOPIC_TBL_CHAR];   
+   char        JsonBuf[JMSG_PLATFORM_JSON_TOPIC_TBL_MAX_CHAR];   
    size_t      JsonFileLen;
    
 } JMSG_TOPIC_TBL_Class_t;

@@ -7,14 +7,14 @@ the JMSG_UDP and JMSG_MQTT apps. The term JMSG generically refers to a Basecamp
 JSON text message. The UDP and MQTT JSON message conventions are nearly identical
 and are based on the MQTT standard. Each message has a topic name that uses the
 MQTT path standard. Basecamp's UDP topics have a colon appended to the end
-of the topic name to serve as a delimeter between the topic name and JSON
+of the topic name to serve as a delimiter between the topic name and JSON
 payload. Text strings are used as payloads for both UDP and MQTT are JSON objects.
 Typically JSON objects are used for the text and the content structure matches
 as EDS structure definition used for the binary message. The exceptions to JSON
 are the generic command and telemetry topic plugins provided with JMSG_LIB. They
 encode and decode binary messages using "hextext".
 
-The design supports using either JSMG_MQTT or JSMG_UDP seperately or intalling
+The design supports using either JSMG_MQTT or JSMG_UDP separately or installing
 both apps. JMSG_LIB and JMSG_APP must be installed to use JMSGs. See the JMSG_LIB
 documentation for more details.
 
@@ -33,10 +33,9 @@ is located in /cfs-basecamp/cfe-eds-framework/basecamp_defs/ and the
 default user plugins defined in ../jmsg_lib/eds/usr_tplug.xml has not been
 modified so the following topic table cfe entries correspond with these
 USR_TPLUGG IDs:
-   cfe-3 = USR1
-   cfe-4 = USR2
-   cfe-5 = USR3
-   cfe-6 = USR4
+   cfe-4 = USR1
+   cfe-5 = USR2
+   cfe-6 = USR3
 
 Note only one topic array entry can be enabled and configured as MQTT
 with a publish sb-role.  This is because MQTT_LIB only supports one
@@ -97,7 +96,7 @@ A. Configure cpu1_jmsg_topics.json as follows(other entries should be disabled):
        },
 
 B. In cpu1_kit_to_pkt_tbl.json set the "forward" field to 'true' for a
-   telemetry packet that is periodcially produced. This example uses 
+   telemetry packet that is periodically produced. This example uses 
    JMSG_UDP's status message that is sent every 2 seconds.
    
       {"packet": {
@@ -111,17 +110,17 @@ B. In cpu1_kit_to_pkt_tbl.json set the "forward" field to 'true' for a
          "filter": { "type": 2, "X": 1, "N": 1, "O": 0}
       }},
       
-B. Compile the cFS, start Basecamp and start the cFS. Opening JMSG_UDP's
-   status telemetry message is also helpful so you can verify message
-   counters are incrementing as as expected.
+C. Build the cFS using 'make topicids', start Basecamp and start the
+   cFS. Opening JMSG_UDP's status telemetry message is also helpful
+   so you can verify message counters are incrementing as expected.
 
-c. In a new terminal window start navigate to jmsg_lib/fsw/topic_plugins
+D. In a new terminal window start navigate to jmsg_lib/fsw/topic_plugins
    and run 'python3 jmsg_cmd_tlm.py'
 
-D. In the Basecamp "cFS Target Process Window" you should see APP_C_DEMO
+E. In the Basecamp "cFS Target Process Window" you should see APP_C_DEMO
    event messages and JMSG_UDP cmd & tlm plugin status messages.
 
-E. In the Python terminal window you should repeatedly see these messages.
+F. In the Python terminal window you should repeatedly see these messages.
    The received values won't be exactly the same.
    
 >>> Sending message basecamp/cfs/cmd:185cc0000001007a
@@ -176,10 +175,10 @@ Configure the TPLUG_WEB_* entries as follows:
        },
    ]
 
-B. Compile the cFS, start Basecamp and start the cFS. Opening JMSG_UDP's
-   status telemetry message is also helpful so you can verify message
-   counters are incrementing as as expected. Open the USR_TPLUG RPI_DEMO
-   to see the SB published messages.
+B. Build the cFS using 'make topicids', start Basecamp and start the
+   cFS. Opening JMSG_UDP's status telemetry message is also helpful 
+   so you can verify message counters are incrementing as expected.
+   Open the USR_TPLUG RPI_DEMO to see the SB published messages.
 
 C. In a new terminal window start navigate to jmsg_lib/fsw/usr_tplugs
    and run 'python3 tplug_rpi_sim.py'
@@ -199,7 +198,7 @@ E. In Basecamp the USR_TPLUG RPI_DEMO telemetry screen should update and
 
 This must be run on a Raspberry Pi using the hardware described in the Python
 program tplug_rpi_demo.py. tplug_rpi_demo.py is used to communicate with
-JMSG_UDP. This configuration is a subset of the software simulation oonfiguration. 
+JMSG_UDP. This configuration is a subset of the software simulation configuration. 
 
 JMSG_UDP                                                Python App
    |                                                        |
@@ -229,10 +228,10 @@ Configure the TPLUG_WEB_* entries as follows:
        },
    ]
 
-B. Compile the cFS, start Basecamp and start the cFS. Opening JMSG_UDP's
-   status telemetry message is also helpful so you can verify message
-   counters are incrementing as as expected. Open the USR_TPLUG RPI_DEMO
-   to see the SB published messages.
+B. Build the cFS using 'make topicids', start Basecamp and start the
+   cFS. Opening JMSG_UDP's status telemetry message is also helpful
+   so you can verify message counters are incrementing as expected.
+   Open the USR_TPLUG RPI_DEMO to see the SB published messages.
 
 C. In a new terminal window start navigate to jmsg_lib/fsw/usr_tplugs
    and run 'python3 tplug_rpi_demo.py'
@@ -292,10 +291,10 @@ A. Configure cpu1_jmsg_topics.json as follows(other entries should be disabled):
       }
    ]
 
-B. Compile the cFS, start Basecamp and start the cFS. Open JMSG_MQTT's
-   status telemetry message so you can verify message counters are
-   incrementing as as expected. Open the USR_TPLUG WEB_DISCRETE
-   and USR_TPLUG WEB_DISCRETE telemetry pages 
+B. Build the cFS using 'make topicids', start Basecamp and start
+   the cFS. Open JMSG_MQTT's status telemetry message so you can
+   verify message counters are incrementing as expected. Open the
+   USR_TPLUG WEB_DISCRETE and USR_TPLUG WEB_DISCRETE telemetry pages 
 
 C. Open the HiveMQ's websocket at https://www.hivemq.com/demos/websocket-client/?
    Using HiveMQ assumes Basecamps defaults have not been changed.

@@ -29,6 +29,8 @@
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="JMSG_LIB" shortDescription="cFS Basecamp JSON Message Library">
+
+
     <DataTypeSet>
 
       <!--***********************************-->
@@ -36,6 +38,8 @@
       <!--***********************************-->
       
       <StringDataType name="TopicName" length="${JMSG_PLATFORM/TOPIC_NAME_MAX_LEN}" shortDescription="Topic name Text" />
+      
+	  <StringDataType name="ScriptString" length="${JMSG_PLATFORM/TOPIC_SCRIPT_STRING_MAX_LEN}" shortDescription="Max length of python script string" />
 
       <EnumeratedDataType name="TopicProtocol" shortDescription="JMSG protocol/format options">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
@@ -46,7 +50,7 @@
           <Enumeration label="INVALID" value="3"   shortDescription="Protocol not properly defined in JSON topic table" />
         </EnumerationList>
       </EnumeratedDataType>
-           
+
       <EnumeratedDataType name="TopicSbRole" shortDescription="Communication role from SB perspective" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -72,6 +76,14 @@
         </DimensionList>
       </ArrayDataType>
 
+      <EnumeratedDataType name="ExecScriptCmd" shortDescription="">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="UNDEF"            value="0"   shortDescription="Default value that must be overwritten with a valid command" />
+          <Enumeration label="RUN_SCRIPT_TEXT"  value="1"   shortDescription="Run the script text contained in the message" />
+          <Enumeration label="RUN_SCRIPT_FILE"  value="2"   shortDescription="Run the script file on the platform receiving the message" />
+        </EnumerationList>
+      </EnumeratedDataType>
   
       <!--*****************************************-->
       <!--**** DataTypeSet: Telemetry Payloads ****-->
@@ -99,7 +111,21 @@
         </EntryList>
       </ContainerDataType>
       
-      
+      <!--
+         Even though this message conatins a command for the destination platform, it 
+		 is defined as a telemetry message because (1) It is sent out of the host platform
+		 to a target and (2) the CCSDS command packet header doesn't add value whereas The
+		 telemetry packet timestamp is helpful in terms of when the command message was sent.
+      -->
+      <ContainerDataType name="ExecScriptTlm_Payload" shortDescription="Send a python script to be executed">
+        <EntryList>
+          <Entry name="Command"     type="ExecScriptCmd"       shortDescription="" />
+          <Entry name="ScriptFile"  type="BASE_TYPES/PathName" shortDescription="Path and file name of the script to be executed. Only used for 'RunScriptFile' command" />
+          <Entry name="ScriptText"  type="ScriptString"        shortDescription="Script contents. Only used for 'RunScritpText' command"/>
+       </EntryList>
+      </ContainerDataType>
+	        
+
       <!--****************************************-->
       <!--**** DataTypeSet: Telemetry Packets ****-->
       <!--****************************************-->
@@ -115,11 +141,17 @@
           <Entry type="TopicTblTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>   
-                  
+
+      <ContainerDataType name="ExecScriptTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="ExecScriptTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+	  
     </DataTypeSet>
         
     <ComponentSet>
-      <Component name="Application">
+      <Component name="Application" shortDescription="Must define as an application and not a library so interface is exported">
 
         <!--***********************************-->
         <!--**** Component Set: Interfaces ****-->
@@ -138,7 +170,13 @@
               <GenericTypeMap name="TelemetryDataType" type="TopicTblTlm" />
             </GenericTypeMapSet>
           </Interface>
-          
+ 
+          <Interface name="EXEC_SCRIPT_TLM" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="ExecScriptTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+		  
         </RequiredInterfaceSet>
 
         <!--***************************************-->
@@ -149,11 +187,13 @@
           <VariableSet>
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicSubscribeTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SUBSCRIBE_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicTblTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ExecScriptTlmTopicId"     initialValue="${CFE_MISSION/JMSG_LIB_EXEC_SCRIPT_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
             <ParameterMap interface="TOPIC_SUBSCRIBE_TLM" parameter="TopicId" variableRef="TopicSubscribeTlmTopicId" />
             <ParameterMap interface="TOPIC_TBL_TLM"       parameter="TopicId" variableRef="TopicTblTlmTopicId" />
+            <ParameterMap interface="EXEC_SCRIPT_TLM"     parameter="TopicId" variableRef="ExecScriptTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>

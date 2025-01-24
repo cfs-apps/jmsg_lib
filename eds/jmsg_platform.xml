@@ -26,6 +26,11 @@
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="JMSG_PLATFORM" shortDescription="">
+
+    <Define name="CHAR_BLOCK" value="256"  shortDescription="Serves as a base number of characters to process in a loop. Other lengths should be multiples of this" />
+   
+    <Define name="TOPIC_SCRIPT_STRING_MAX_LEN" value="${JMSG_PLATFORM/CHAR_BLOCK}*2"  shortDescription="TODO: EDS toolchain seems to have a max length of less than 4096" />
+
     <DataTypeSet>
     
       <!-- 
@@ -33,43 +38,43 @@
          checks are performed so it is up to developers to ensure app's that define topic 
          plugins don't have conflicts in their app_cfg.h.
 
-         I tried using
-            <Define name="TOPIC_BASE_EID"  value="${APP_C_FW/APP_BASE_EID} + 800"/>
-            and 
+         The 'JMSG_PLATFORM/' prefix is required in the ${JMSG_PLATFORM/TOPIC_BASE_EID + ##}
+		 statements. If teh follwoing is used 
             <Define name="TOPIC_TBL_BASE_EID" value="${TOPIC_BASE_EID} + 10"/>
-            end get...
+         the result is
             /home/osk/cfs-apps/usr/apps/tplug_web/eds/tplug_web.xml:44:error: [string "return Evaluate("TOPIC_BASE_EID") + 50"]:1: attempt to perform arithmetic on a nil value
       -->
       
-      <Define name="TOPIC_TBL_BASE_EID"           value="800"  shortDescription="jmsg_topic_tbl.c"/>
-      <Define name="TOPIC_PLUGIN_BASE_EID"        value="810"  shortDescription="jmsg_topic_plugin.c"/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_CMD"    value="820"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_TLM"    value="830"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_USR_1"  value="840"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_USR_2"  value="850"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_USR_3"  value="860"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_USR_4"  value="870"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_USR_5"  value="880"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_BASE_EID_USR_6"  value="890"  shortDescription=""/>
+      <Define name="TOPIC_BASE_EID"               value="${APP_C_FW/APP_BASE_EID} + 600"/>
+      <Define name="TOPIC_TBL_BASE_EID"           value="${JMSG_PLATFORM/TOPIC_BASE_EID} +  0"  shortDescription="jmsg_topic_tbl.c"/>
+      <Define name="TOPIC_PLUGIN_BASE_EID"        value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 10"  shortDescription="jmsg_topic_plugin.c"/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_CMD"    value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 20"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_TLM"    value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 30"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_SCRIPT" value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 40"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_USR_1"  value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 50"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_USR_2"  value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 60"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_USR_3"  value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 70"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_USR_4"  value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 80"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_BASE_EID_USR_5"  value="${JMSG_PLATFORM/TOPIC_BASE_EID} + 90"  shortDescription=""/>
       
       <Define name="TOPIC_NAME_MAX_LEN"   value="48"   shortDescription="Maximum number of characters in a topic name"/>
       <Define name="TOPIC_SB_MSG_MAX_LEN" value="4096" shortDescription="Must accomodate the largest potential cmd/tlm message"/>
 
       <!--
          Since MAX_TOPIC_PLUGIN_CNT is needed as a constant in other EDS definitions
-         all of the TopicPlugin enuemration values are defined as constants. Their 
+         all of the TopicPlugin enumeration values are defined as constants. Their 
          value must start at zero and increment by 1 since the topic plugin IDs are
          used as array indices.
       -->
       
       <Define name="TOPIC_PLUGIN_CMD"    value="0"  shortDescription=""/>
       <Define name="TOPIC_PLUGIN_TLM"    value="1"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_1"  value="2"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_2"  value="3"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_3"  value="4"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_4"  value="5"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_5"  value="6"  shortDescription=""/>
-      <Define name="TOPIC_PLUGIN_USR_6"  value="7"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_SCRIPT" value="2"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_1"  value="3"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_2"  value="4"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_3"  value="5"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_4"  value="6"  shortDescription=""/>
+      <Define name="TOPIC_PLUGIN_USR_5"  value="7"  shortDescription=""/>
       <Define name="TOPIC_PLUGIN_MAX"    value="8"  shortDescription=""/>
       <Define name="TOPIC_PLUGIN_UNDEF"  value="99" shortDescription="Value that indicates an undefined plugin. Must not match any valid TopicPlugin enum value"/>
 
@@ -85,19 +90,19 @@
          be used for looping. 
       -->
       
-      <Define name="MAX_JSON_TOPIC_TBL_CHAR" value="5000" shortDescription="Maximum number of characters in the JSON topic table"/>
+      <Define name="JSON_TOPIC_TBL_MAX_CHAR" value="5000" shortDescription="Maximum number of characters in the JSON topic table"/>
      
       <EnumeratedDataType name="TopicPlugin" shortDescription="Used as indices so values start at 0. User name interface is 1..N" >
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="CMD"    value="${TOPIC_PLUGIN_CMD}"    shortDescription="Commands encoded hextex." />
           <Enumeration label="TLM"    value="${TOPIC_PLUGIN_TLM}"    shortDescription="Telemetry encoded hextex." />
+          <Enumeration label="SCRIPT" value="${TOPIC_PLUGIN_SCRIPT}" shortDescription="Remote script execution" />
           <Enumeration label="USR_1"  value="${TOPIC_PLUGIN_USR_1}"  shortDescription="User defined topic" />
           <Enumeration label="USR_2"  value="${TOPIC_PLUGIN_USR_2}"  shortDescription="User defined topic" />
           <Enumeration label="USR_3"  value="${TOPIC_PLUGIN_USR_3}"  shortDescription="User defined topic" />
           <Enumeration label="USR_4"  value="${TOPIC_PLUGIN_USR_4}"  shortDescription="User defined topic" />
           <Enumeration label="USR_5"  value="${TOPIC_PLUGIN_USR_5}"  shortDescription="User defined topic" />
-          <Enumeration label="USR_6"  value="${TOPIC_PLUGIN_USR_6}"  shortDescription="User defined topic" />
         </EnumerationList>
       </EnumeratedDataType>
 
@@ -113,12 +118,12 @@
         <EnumerationList>
           <Enumeration label="CMD"    value="${TOPIC_PLUGIN_BASE_EID_CMD}"    shortDescription="" />
           <Enumeration label="TLM"    value="${TOPIC_PLUGIN_BASE_EID_TLM}"    shortDescription="" />
+          <Enumeration label="SCRIPT" value="${TOPIC_PLUGIN_BASE_EID_SCRIPT}" shortDescription="" />
           <Enumeration label="USR_1"  value="${TOPIC_PLUGIN_BASE_EID_USR_1}"  shortDescription="" />
           <Enumeration label="USR_2"  value="${TOPIC_PLUGIN_BASE_EID_USR_2}"  shortDescription="" />
           <Enumeration label="USR_3"  value="${TOPIC_PLUGIN_BASE_EID_USR_3}"  shortDescription="" />
           <Enumeration label="USR_4"  value="${TOPIC_PLUGIN_BASE_EID_USR_4}"  shortDescription="" />
           <Enumeration label="USR_5"  value="${TOPIC_PLUGIN_BASE_EID_USR_5}"  shortDescription="" />
-          <Enumeration label="USR_6"  value="${TOPIC_PLUGIN_BASE_EID_USR_6}"  shortDescription="" />
         </EnumerationList>
       </EnumeratedDataType>
     

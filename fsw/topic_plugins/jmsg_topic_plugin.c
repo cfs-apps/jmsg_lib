@@ -34,7 +34,7 @@
 
 #include "jmsg_topic_cmd.h"
 #include "jmsg_topic_tlm.h"
-
+#include "jmsg_topic_script.h"
 
 /************************************/
 /** Local File Function Prototypes **/
@@ -50,9 +50,9 @@ static void StubPluginTestTest(bool Init, int16 Param);
 /**********************/
 
 // JMSG_LIB topic plugin objects
-static JMSG_TOPIC_CMD_Class_t   JMsgTopicCmd;
-static JMSG_TOPIC_TLM_Class_t   JMsgTopicTlm;
-
+static JMSG_TOPIC_CMD_Class_t      JMsgTopicCmd;
+static JMSG_TOPIC_TLM_Class_t      JMsgTopicTlm;
+static JMSG_TOPIC_SCRIPT_Class_t   JMsgTopicScript;
 
 /******************************************************************************
 ** Function: JMSG_TOPIC_PLUGIN_Constructor
@@ -83,6 +83,11 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
          case JMSG_PLATFORM_TopicPlugin_TLM:
             JMSG_TOPIC_TLM_Constructor(&JMsgTopicTlm, &PluginFuncTbl[i],
                                        CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
+            break;
+
+         case JMSG_PLATFORM_TopicPlugin_SCRIPT:
+            JMSG_TOPIC_SCRIPT_Constructor(&JMsgTopicScript, &PluginFuncTbl[i],
+                                          CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
             break;
 
          default:

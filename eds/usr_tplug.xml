@@ -22,7 +22,7 @@
          as prescribed in CCSDS book 876.0. 
       2. Define user topic plugin (TPLUG) base event message IDs (EID) and
          telemetry messages. see jsmg_lib/docs/jmsg_topic_plugin_guide.txt
-         for  plugin creation and installation instructions
+         for plugin creation and installation instructions
       
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
