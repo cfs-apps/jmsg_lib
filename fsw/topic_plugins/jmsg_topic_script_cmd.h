@@ -13,17 +13,18 @@
 ** GNU Affero General Public License for more details.
 **
 ** Purpose:
-**   Define the JMSG script plugin topic
+**   Define the JMSG topic script command plugin topic
 **
 ** Notes:
-**   1. The JMSG script interface allows a cFS app to manage the excecution
-**      of scripts on a remote system.  Scripts can be embedded in the JSMG
-**      or resident on the remote system.
+**   1. Allows a cFS app to manage the excecution of scripts external to
+**      the cFS target. The scripts could be on the same processor or on
+**      a remote system.  Scripts can be embedded in the JSMG or resident
+**      on the external system.
 **
 */
 
-#ifndef _jmsg_topic_script_
-#define _jmsg_topic_script_
+#ifndef _jmsg_topic_script_cmd_
+#define _jmsg_topic_script_cmd_
 
 /*
 ** Includes
@@ -41,10 +42,10 @@
 ** Event Message IDs
 */
 
-#define JMSG_TOPIC_SCRIPT_CFE2JSON_EID         (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 0)
-#define JMSG_TOPIC_SCRIPT_JSON2CFE_EID         (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 1)
-#define JMSG_TOPIC_SCRIPT_LOAD_JSON_DATA_EID   (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 2)
-#define JMSG_TOPIC_SCRIPT_PLUGIN_TEST_EID      (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 3)
+#define JMSG_TOPIC_SCRIPT_CMD_CFE2JSON_EID         (JMSG_PLATFORM_TopicPluginBaseEid_SCR_CMD + 0)
+#define JMSG_TOPIC_SCRIPT_CMD_JSON2CFE_EID         (JMSG_PLATFORM_TopicPluginBaseEid_SCR_CMD + 1)
+#define JMSG_TOPIC_SCRIPT_CMD_LOAD_JSON_DATA_EID   (JMSG_PLATFORM_TopicPluginBaseEid_SCR_CMD + 2)
+#define JMSG_TOPIC_SCRIPT_CMD_PLUGIN_TEST_EID      (JMSG_PLATFORM_TopicPluginBaseEid_SCR_CMD + 3)
 
 
 /**********************/
@@ -60,16 +61,16 @@ typedef struct
 {
 
    /*
-   ** Telemetry
+   ** Command
    */
 
-   JMSG_LIB_ExecScriptTlm_t  ExecScriptTlm;
+   JMSG_LIB_TopicScriptCmd_t  ScriptCmd;
 
    /*
    ** JSON message data
    */
    
-   char  JMsgPayload[128+OS_MAX_PATH_LEN+JMSG_PLATFORM_TOPIC_SCRIPT_STRING_MAX_LEN]; // 128 covers characters beyond script filename and in-message script text
+   char  JMsgPayload[128+OS_MAX_PATH_LEN+JMSG_PLATFORM_TOPIC_STRING_MAX_LEN]; // 128 covers characters beyond script filename and in-message script text
    
    uint16  JsonObjCnt;
    uint32  CfeToJMsgCnt;
@@ -81,7 +82,7 @@ typedef struct
    
    uint32 PluginTestCnt;
    
-} JMSG_TOPIC_SCRIPT_Class_t;
+} JMSG_TOPIC_SCRIPT_CMD_Class_t;
 
 
 /************************/
@@ -90,15 +91,15 @@ typedef struct
 
 
 /******************************************************************************
-** Function: JMSG_TOPIC_SCRIPT_Constructor
+** Function: JMSG_TOPIC_SCRIPT_CMD_Constructor
 **
 ** Initialize the JMSG Script topic
 **
 ** Notes:
 **   None
 */
-void JMSG_TOPIC_SCRIPT_Constructor(JMSG_TOPIC_SCRIPT_Class_t *JMsgTopicScriptPtr,
-                                   JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
-                                   CFE_SB_MsgId_t ScriptTlmMid);
+void JMSG_TOPIC_SCRIPT_CMD_Constructor(JMSG_TOPIC_SCRIPT_CMD_Class_t *JMsgTopicScriptPtr,
+                                       JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
+                                       CFE_SB_MsgId_t ScriptTlmMid);
 
-#endif /* _jmsg_topic_script_ */
+#endif /* _jmsg_topic_script_cmd_ */

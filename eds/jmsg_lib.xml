@@ -37,9 +37,17 @@
       <!--**** DataTypeSet:  Entry Types ****-->
       <!--***********************************-->
       
-      <StringDataType name="TopicName" length="${JMSG_PLATFORM/TOPIC_NAME_MAX_LEN}" shortDescription="Topic name Text" />
+      <StringDataType name="TopicName"   length="${JMSG_PLATFORM/TOPIC_NAME_MAX_LEN}" shortDescription="Topic name Text" />
+      <StringDataType name="TlmDateTime" length="32" shortDescription="Accommodates mm/dd/yyyy hh:mm:ss AM|PM" />
       
-	  <StringDataType name="ScriptString" length="${JMSG_PLATFORM/TOPIC_SCRIPT_STRING_MAX_LEN}" shortDescription="Max length of python script string" />
+      <!--
+         "Script" provides an interface to an external system that can run script (e.g. Python) text files. External refers
+         to a processs running outside the cFS target that is local or remote. Command scripts can be embedded in the message
+         or specify the remote script to be executed. Telemetry parameters are embedded in the message and the two end users
+         must agree on the key:value pair definitions. 
+      -->      
+	   <StringDataType name="CmdScriptString" length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
+	   <StringDataType name="TlmParamString"  length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
 
       <EnumeratedDataType name="TopicProtocol" shortDescription="JMSG protocol/format options">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
@@ -112,20 +120,28 @@
       </ContainerDataType>
       
       <!--
-         Even though this message conatins a command for the destination platform, it 
+       Even though this message contains a command for the destination platform, it 
 		 is defined as a telemetry message because (1) It is sent out of the host platform
 		 to a target and (2) the CCSDS command packet header doesn't add value whereas The
 		 telemetry packet timestamp is helpful in terms of when the command message was sent.
       -->
-      <ContainerDataType name="ExecScriptTlm_Payload" shortDescription="Send a python script to be executed">
+      <ContainerDataType name="TopicScriptCmd_Payload" shortDescription="Send a script to be executed">
         <EntryList>
-          <Entry name="Command"     type="ExecScriptCmd"       shortDescription="" />
-          <Entry name="ScriptFile"  type="BASE_TYPES/PathName" shortDescription="Path and file name of the script to be executed. Only used for 'RunScriptFile' command" />
-          <Entry name="ScriptText"  type="ScriptString"        shortDescription="Script contents. Only used for 'RunScritpText' command"/>
+          <Entry name="Command"     type="ExecScriptCmd"         shortDescription="" />
+          <Entry name="ScriptFile"  type="BASE_TYPES/PathName"   shortDescription="Path and file name of the script to be executed. Only used for 'RunScriptFile' command" />
+          <Entry name="ScriptText"  type="CmdScriptString"       shortDescription="Script contents. Only used for 'RunScriptText' command"/>
        </EntryList>
       </ContainerDataType>
 	        
-
+      <ContainerDataType name="TopicScriptTlm_Payload" shortDescription="Receive telemetry in a string">
+        <EntryList>
+          <Entry name="Name"        type="TopicName"          shortDescription="" />        
+          <Entry name="SeqCount"    type="BASE_TYPES/int32"   shortDescription="" />
+          <Entry name="DateTime"    type="TlmDateTime"        shortDescription="" />
+          <Entry name="ParamText"   type="TlmParamString"     shortDescription="Telemetry parameters. End users define content"/>
+       </EntryList>
+      </ContainerDataType>
+	        
       <!--****************************************-->
       <!--**** DataTypeSet: Telemetry Packets ****-->
       <!--****************************************-->
@@ -142,12 +158,18 @@
         </EntryList>
       </ContainerDataType>   
 
-      <ContainerDataType name="ExecScriptTlm" baseType="CFE_HDR/TelemetryHeader">
+      <ContainerDataType name="TopicScriptCmd" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
-          <Entry type="ExecScriptTlm_Payload" name="Payload" />
+          <Entry type="TopicScriptCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-	  
+
+      <ContainerDataType name="TopicScriptTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="TopicScriptTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+      
     </DataTypeSet>
         
     <ComponentSet>
@@ -171,9 +193,15 @@
             </GenericTypeMapSet>
           </Interface>
  
-          <Interface name="EXEC_SCRIPT_TLM" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
+          <Interface name="TOPIC_SCRIPT_CMD" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelemetryDataType" type="ExecScriptTlm" />
+              <GenericTypeMap name="TelemetryDataType" type="TopicScriptCmd" />
+            </GenericTypeMapSet>
+          </Interface>
+		  
+          <Interface name="TOPIC_SCRIPT_TLM" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="TopicScriptTlm" />
             </GenericTypeMapSet>
           </Interface>
 		  
@@ -187,13 +215,15 @@
           <VariableSet>
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicSubscribeTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SUBSCRIBE_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicTblTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ExecScriptTlmTopicId"     initialValue="${CFE_MISSION/JMSG_LIB_EXEC_SCRIPT_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicScriptCmdTopicId"    initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicScriptTlmTopicId"    initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SCRIPT_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
             <ParameterMap interface="TOPIC_SUBSCRIBE_TLM" parameter="TopicId" variableRef="TopicSubscribeTlmTopicId" />
             <ParameterMap interface="TOPIC_TBL_TLM"       parameter="TopicId" variableRef="TopicTblTlmTopicId" />
-            <ParameterMap interface="EXEC_SCRIPT_TLM"     parameter="TopicId" variableRef="ExecScriptTlmTopicId" />
+            <ParameterMap interface="TOPIC_SCRIPT_CMD"    parameter="TopicId" variableRef="TopicScriptCmdTopicId" />
+            <ParameterMap interface="TOPIC_SCRIPT_TLM"    parameter="TopicId" variableRef="TopicScriptTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>

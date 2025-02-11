@@ -34,7 +34,8 @@
 
 #include "jmsg_topic_cmd.h"
 #include "jmsg_topic_tlm.h"
-#include "jmsg_topic_script.h"
+#include "jmsg_topic_script_cmd.h"
+#include "jmsg_topic_script_tlm.h"
 
 /************************************/
 /** Local File Function Prototypes **/
@@ -50,9 +51,11 @@ static void StubPluginTestTest(bool Init, int16 Param);
 /**********************/
 
 // JMSG_LIB topic plugin objects
-static JMSG_TOPIC_CMD_Class_t      JMsgTopicCmd;
-static JMSG_TOPIC_TLM_Class_t      JMsgTopicTlm;
-static JMSG_TOPIC_SCRIPT_Class_t   JMsgTopicScript;
+static JMSG_TOPIC_CMD_Class_t          JMsgTopicCmd;
+static JMSG_TOPIC_TLM_Class_t          JMsgTopicTlm;
+static JMSG_TOPIC_SCRIPT_CMD_Class_t   JMsgTopicScriptCmd;
+static JMSG_TOPIC_SCRIPT_TLM_Class_t   JMsgTopicScriptTlm;
+
 
 /******************************************************************************
 ** Function: JMSG_TOPIC_PLUGIN_Constructor
@@ -85,9 +88,14 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
                                        CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
             break;
 
-         case JMSG_PLATFORM_TopicPlugin_SCRIPT:
-            JMSG_TOPIC_SCRIPT_Constructor(&JMsgTopicScript, &PluginFuncTbl[i],
-                                          CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
+         case JMSG_PLATFORM_TopicPlugin_SCR_CMD:
+            JMSG_TOPIC_SCRIPT_CMD_Constructor(&JMsgTopicScriptCmd, &PluginFuncTbl[i],
+                                              CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
+            break;
+
+         case JMSG_PLATFORM_TopicPlugin_SCR_TLM:
+            JMSG_TOPIC_SCRIPT_TLM_Constructor(&JMsgTopicScriptTlm, &PluginFuncTbl[i],
+                                              CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
             break;
 
          default:
