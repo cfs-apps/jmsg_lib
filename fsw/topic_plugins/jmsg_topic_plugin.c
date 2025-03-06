@@ -35,7 +35,8 @@
 #include "jmsg_topic_cmd.h"
 #include "jmsg_topic_tlm.h"
 #include "jmsg_topic_script_cmd.h"
-#include "jmsg_topic_script_tlm.h"
+#include "jmsg_topic_csv_cmd.h"
+#include "jmsg_topic_csv_tlm.h"
 
 /************************************/
 /** Local File Function Prototypes **/
@@ -54,8 +55,8 @@ static void StubPluginTestTest(bool Init, int16 Param);
 static JMSG_TOPIC_CMD_Class_t          JMsgTopicCmd;
 static JMSG_TOPIC_TLM_Class_t          JMsgTopicTlm;
 static JMSG_TOPIC_SCRIPT_CMD_Class_t   JMsgTopicScriptCmd;
-static JMSG_TOPIC_SCRIPT_TLM_Class_t   JMsgTopicScriptTlm;
-
+static JMSG_TOPIC_CSV_CMD_Class_t      JMsgTopicCsvCmd;
+static JMSG_TOPIC_CSV_TLM_Class_t      JMsgTopicCsvTlm;
 
 /******************************************************************************
 ** Function: JMSG_TOPIC_PLUGIN_Constructor
@@ -93,9 +94,14 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
                                               CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
             break;
 
-         case JMSG_PLATFORM_TopicPlugin_SCR_TLM:
-            JMSG_TOPIC_SCRIPT_TLM_Constructor(&JMsgTopicScriptTlm, &PluginFuncTbl[i],
-                                              CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
+         case JMSG_PLATFORM_TopicPlugin_CSV_CMD:
+            JMSG_TOPIC_CSV_CMD_Constructor(&JMsgTopicCsvCmd, &PluginFuncTbl[i],
+                                           CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
+            break;
+
+         case JMSG_PLATFORM_TopicPlugin_CSV_TLM:
+            JMSG_TOPIC_CSV_TLM_Constructor(&JMsgTopicCsvTlm, &PluginFuncTbl[i],
+                                           CFE_SB_ValueToMsgId(TopicTbl->Topic[i].Cfe));         
             break;
 
          default:

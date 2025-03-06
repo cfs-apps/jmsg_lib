@@ -30,10 +30,9 @@
       
       "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-1",
       "KIT_TO_PUB_WRAPPED_TLM_TOPICID": "cfe-2",
-      "TPLUG_WEB_DISCRETE_PLUGIN_TLM_TOPICID": "cfe-3",
-      "TPLUG_WEB_RATE_PLUGIN_TLM_TOPICID": "cfe-4",
-      "TPLUG_RPI_DEMO_PLUGIN_TLM_TOPICID": "cfe-5",
-      "TPLUG_RPI_DEMO_PLUGIN_TLM_TOPICID": "cfe-6",      
+      "JMSG_LIB_TOPIC_CSV_CMD_TOPICID": "cfe-3",
+      "JMSG_LIB_TOPIC_CSV_TLM_TOPICID": "cfe-4",
+      "JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID": "cfe-5",
       
       "end": true
 
@@ -59,26 +58,26 @@
           "enabled": "false"
        },
        {
-          "id": "USR_1",
-          "name":  "basecamp/demo/sc/discrete",
+          "id": "CSV_CMD",
+          "name":  "basecamp/csv/cmd",
           "cfe-3": 0,
-          "cfe": 0,
-          "protocol": "mqtt",
-          "sb-role": "pub",
-          "enabled": "false"
-       },
-       {
-          "id": "USR_2",
-          "name":  "basecamp/demo/sc/rate",
-          "cfe-4": 0,
           "cfe": 0,
           "protocol": "mqtt",
           "sb-role": "sub",
           "enabled": "false"
        },
        {
-          "id": "USR_3",
-          "name":  "basecamp/rpi/demo",
+          "id": "CSV_TLM",
+          "name":  "basecamp/csv/tlm",
+          "cfe-4": 0,
+          "cfe": 0,
+          "protocol": "mqtt",
+          "sb-role": "pub",
+          "enabled": "false"
+       },
+       {
+          "id": "SCRIPT_CMD",
+          "name":  "basecamp/script/cmd",
           "cfe-5": 0,
           "cfe": 0,
           "protocol": "udp",
@@ -86,7 +85,7 @@
           "enabled": "false"
        },
        {
-          "id": "USR_4",
+          "id": "USR_1",
           "name":  "basecamp/rpi/demo",
           "cfe-6": 0,
           "cfe": 0,
@@ -95,7 +94,7 @@
           "enabled": "false"
        },
        {
-          "id": "USR_5",
+          "id": "USR_2",
           "name":  "spare",
           "cfe-7": 0,
           "cfe": 0,
@@ -104,7 +103,7 @@
           "enabled": "false"
        },
        {
-          "id": "USR_6",
+          "id": "USR_3",
           "name":  "spare",
           "cfe-8": 0,
           "cfe": 0,

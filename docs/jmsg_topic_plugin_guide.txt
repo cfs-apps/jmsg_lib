@@ -2,65 +2,311 @@
 INTRODUCTION
 ============
 
-These instructions describe how to use JSON message (JMSG) topic plugins for
-the JMSG_UDP and JMSG_MQTT apps. The term JMSG generically refers to a Basecamp
-JSON text message. The UDP and MQTT JSON message conventions are nearly identical
-and are based on the MQTT standard. Each message has a topic name that uses the
-MQTT path standard. Basecamp's UDP topics have a colon appended to the end
-of the topic name to serve as a delimiter between the topic name and JSON
-payload. Text strings are used as payloads for both UDP and MQTT are JSON objects.
-Typically JSON objects are used for the text and the content structure matches
-as EDS structure definition used for the binary message. The exceptions to JSON
-are the generic command and telemetry topic plugins provided with JMSG_LIB. They
-encode and decode binary messages using "hextext".
+These instructions serve as a quick reference for how to configure the JSON
+message(JMSG) library and app tables for common use cases. These use cases
+are run using the JMSG_DEMO app. The JMSG Demo and JMSG User App projects
+contain complete documentation for using the JMSG facility and for writing
+apps the have custom JMSG telemetry, respectively.
 
-The design supports using either JSMG_MQTT or JSMG_UDP separately or installing
-both apps. JMSG_LIB and JMSG_APP must be installed to use JMSGs. See the JMSG_LIB
-documentation for more details.
+The JMSG facility provides a bridge between the software bus and external
+systems. JMSGs are sent between the systems using either UDP or MQTT. The
+term JMSG generically refers to a Basecamp JSON text message. 
 
-These instructions are a quick reference for the following material:
+The following JSMG tables need to be configured for each use case. These
+tables are located in /cfs-basecamp/cfe-eds-framework/basecamp_defs/.
+- cpu1_jmsg_topics.json
+- cpu1_jmsg_udp_ini.json or cpu1_jmsg_mqtt_ini.json
 
-1. Configure & verify the cmd & tlm topic plugins using JMSG_UDP
-2. Configure & verify the RPI Demo topic plugin using JMSG_UDP (software)
-3. Configure & verify the RPI Demo topic plugin using JMSG_UDP (hardware)
-4. Configure & verify the web discrete & rate topic plugins using JMSG_MQTT
-5. Add a new JMSG_LIB topic plugin
-6. Integrate an app with topic plugins
+The following use cases are covered:
 
-These instructions assume JMSG_LIB, JMSG_APP and JMSG_MQTT/UDP have been
-integrated with the cFS target. The JMSG topic table cpu1_jmsg_topics.json
-is located in /cfs-basecamp/cfe-eds-framework/basecamp_defs/ and the
-default user plugins defined in ../jmsg_lib/eds/usr_tplug.xml has not been
-modified so the following topic table cfe entries correspond with these
-USR_TPLUGG IDs:
-   cfe-4 = USR1
-   cfe-5 = USR2
-   cfe-6 = USR3
+1. UDP-to-Python: Raspberry Pi (RPI) Demo Messages
+   - Interface to RPI python code that handles hardware interfaces
 
-Note only one topic array entry can be enabled and configured as MQTT
-with a publish sb-role.  This is because MQTT_LIB only supports one
-MQTT topic subscription.
+2. UDP-to-Python: Python Scripts
+   - Manage execution of python scripts
 
-'make topicids' must after the JMSG library and apps are installed so the 
-TOPICID values are populated.
+3. MQTT Web Server: Discrete/Rate Messages
+   - Use MQTT to communicate with remote systems 
 
-JMSG_MQTT and JMSG_UDP debug event messages can be enabled if you'd like to
-see more details of the processing. 
+4. UDP-to-Python: "HexText" Command & Telemetry Messages
+   - Encode binary cFS messages in HexText messages so any EDS
+     defined message can be sent/received in a JMSG
 
-Plugin topic messages must be defined KIT_TO's packet filter table in order
-to view them on a telemetry page.
+
+UDP and MQTT Configurations:
+
+1. For UDP use cases the following two configuration files must agree. The defaults
+   should be adequate.
+   /cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_jmsg_udp_ini.json (these should be the defaults)
+   
+      "RX_UDP_PORT":         8888,
+      "TX_UDP_ADDR":         "127.0.0.1",
+      "TX_UDP_PORT":         9999,
+
+   /cfs-basecamp/usr/apps/jmsg_lib/scripts/jmsg_udp_ini.json (these should be the defaults)
+      [NETWORK]
+      CFS_IP_ADDR  = 127.0.0.1
+      CFS_APP_PORT = 8888
+      PY_APP_PORT  = 9999
+      
+
+2. For MQTT use cases the JMSG_MQTT app settings must match the MQTT broker settings you
+   are using. To use the EMQX MTTQX webclient at https://mqttx.app/web-client#/recent_connections  
+   /cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_jmsg_mqtt_ini.json should have the
+   following settings:
+   
+      "MQTT_BROKER_PORT":     1883,
+      "MQTT_BROKER_ADDRESS":  "broker.emqx.io",
+
+cFS Target Configuration Notes:
+       
+1. The JMSG Demo Project should be used to ensure the cFS target is configured
+   properly.
+   - JMSG_LIB, JMSG_APP, JMSG_UDP, JMSG_MQTT and JMSG_DEMO installed in cFS target
+   - KIT_TO KIT_TO's packet filter table includes all JMSG topics
+   - 'make topicids' run to populate message topic IDs in JSON tables
+
+2. Only one topic array entry can be enabled and configured as MQTT with a
+   publish sb-role.  This is because MQTT_LIB only supports one MQTT topic
+   subscription.
+
+3. The JMSG_UDP and JMSG_MQTT status telemetry pages can be open so you can see
+   transmit and receive counters incrementing as expected. 
+
+4. Debug event messages can be enabled for JMSG_* apps if you'd like to see more
+   details of the processing. 
+
 
 ===============================================================================
-1. Configure & verify the cmd & tlm topic plugins using JMSG_UDP
+Use Case Sequence Diagram Template
 ===============================================================================
 
+The Python program /cfs-basecamp/usr/apps/jmsg_lib/scripts/jmsg_demo.py is used
+to communicate with JMSG_DEMO via the JMSG Facility and must be run in its own
+terminal window. It has two threads of execution, one to receive JMSGs over UDP 
+from the JMSG Facility and one to send JMSG's over UDP to the JMSG Facility. 
+
+The diagram below shows JMSG flows. The ==> arrows indicate software bus
+communication and the --> arrows indicate UDP communication. JMSG_DEMO's 
+StartUseCase command (indicated by <Start>) initiates the flow of period
+messages from JSMG_DEMO. When the user presses <Enter> in the python terminal
+window a single message is sent. 
+
+
+
+    JMSG_DEMO                     JMSG
+       APP                      Facility                    jmsg_demo.py
+        |                           |                            |
+        |   JMSG_LIB_CSV_CMD        |   JMSG(use case payload)   |
+<Start> | ========================> o -------------------------> |
+        |                           |                            |
+        |                           |                            |
+        |   JMSG_LIB_CSV_TLM        |   JMSG(use case payload)   |
+        | <======================== o <------------------------- | <Enter>
+        |                           |                            |
+        |                           |                            |
+        
+
+===============================================================================
+1. UDP-to-Python Process: Raspberry Pi (RPI) Demo Messages
+===============================================================================
+Use the RPI Demo message to illustrate sending commands with CSV parameters and
+receiving telemetry with CSV parameters. 
+
+                                  JMSG
+     JMSG_DEMO                   Facility                     Python App
+        |                           |                            |
+        |   JMSG_LIB_CSV_CMD        |   JMSG(RPI demo payload)   |
+<Start> | ========================> o -------------------------> |
+        |                           |                            |
+        |                           |                            |
+        |   JMSG_LIB_CSV_TLM        |   JMSG(RPI demo payload)   |
+        | <======================== o <------------------------- | <Enter>
+        |                           |                            |
+        |                           |                            |
+
+A. Set jmsg_topics.json configurations:
+
+/cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_jmsg_topics.json (other entries should be disabled)
+
+   "topic-id-map": { 
+      "JMSG_LIB_TOPIC_CSV_CMD_TOPICID": "cfe-4",
+      "JMSG_LIB_TOPIC_CSV_TLM_TOPICID": "cfe-5",
+   }
+
+   "topic": [   
+       {
+          "id": "CSV_CMD",
+          "name":  "basecamp/csv/cmd",
+          "cfe-4": **,
+          "cfe": **,
+          "protocol": "udp",
+          "sb-role": "sub",
+          "enabled": "true"
+       },
+       {
+          "id": "CSV_TLM",
+          "name":  "basecamp/csv/tlm",
+          "cfe-5": **,
+          "cfe": **,
+          "protocol": "udp",
+          "sb-role": "pub",
+          "enabled": "true"
+       },
+   ]
+
+** Value populated by "make topicids" 
+
+B. Build the cFS using 'make topicids', start Basecamp and start the cFS. 
+
+C. In a new terminal window run 'python3 jmsg_demo.py'
+
+D. From Basecamp GUI issue a JMSG_DEMO StartUseCase->UDP_RPI command. You should
+   repeatedly see something close to:
+   Received from ('127.0.0.1', 33648) JMSG 1024: basecamp/csv/cmd:{"name": "UDP RPI", "parameters": "rate-x,0.17453,rate-y,0.00000,rate-z,0.00000,lux,8"}
+
+E. From Basecamp open the following telemetry pages and the RPI Demo payload
+   contents should be displayed
+   - JMSG_LIB/Application/TOPIC_CSV_CMD 
+   - JMSG_DEMO/Application/UDP_RPI_TLM 
+
+F. In the python terminal window hit <Enter> to send a RPI demo message. You should
+   see the TOPIC_CSV_CMD telemetry page update and the ParamText payload containing
+   the RPI Demo CSV telemetry.
+
+G. Open Basecamp's JMSG_UDP/Application/STATUS_TLM telemetry page to verify the 
+   TxUdpMsgCnt is incrementing and the RxUdpMsgCnt equals the number of times you
+   hit <Enter> in the Python terminal window.
+
+===============================================================================
+2. UDP-to-Python: Python Scripts
+===============================================================================
+Send a python script embedded in the JMSG to be executed or send a command to
+execute a command on the python system.
+
+                                  JMSG
+     JMSG_DEMO                   Facility                     Python App
+        |                           |                            |
+        |   JMSG_LIB_SCRIPT_CMD     |   JMSG(Python script)      |
+<Start> | ========================> o -------------------------> |
+        |                           |                            |
+        |                           |                            |
+
+A. Set jmsg_topics.json configurations:
+
+/cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_jmsg_topics.json (other entries should be disabled)
+
+   "topic-id-map": { 
+      "JMSG_LIB_TOPIC_CSV_CMD_TOPICID": "cfe-4",
+   }
+
+   "topic": [   
+       {
+          "id": "SCRIPT_CMD",
+          "name":  "basecamp/script/cmd",
+          "cfe-5": **,
+          "cfe": **,
+          "protocol": "udp",
+          "sb-role": "sub",
+          "enabled": "true"
+       },
+   ]
+
+** Value populated by "make topicids" 
+
+B. Build the cFS using 'make topicids', start Basecamp and start the cFS. 
+
+C. In a new terminal window run 'python3 jmsg_demo.py'
+
+D. From Basecamp GUI issue a JMSG_DEMO StartUseCase->UDP_SCRIPT command and
+   you should repeatedly see the following messages in the python terminal:
+
+   Received from ('127.0.0.1', 46860) JMSG 1024: basecamp/script/cmd:{"command": 1, "script-file": "Unused", "script-text": "print('Hello World')\nprint('Hello Universe')"}
+
+   Hello World
+   Hello Universe
+
+
+===============================================================================
+3.  MQTT Web Server: Discrete/Rate Messages
+===============================================================================
+Use JMSG_DEMO's discrete message to illustrate how JSON messages can be
+transmitted between a cFS target and an MQTT broker using a websocket. The same
+instructions apply to rate messages by replacing Discrete with Rate.
+
+                                  JMSG                              MQTT 
+     JMSG_DEMO                   Facility                         WebSocket
+        |                           |                                 |
+        |   JMSG_LIB_CSV_CMD        |   JSON(Discrete/Rate payload)   |
+<Start> | ========================> o ------------------------------> |
+        |                           |                                 |
+        |                           |                                 |
+        |   JMSG_LIB_CSV_TLM        |   JSON(Discrete/Rate payload)   |
+        | <======================== o <------------------------------ | <Send>
+        |                           |                                 |
+        |                           |                                 |
+
+A. Set jmsg_topics.json configurations:
+
+/cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_jmsg_topics.json (other entries should be disabled)
+
+   "topic-id-map": { 
+      "JMSG_LIB_TOPIC_CSV_CMD_TOPICID": "cfe-4",
+      "JMSG_LIB_TOPIC_CSV_TLM_TOPICID": "cfe-5",
+   }
+
+   "topic": [   
+       {
+          "id": "CSV_CMD",
+          "name":  "basecamp/csv/cmd",
+          "cfe-4": **,
+          "cfe": **,
+          "protocol": "mqtt",
+          "sb-role": "sub",
+          "enabled": "true"
+       },
+       {
+          "id": "CSV_TLM",
+          "name":  "basecamp/csv/tlm",
+          "cfe-5": **,
+          "cfe": **,
+          "protocol": "mqtt",
+          "sb-role": "pub",
+          "enabled": "true"
+       },
+   ]
+
+** Value populated by "make topicids" 
+
+B. Build the cFS using 'make topicids', start Basecamp and start the cFS. 
+
+C. On your browser goto https://mqttx.app/web-client#/recent_connections
+   - Fill in the Name field and click on the Connect button
+   - Click the +Subscription button and enter 'basecamp/csv/cmd' (without quotes)   
+   
+D. From Basecamp GUI issue a JMSG_DEMO StartUseCase->MQTT_DISCRETE command. On the
+   MQTT web page you should repeatedly see messages:
+   {"name": "MQTT Discrete", "parameters": "item-1,0,item-2,0,item-3,1,item-4,0"}
+
+   If you don't see messages try sending the JMSG_MQTT->ReconnectToBroker command
+
+E. From Basecamp open the following telemetry pages and the Discrete payload
+   contents should be displayed
+   - JMSG_LIB/Application/TOPIC_CSV_CMD 
+   - JMSG_DEMO/Application/MQTT_DISCRETE_TLM   
+
+*. Open Basecamp's JMSG_MQTT/Application/STATUS_TLM telemetry page to verify
+   the TxUdpMsgCnt is incrementing and the RxUdpMsgCnt equlas the number of times
+   you hit <Enter> in the Python terminal window.
+   
+   
+===============================================================================
+4. UDP-to-Python: "HexText" Command & Telemetry Messages
+===============================================================================
+4. UDP-to-Python: "HexText" Message
+   - Encode binary cFS messages in HexText messages so any EDS defined message
+     can be sent/received in a JMSG
 The Python program jmsg_cmd_tlm.py is used to communicate with JMSG_UDP.
-
-JMSG_UDP                                           Python App
-   |                                                   |
-   |    APP_C_DEMO NOOP command encoded in hextext     |
-   | <------------------------------------------------ |
-   |                                                   |
 
 KIT_TO                                             Python App
    |                                                   |
@@ -127,8 +373,29 @@ F. In the Python terminal window you should repeatedly see these messages.
 Received from ('127.0.0.1', 56742) jmsg size=1024: basecamp/cfs/tlm:00017A0003007C023900000030CC0F005CEE000000000000010000006B420000000000006B42000000000000010000007B420000000000007B42000000000000
 
 
+
+
+
 ===============================================================================
-2. Configure & verify the RPI Demo topic plugin using JMSG_UDP (software)
+===============================================================================
+This section contains instructions for configuring User Topic Plugins for the
+RPI demo and the discrete/rate web topics. These topics plugins still exist but
+they have also been implemnted using the much simpler CSV JMSGs.    
+===============================================================================
+===============================================================================
+
+These instructions assume JMSG_LIB, JMSG_APP and JMSG_MQTT/UDP have been
+integrated with the cFS target. The JMSG topic table cpu1_jmsg_topics.json
+is located in /cfs-basecamp/cfe-eds-framework/basecamp_defs/ and the
+default user plugins defined in ../jmsg_lib/eds/usr_tplug.xml have not been
+modified so the following topic table cfe entries correspond with these
+USR_TPLUGG IDs:
+   cfe-4 = USR1
+   cfe-5 = USR2
+   cfe-6 = USR3
+
+===============================================================================
+1. Configure & verify the RPI Demo topic plugin using JMSG_UDP (software)
 ===============================================================================
 
 The Python program tplug_rpi_sim.py is used to communicate with JMSG_UDP.
@@ -311,45 +578,3 @@ D. From Basecamp issue a JMSG_APP StartTopicTest(USR_2) command
      MSG_MQTT Status's ValidSbMsgCnt should increment
 
 
-===============================================================================
-5. Add a new JMSG_LIB topic plugin
-===============================================================================
-
-TODO: Flesh out
-
-- Create new files in jmsg_lib/fsw/usr_tplugs or remote with 
-  jmsg_lib/CMakeLists.txtc changes?
-- Define messages functions for converting between JMSGs and cFE SB messages.
-- Naming conventions
-
-
-===============================================================================
-6. Integrate an app with topic plugins
-===============================================================================
-
-TODO: Flesh out
-
-- See SC_SIM for an example
-- 1. Create a fsw/mqtt subdirectory in your app's repo
-     For each TPLUG create a header file that
-     - Includes "jmsg_platform_eds_typedefs.h"
-     - Defines a global constructor function
-     For each topic create a source file that defines
-     - Define event IDs based on JMSG_PLATFORM_TopicPluginBaseEid_USR_*
-     - Define an object class type [APP]_TPLUG_CMD_Class_t 
-     - A cFE SB message to JMSG converter
-     - A JMSG to cFE SB message converter
-     - A test function
-- Create [app]/docs/tplug_install.txt that explains how to integrate app'same
-  tplugs in a target
-- File
-  [app]/fsw/usr_tplugs/[app]_tplug.c: TPLUG IDs
-  jmsg_lib/CMakeLists.txt:
-      include_directories(${[app]_MISSION_DIR}/fsw/usr_tplugs)
-      aux_source_directory(${[app]_MISSION_DIR}/fsw/usr_tplugs APP_SRC_FILES)
-  jmsg_lib/fsw/usr_tplugs/usr_tplug.c Add...
-      #include "[app]_tplug.h"
-      [APP]_TPLUG_Constructor()
-      Comment out unused TPLUGs
-   cfe-eds-framework/basecamp_defs/cpu1_jmsg_topics.json
-      Describe TOPIC ID map and roles  

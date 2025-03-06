@@ -47,6 +47,7 @@
          must agree on the key:value pair definitions. 
       -->      
 	   <StringDataType name="CmdScriptString" length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
+      <StringDataType name="CmdParamString"  length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
 	   <StringDataType name="TlmParamString"  length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
 
       <EnumeratedDataType name="TopicProtocol" shortDescription="JMSG protocol/format options">
@@ -122,7 +123,7 @@
       <!--
        Even though this message contains a command for the destination platform, it 
 		 is defined as a telemetry message because (1) It is sent out of the host platform
-		 to a target and (2) the CCSDS command packet header doesn't add value whereas The
+		 to a target and (2) the CCSDS command packet header doesn't add value whereas the
 		 telemetry packet timestamp is helpful in terms of when the command message was sent.
       -->
       <ContainerDataType name="TopicScriptCmd_Payload" shortDescription="Send a script to be executed">
@@ -133,7 +134,14 @@
        </EntryList>
       </ContainerDataType>
 	        
-      <ContainerDataType name="TopicScriptTlm_Payload" shortDescription="Receive telemetry in a string">
+      <ContainerDataType name="TopicCsvCmd_Payload" shortDescription="Send a command with CSV parameters">
+        <EntryList>
+          <Entry name="Name"        type="TopicName"          shortDescription="" />        
+          <Entry name="ParamText"   type="CmdParamString"     shortDescription="Command parameters. End users define content"/>
+       </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="TopicCsvTlm_Payload" shortDescription="Receive telemetry in a CSV string">
         <EntryList>
           <Entry name="Name"        type="TopicName"          shortDescription="" />        
           <Entry name="SeqCount"    type="BASE_TYPES/int32"   shortDescription="" />
@@ -164,9 +172,15 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="TopicScriptTlm" baseType="CFE_HDR/TelemetryHeader">
+      <ContainerDataType name="TopicCsvCmd" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
-          <Entry type="TopicScriptTlm_Payload" name="Payload" />
+          <Entry type="TopicCsvCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="TopicCsvTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="TopicCsvTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
       
@@ -199,9 +213,15 @@
             </GenericTypeMapSet>
           </Interface>
 		  
-          <Interface name="TOPIC_SCRIPT_TLM" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
+          <Interface name="TOPIC_CSV_CMD" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelemetryDataType" type="TopicScriptTlm" />
+              <GenericTypeMap name="TelemetryDataType" type="TopicCsvCmd" />
+            </GenericTypeMapSet>
+          </Interface>
+		  
+          <Interface name="TOPIC_CSV_TLM" shortDescription="Software bus JMsg text telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="TopicCsvTlm" />
             </GenericTypeMapSet>
           </Interface>
 		  
@@ -216,14 +236,16 @@
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicSubscribeTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SUBSCRIBE_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicTblTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicScriptCmdTopicId"    initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicScriptTlmTopicId"    initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SCRIPT_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicCsvCmdTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_CSV_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicCsvTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_CSV_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
             <ParameterMap interface="TOPIC_SUBSCRIBE_TLM" parameter="TopicId" variableRef="TopicSubscribeTlmTopicId" />
             <ParameterMap interface="TOPIC_TBL_TLM"       parameter="TopicId" variableRef="TopicTblTlmTopicId" />
             <ParameterMap interface="TOPIC_SCRIPT_CMD"    parameter="TopicId" variableRef="TopicScriptCmdTopicId" />
-            <ParameterMap interface="TOPIC_SCRIPT_TLM"    parameter="TopicId" variableRef="TopicScriptTlmTopicId" />
+            <ParameterMap interface="TOPIC_CSV_CMD"       parameter="TopicId" variableRef="TopicCsvCmdTopicId" />
+            <ParameterMap interface="TOPIC_CSV_TLM"       parameter="TopicId" variableRef="TopicCsvTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>

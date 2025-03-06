@@ -13,12 +13,12 @@
 ** GNU Affero General Public License for more details.
 **
 ** Purpose:
-**   Define the JMSG topic script telemetry plugin topic
+**   Define the JMSG topic Comma Separated Variable telemetry plugin topic
 **
 ** Notes:
 **   1. Allows a cFS app to receive JMSG telemetry from a system external 
-**      to the cFS target. It is called "script" because app's typically
-**      use it with the script command plugin. 
+**      to the cFS target. The telemetry parameters are contained in a CSV
+**      string.
 **
 */
 
@@ -27,7 +27,7 @@
 */
 
 #include "lib_cfg.h"
-#include "jmsg_topic_script_tlm.h"
+#include "jmsg_topic_csv_tlm.h"
 #include "usr_tplug_eds_typedefs.h"
 
 
@@ -60,9 +60,9 @@ static void PluginTest(bool Init, int16 Param);
 /** Global File Data **/
 /**********************/
 
-static JMSG_TOPIC_SCRIPT_TLM_Class_t  *JMsgTopicScriptTlm = NULL;
+static JMSG_TOPIC_CSV_TLM_Class_t  *JMsgTopicCsvTlm = NULL;
 
-static JMSG_LIB_TopicScriptTlm_Payload_t  ScriptTlmPayload;    /* Working buffer for JSON message parsing */
+static JMSG_LIB_TopicCsvTlm_Payload_t  CsvTlmPayload;    /* Working buffer for JSON message parsing */
 
 static CJSON_Obj_t JsonTblObjs[] = 
 {
@@ -70,18 +70,18 @@ static CJSON_Obj_t JsonTblObjs[] =
    /* Data                           Data                                          core-json       length of query      */
    /* Address,                       Length,          Updated, Data Type,  Float,  query string,   string(exclude '\0') */
    
-   { &ScriptTlmPayload.Name,         NAME_LEN,        false,   JSONNumber, false,  { "name",       (sizeof("name")-1)} },
-   { &ScriptTlmPayload.SeqCount,     SEQ_COUNT_LEN,   false,   JSONString, false,  { "seq-count",  (sizeof("seq-count")-1)} },
-   { &ScriptTlmPayload.DateTime,     DATE_TIME_LEN,   false,   JSONString, false,  { "date-time",  (sizeof("date-time")-1)} },
-   { &ScriptTlmPayload.ParamText,    SCRIPT_TXT_LEN,  false,   JSONString, false,  { "parameters", (sizeof("parameters")-1)} }
+   { &CsvTlmPayload.Name,         NAME_LEN,        false,   JSONString, false,  { "name",       (sizeof("name")-1)} },
+   { &CsvTlmPayload.SeqCount,     SEQ_COUNT_LEN,   false,   JSONNumber, false,  { "seq-count",  (sizeof("seq-count")-1)} },
+   { &CsvTlmPayload.DateTime,     DATE_TIME_LEN,   false,   JSONString, false,  { "date-time",  (sizeof("date-time")-1)} },
+   { &CsvTlmPayload.ParamText,    SCRIPT_TXT_LEN,  false,   JSONString, false,  { "parameters", (sizeof("parameters")-1)} }
    
 }; 
 
-static const char *NullScriptTlm = "{\"name\": \"null\", \"seq-count\": \"\0\", \"date-time\": \"\0\", \"parameters\": \"\none\"}";
+static const char *NullCsvTlm = "{\"name\": \"null\", \"seq-count\": 99, \"date-time\": \"\0\", \"parameters\": \"\none\"}";
 
 
 /******************************************************************************
-** Function: JMSG_TOPIC_SCRIPT_TLM_Constructor
+** Function: JMSG_TOPIC_CSV_TLM_Constructor
 **
 ** Initialize the JMSG Script topic plugin 
 **
@@ -89,24 +89,24 @@ static const char *NullScriptTlm = "{\"name\": \"null\", \"seq-count\": \"\0\", 
 **   None
 **
 */
-void JMSG_TOPIC_SCRIPT_TLM_Constructor(JMSG_TOPIC_SCRIPT_TLM_Class_t *JMsgTopicScriptTlmPtr,
-                                       JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
-								               CFE_SB_MsgId_t ScriptTlmMid)
+void JMSG_TOPIC_CSV_TLM_Constructor(JMSG_TOPIC_CSV_TLM_Class_t *JMsgTopicCsvTlmPtr,
+                                    JMSG_TOPIC_TBL_PluginFuncTbl_t *PluginFuncTbl,
+								            CFE_SB_MsgId_t CsvTlmMid)
 
 {
 
-   JMsgTopicScriptTlm = JMsgTopicScriptTlmPtr;
-   memset(JMsgTopicScriptTlm, 0, sizeof(JMSG_TOPIC_SCRIPT_TLM_Class_t));
+   JMsgTopicCsvTlm = JMsgTopicCsvTlmPtr;
+   memset(JMsgTopicCsvTlm, 0, sizeof(JMSG_TOPIC_CSV_TLM_Class_t));
 
-   JMsgTopicScriptTlm->JsonObjCnt = (sizeof(JsonTblObjs)/sizeof(CJSON_Obj_t));
+   JMsgTopicCsvTlm->JsonObjCnt = (sizeof(JsonTblObjs)/sizeof(CJSON_Obj_t));
    
    PluginFuncTbl->CfeToJson  = CfeToJson;
    PluginFuncTbl->JsonToCfe  = JsonToCfe;  
    PluginFuncTbl->PluginTest = PluginTest;
    
-   CFE_MSG_Init(CFE_MSG_PTR(JMsgTopicScriptTlm->ScriptTlm), ScriptTlmMid, sizeof(JMSG_LIB_TopicScriptTlm_t));  
+   CFE_MSG_Init(CFE_MSG_PTR(JMsgTopicCsvTlm->CsvTlm), CsvTlmMid, sizeof(JMSG_LIB_TopicCsvTlm_t));  
       
-} /* End JMSG_TOPIC_SCRIPT_TLM_Constructor() */
+} /* End JMSG_TOPIC_CSV_TLM_Constructor() */
 
 
 /******************************************************************************
@@ -123,20 +123,20 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 
    bool  RetStatus = false;
    int   PayloadLen; 
-   const JMSG_LIB_TopicScriptTlm_Payload_t *ScriptMsg = CMDMGR_PAYLOAD_PTR(CfeMsg, JMSG_LIB_TopicScriptTlm_t);
+   const JMSG_LIB_TopicCsvTlm_Payload_t *ScriptMsg = CMDMGR_PAYLOAD_PTR(CfeMsg, JMSG_LIB_TopicCsvTlm_t);
 
-   *JMsgPayload = NullScriptTlm;
+   *JMsgPayload = NullCsvTlm;
    
    //TODO: Add string protection?
-   PayloadLen = sprintf(JMsgTopicScriptTlm->JMsgPayload,
+   PayloadLen = sprintf(JMsgTopicCsvTlm->JMsgPayload,
                 "{\"name\": \"%s\", \"seq-count\": %d, \"date-time\": \"%s\",  \"parameters\": \"%s\"}",
                 ScriptMsg->Name, ScriptMsg->SeqCount, ScriptMsg->DateTime, ScriptMsg->ParamText);
 
    if (PayloadLen > 0)
    {
-      *JMsgPayload = JMsgTopicScriptTlm->JMsgPayload;
+      *JMsgPayload = JMsgTopicCsvTlm->JMsgPayload;
    
-      ++JMsgTopicScriptTlm->CfeToJMsgCnt;
+      ++JMsgTopicCsvTlm->CfeToJMsgCnt;
       RetStatus = true;
    }
    
@@ -164,9 +164,9 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
    
    if (LoadJsonData(JMsgPayload, PayloadLen))
    {
-      *CfeMsg = (CFE_MSG_Message_t *)&JMsgTopicScriptTlm->ScriptTlm;
+      *CfeMsg = (CFE_MSG_Message_t *)&JMsgTopicCsvTlm->CsvTlm;
 
-      ++JMsgTopicScriptTlm->JMsgToCfeCnt;
+      ++JMsgTopicCsvTlm->JMsgToCfeCnt;
       RetStatus = true;
    }
 
@@ -187,23 +187,23 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
    bool      RetStatus = false;
    size_t    ObjLoadCnt;
 
-   memset(&JMsgTopicScriptTlm->ScriptTlm.Payload, 0, sizeof(JMSG_LIB_TopicScriptTlm_Payload_t));
+   memset(&JMsgTopicCsvTlm->CsvTlm.Payload, 0, sizeof(JMSG_LIB_TopicCsvTlm_Payload_t));
    
-   ObjLoadCnt = CJSON_LoadObjArray(JsonTblObjs, JMsgTopicScriptTlm->JsonObjCnt, JMsgPayload, PayloadLen);
+   ObjLoadCnt = CJSON_LoadObjArray(JsonTblObjs, JMsgTopicCsvTlm->JsonObjCnt, JMsgPayload, PayloadLen);
    
-   CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_TLM_LOAD_JSON_DATA_EID, CFE_EVS_EventType_DEBUG,
+   CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_LOAD_JSON_DATA_EID, CFE_EVS_EventType_DEBUG,
                      "JMSG Script Command Topic LoadJsonData() processed %d JSON objects", (uint16)ObjLoadCnt);
 
-   if (ObjLoadCnt == JMsgTopicScriptTlm->JsonObjCnt)
+   if (ObjLoadCnt == JMsgTopicCsvTlm->JsonObjCnt)
    {
-      memcpy(&JMsgTopicScriptTlm->ScriptTlm.Payload, &ScriptTlmPayload, sizeof(JMSG_LIB_TopicScriptTlm_Payload_t));      
+      memcpy(&JMsgTopicCsvTlm->CsvTlm.Payload, &CsvTlmPayload, sizeof(JMSG_LIB_TopicCsvTlm_Payload_t));      
       RetStatus = true;
    }
    else
    {
-      CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_TLM_LOAD_JSON_DATA_EID, CFE_EVS_EventType_ERROR, 
+      CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_LOAD_JSON_DATA_EID, CFE_EVS_EventType_ERROR, 
                         "Error processing JMSG Script Command Topic, payload contained %d of %d data objects",
-                        (unsigned int)ObjLoadCnt, (unsigned int)JMsgTopicScriptTlm->JsonObjCnt);
+                        (unsigned int)ObjLoadCnt, (unsigned int)JMsgTopicCsvTlm->JsonObjCnt);
    }
    
    return RetStatus;
@@ -224,34 +224,34 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 static void PluginTest(bool Init, int16 Param)
 {
 
-   JMSG_LIB_TopicScriptTlm_Payload_t *Payload = &JMsgTopicScriptTlm->ScriptTlm.Payload;
+   JMSG_LIB_TopicCsvTlm_Payload_t *Payload = &JMsgTopicCsvTlm->CsvTlm.Payload;
    
 
    if (Init)
    {
 
-      JMsgTopicScriptTlm->PluginTestCnt = 1;
+      JMsgTopicCsvTlm->PluginTestCnt = 1;
 	  
 
       strcpy(Payload->Name, "Test");
       strcpy(Payload->DateTime, "00/00/0000 12:34:56");
       strcpy(Payload->ParamText, "\"one\": 1");
 
-      CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_TLM_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
-                        "JMSG script command plugin topic test started");
+      CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
+                        "JMSG CSV command plugin topic test started");
 
    }
    else
    {                 
-      JMsgTopicScriptTlm->PluginTestCnt++;      
+      JMsgTopicCsvTlm->PluginTestCnt++;      
    }
 
-   Payload->SeqCount = JMsgTopicScriptTlm->PluginTestCnt;
+   Payload->SeqCount = JMsgTopicCsvTlm->PluginTestCnt;
       
-   CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_TLM_PLUGIN_TEST_EID, CFE_EVS_EventType_DEBUG,
-                     "JMSG script telemetry plugin topic test text payload: %s", Payload->ParamText);
+   CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_PLUGIN_TEST_EID, CFE_EVS_EventType_DEBUG,
+                     "JMSG CSV telemetry plugin topic test text payload: %s", Payload->ParamText);
                         
-   CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicScriptTlm->ScriptTlm.TelemetryHeader));
-   CFE_SB_TransmitMsg(CFE_MSG_PTR(JMsgTopicScriptTlm->ScriptTlm.TelemetryHeader), true);
+   CFE_SB_TimeStampMsg(CFE_MSG_PTR(JMsgTopicCsvTlm->CsvTlm.TelemetryHeader));
+   CFE_SB_TransmitMsg(CFE_MSG_PTR(JMsgTopicCsvTlm->CsvTlm.TelemetryHeader), true);
    
 } /* End PluginTest() */
