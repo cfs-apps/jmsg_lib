@@ -137,7 +137,7 @@
       <ContainerDataType name="TopicCsvCmd_Payload" shortDescription="Send a command with CSV parameters">
         <EntryList>
           <Entry name="Name"        type="TopicName"          shortDescription="" />        
-          <Entry name="ParamText"   type="CmdParamString"     shortDescription="Command parameters. End users define content"/>
+          <Entry name="ParamText"   type="CmdParamString"     shortDescription="Command CSV parameters. End users define content"/>
        </EntryList>
       </ContainerDataType>
 
@@ -146,7 +146,7 @@
           <Entry name="Name"        type="TopicName"          shortDescription="" />        
           <Entry name="SeqCount"    type="BASE_TYPES/int32"   shortDescription="" />
           <Entry name="DateTime"    type="TlmDateTime"        shortDescription="" />
-          <Entry name="ParamText"   type="TlmParamString"     shortDescription="Telemetry parameters. End users define content"/>
+          <Entry name="ParamText"   type="TlmParamString"     shortDescription="Telemetry CSV parameters. End users define content"/>
        </EntryList>
       </ContainerDataType>
 	        

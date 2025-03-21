@@ -11,10 +11,10 @@
                     "'sb-role': Define message's role from a SB perpective:",
                     "   'pub': read (subscribe) a JSON message from an external source and publish it on the SB",
                     "   'sub': read a SB message (subscribe) and publish it to an external destination",
-                    "The default cfe-4 to cfe-8 entries are for SC_SIM to serve as an example",
                     "KIT_TO PUB_WRAPPED_TLM_TOPICID: Set sb-role to sub so plugin receives wrapped KIT_TO telemetry",
                     "KIT_TO SUB_WRAPPED_TLM_TOPICID: Set sb-role to pub so plugin sends wrapped telemetry to KIT_TO",
-                    "'saved-topic-id-map' serves as a convenience for saving unused topics that can be copied when needed"],
+                    "'saved-topic-id-map' serves as a convenience for saving unused topics that can be copied into",
+                    "'topic-id-map' when needed"],
 
    "saved-topic-id-map": {
       "SC_SIM_CMD_TOPICID": 6246,
@@ -62,18 +62,18 @@
           "name":  "basecamp/csv/cmd",
           "cfe-3": 0,
           "cfe": 0,
-          "protocol": "mqtt",
+          "protocol": "udp",
           "sb-role": "sub",
-          "enabled": "false"
+          "enabled": "true"
        },
        {
           "id": "CSV_TLM",
           "name":  "basecamp/csv/tlm",
           "cfe-4": 0,
           "cfe": 0,
-          "protocol": "mqtt",
+          "protocol": "udp",
           "sb-role": "pub",
-          "enabled": "false"
+          "enabled": "true"
        },
        {
           "id": "SCRIPT_CMD",
@@ -82,7 +82,7 @@
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",
-          "enabled": "false"
+          "enabled": "true"
        },
        {
           "id": "USR_1",
