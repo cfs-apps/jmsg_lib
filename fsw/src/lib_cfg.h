@@ -45,9 +45,11 @@
 ** Versions:
 **
 ** 1.0 - Initial release tested with jmsg_mqtt and jmsg_udp
+** 2.0 - Compatible with Basecamp 4.0 and cFS 7.0
+**
 */
 
-#define  JMSG_LIB_MAJOR_VER      1
+#define  JMSG_LIB_MAJOR_VER      2
 #define  JMSG_LIB_MINOR_VER      0
 
 
