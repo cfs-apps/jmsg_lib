@@ -103,7 +103,7 @@
          JMSG_UDP without impacting their command codes. Therefore I created a telemetry
          packet that they can subscribe to and respond to as if it is a command.
       -->
-      <ContainerDataType name="TopicSubscribeTlm_Payload" shortDescription="Request a topic subscription">
+      <ContainerDataType name="TopicSubscribeReqTlm_Payload" shortDescription="Request a topic subscription">
         <EntryList>
           <Entry name="Id"       type="JMSG_PLATFORM/TopicPlugin" shortDescription="Plugin Topic identifier" />          
           <Entry name="Protocol" type="TopicProtocol"             shortDescription="Network protocol" />
@@ -154,9 +154,9 @@
       <!--**** DataTypeSet: Telemetry Packets ****-->
       <!--****************************************-->
 
-      <ContainerDataType name="TopicSubscribeTlm" baseType="CFE_HDR/TelemetryHeader">
+      <ContainerDataType name="TopicSubscribeReqTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
-          <Entry type="TopicSubscribeTlm_Payload" name="Payload" />
+          <Entry type="TopicSubscribeReqTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>   
             
@@ -195,9 +195,9 @@
       
         <RequiredInterfaceSet>
         
-          <Interface name="TOPIC_SUBSCRIBE_TLM" shortDescription="Software bus topic subscription telemetry interface" type="CFE_SB/Telemetry">
+          <Interface name="TOPIC_SUBSCRIBE_REQ_TLM" shortDescription="Software bus topic subscription telemetry interface" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelemetryDataType" type="TopicSubscribeTlm" />
+              <GenericTypeMap name="TelemetryDataType" type="TopicSubscribeReqTlm" />
             </GenericTypeMapSet>
           </Interface>
 
@@ -233,19 +233,19 @@
 
         <Implementation>
           <VariableSet>
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicSubscribeTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SUBSCRIBE_TLM_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicTblTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicScriptCmdTopicId"    initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicCsvCmdTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_CSV_CMD_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicCsvTlmTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_CSV_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicSubscribeReqTlmTopicId" initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SUBSCRIBE_REQ_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicTblTlmTopicId"          initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_TBL_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicScriptCmdTopicId"       initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicCsvCmdTopicId"          initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_CSV_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TopicCsvTlmTopicId"          initialValue="${CFE_MISSION/JMSG_LIB_TOPIC_CSV_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
-            <ParameterMap interface="TOPIC_SUBSCRIBE_TLM" parameter="TopicId" variableRef="TopicSubscribeTlmTopicId" />
-            <ParameterMap interface="TOPIC_TBL_TLM"       parameter="TopicId" variableRef="TopicTblTlmTopicId" />
-            <ParameterMap interface="TOPIC_SCRIPT_CMD"    parameter="TopicId" variableRef="TopicScriptCmdTopicId" />
-            <ParameterMap interface="TOPIC_CSV_CMD"       parameter="TopicId" variableRef="TopicCsvCmdTopicId" />
-            <ParameterMap interface="TOPIC_CSV_TLM"       parameter="TopicId" variableRef="TopicCsvTlmTopicId" />
+            <ParameterMap interface="TOPIC_SUBSCRIBE_REQ_TLM" parameter="TopicId" variableRef="TopicSubscribeReqTlmTopicId" />
+            <ParameterMap interface="TOPIC_TBL_TLM"           parameter="TopicId" variableRef="TopicTblTlmTopicId" />
+            <ParameterMap interface="TOPIC_SCRIPT_CMD"        parameter="TopicId" variableRef="TopicScriptCmdTopicId" />
+            <ParameterMap interface="TOPIC_CSV_CMD"           parameter="TopicId" variableRef="TopicCsvCmdTopicId" />
+            <ParameterMap interface="TOPIC_CSV_TLM"           parameter="TopicId" variableRef="TopicCsvTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>

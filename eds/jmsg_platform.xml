@@ -39,7 +39,7 @@
          plugins don't have conflicts in their app_cfg.h.
 
          The 'JMSG_PLATFORM/' prefix is required in the ${JMSG_PLATFORM/TOPIC_BASE_EID + ##}
-		   statements. If teh follwoing is used 
+		   statements. If the following is used 
             <Define name="TOPIC_TBL_BASE_EID" value="${TOPIC_BASE_EID} + 10"/>
          the result is
             /home/osk/cfs-apps/usr/apps/tplug_web/eds/tplug_web.xml:44:error: [string "return Evaluate("TOPIC_BASE_EID") + 50"]:1: attempt to perform arithmetic on a nil value

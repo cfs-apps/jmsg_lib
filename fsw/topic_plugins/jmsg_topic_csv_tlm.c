@@ -13,7 +13,8 @@
 ** GNU Affero General Public License for more details.
 **
 ** Purpose:
-**   Define the JMSG topic Comma Separated Variable telemetry plugin topic
+**   Define the JMSG topic Comma Separated Variable (CSV)telemetry
+**   plugin topic
 **
 ** Notes:
 **   1. Allows a cFS app to receive JMSG telemetry from a system external 
@@ -192,7 +193,7 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
    ObjLoadCnt = CJSON_LoadObjArray(JsonTblObjs, JMsgTopicCsvTlm->JsonObjCnt, JMsgPayload, PayloadLen);
    
    CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_LOAD_JSON_DATA_EID, CFE_EVS_EventType_DEBUG,
-                     "JMSG Script Command Topic LoadJsonData() processed %d JSON objects", (uint16)ObjLoadCnt);
+                     "JMSG CSV Telemetry Topic LoadJsonData() processed %d JSON objects", (uint16)ObjLoadCnt);
 
    if (ObjLoadCnt == JMsgTopicCsvTlm->JsonObjCnt)
    {
@@ -202,7 +203,7 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
    else
    {
       CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_LOAD_JSON_DATA_EID, CFE_EVS_EventType_ERROR, 
-                        "Error processing JMSG Script Command Topic, payload contained %d of %d data objects",
+                        "Error processing JMSG CSV Telemetry Topic, payload contained %d of %d data objects",
                         (unsigned int)ObjLoadCnt, (unsigned int)JMsgTopicCsvTlm->JsonObjCnt);
    }
    
@@ -238,7 +239,7 @@ static void PluginTest(bool Init, int16 Param)
       strcpy(Payload->ParamText, "\"one\": 1");
 
       CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
-                        "JMSG CSV command plugin topic test started");
+                        "JMSG CSV telemetry plugin topic test started");
 
    }
    else

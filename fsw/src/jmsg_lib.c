@@ -110,7 +110,7 @@ uint32 JMSG_LibInit(void)
 /******************************************************************************
 ** Function: JMSG_LIB_GetTopicTbl
 **
-** Return a pointer to library's instance of JMSG_TOPICC_TBL
+** Return a pointer to library's instance of JMSG_TOPIC_TBL
 **
 ** Notes:
 **   1. Only one JMSG_LIB can exist in a cFS target

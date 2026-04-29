@@ -65,8 +65,8 @@ static JMSG_LIB_TopicCsvCmd_Payload_t  CsvCmdPayload;    /* Working buffer for J
 static CJSON_Obj_t JsonTblObjs[] = 
 {
 
-   /* Data                           Data                                          core-json       length of query      */
-   /* Address,                       Length,          Updated, Data Type,  Float,  query string,   string(exclude '\0') */
+   /* Data                        Data                                          core-json       length of query      */
+   /* Address,                    Length,          Updated, Data Type,  Float,  query string,   string(exclude '\0') */
    
    { &CsvCmdPayload.Name,         NAME_LEN,        false,   JSONNumber, false,  { "name",       (sizeof("name")-1)} },
    { &CsvCmdPayload.ParamText,    SCRIPT_TXT_LEN,  false,   JSONString, false,  { "parameters", (sizeof("parameters")-1)} }
@@ -175,7 +175,8 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 ** Function: LoadJsonData
 **
 ** Notes:
-**  1. See file prologue for full/partial table load scenarios
+**   1. Each JSON message must contain all of the objects defined in 
+**      JsonTblObjs[]
 */
 static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 {
@@ -210,8 +211,8 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 /******************************************************************************
 ** Function: PluginTest
 **
-** Generate and send JMSG Script topic messages on SB that are read back by
-** JMSG_UDP and cause JMSG's to be generated from the SB messages.  
+** Generate and send JMSG CSV topic command messages on SB that are read back
+** by JMSG_UDP and cause JMSG's to be generated from the SB messages.  
 **
 ** Notes:
 **   1. Param is not used
