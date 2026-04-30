@@ -13,7 +13,7 @@
     GNU Affero General Public License for more details.
 
     Purpose:
-      Provide a JMSG Cmd & TLm python test environment
+      Provide a JMSG Cmd & Tlm python test environment
     
     Notes:
       1. See jmsg_lib/docs/jmsg_topic_plugin_guide.txt for topic

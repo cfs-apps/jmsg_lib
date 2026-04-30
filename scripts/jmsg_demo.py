@@ -58,7 +58,8 @@ def tx_thread():
     
     i = 1
     while True:
-        cont = input ("Enter to send")
+        start_time = time.perf_counter()
+        cont = input ("Press <Enter> to send\n\n")
         jmsg = ''
         if USE_CASE == 'SCRIPT_CMD':
             jmsg = JMSG_TOPIC_SCR_CMD_NAME + "{\"command\": 1, \"script-file\": \"Undefined\", \"script-text\": \"print('Hello world')\"}"
@@ -67,10 +68,12 @@ def tx_thread():
         elif USE_CASE == 'CSV_TLM':
             jmsg = JMSG_TOPIC_CSV_TLM_NAME + "{\"name\": \"UDP CSV TLM\", \"seq-count\": 99, \"date-time\": \"0\", \"parameters\": \"None\"}"
         elif USE_CASE == 'CSV_RPI':
+            end_time = time.perf_counter()
+            delta_time = end_time - start_time
             floati = float(i)
-            jmsg = JMSG_TOPIC_CSV_CMD_NAME + '{"name":"UDP RPI", "parameters": "rate-x,%f,rate-y,%f,rate-z,%f,lux,%i"}' % (floati*1.0,floati*2.0,floati*3.0,i)
+            jmsg = JMSG_TOPIC_CSV_TLM_NAME + '{"name":"UDP RPI", "seq-count": %i, "date-time": "4/27/26", "parameters": "delta-t,%f,rate-x,%f,rate-y,%f,rate-z,%f,lux,%i"}' % (i,delta_time,floati*1.0,floati*2.0,floati*3.0,i)
         
-        print(f'>>> Sending message {jmsg}')
+        print(f'>> Sending message {jmsg}\n')
         sock.sendto(jmsg.encode('ASCII'), (CFS_IP_ADDR, CFS_APP_PORT))
         time.sleep(TX_LOOP_DELAY)
         i += 1
@@ -86,15 +89,15 @@ def rx_thread():
 
     while True:
         jmsg = None
-        print("Pending for recvfrom")
         try:
             while True:
+                print("*****Pending for recvfrom")
                 datagram, host = rx_socket.recvfrom(JMSG_MAX_LEN)
                 if datagram:
                     jmsg = datagram
                 if jmsg:
                     jmsg_str = jmsg.decode('utf-8')
-                    print(f'*****\nReceived from {host} JMSG {len(jmsg_str)}: {jmsg_str}\n')
+                    print(f'  Received from {host} JMSG {len(jmsg_str)}: {jmsg_str}')
                     jmsg_str = jmsg_str.replace("\x00", "").replace("\x01", "")
                     if USE_CASE == 'SCRIPT_CMD':
                         process_scr_cmd_jmsg(jmsg_str)
@@ -102,12 +105,10 @@ def rx_thread():
                         process_csv_cmd_jmsg(jmsg_str)
                     elif USE_CASE == 'CSV_TLM':
                         process_csv_tlm_jmsg(jmsg_str)
-                        
+                print('*****\n')
+                time.sleep(RX_LOOP_DELAY)                
         except socket.timeout:
             pass
-        print('*****\n\n')
-        time.sleep(RX_LOOP_DELAY)
-
 
 def process_scr_cmd_jmsg(jmsg_str):
 
@@ -124,6 +125,7 @@ def process_scr_cmd_jmsg(jmsg_str):
                 print("")                
             elif command == RUN_SCRIPT_FILE_CMD:
                 exec(open(json_dict["script-file"]).read())
+                print("")
             else:
                 print(f'Received JMSG with invalid command {command}')
         else:
@@ -132,19 +134,21 @@ def process_scr_cmd_jmsg(jmsg_str):
         print(f'Process script command exception: {e}\n')
 
 def process_csv_cmd_jmsg(jmsg_str):
-    print("process_csv_cmd_jmsg()")
+    print("  process_csv_cmd_jmsg() stub")
 
 def process_csv_tlm_jmsg(jmsg_str):
-    print("process_csv_tlm_jmsg()")
+    print("  process_csv_tlm_jmsg() stub")
 
 
 if __name__ == "__main__":
 
+    tx = threading.Thread(target=tx_thread)
+    tx.start()
+
     rx = threading.Thread(target=rx_thread)
     rx.start()
    
-    tx = threading.Thread(target=tx_thread)
-    tx.start()
+
  
     #process_jmsg(TEST1_JMSG)
     #process_jmsg(TEST2_JMSG)
