@@ -301,7 +301,7 @@ JMSG_TOPIC_TBL_CfeToJson_t JMSG_TOPIC_TBL_GetCfeToJson(JMSG_PLATFORM_TopicPlugin
 
    JMSG_TOPIC_TBL_CfeToJson_t CfeToJsonFunc = NULL;
    
-   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin))
+   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin,"cFE-to-JSON function retrieval failed"))
    {
          *JsonMsgTopic = JMsgTopicTbl->Data.Topic[TopicPlugin].Name;
          CfeToJsonFunc = PluginFuncTbl[TopicPlugin].CfeToJson;
@@ -363,7 +363,7 @@ JMSG_TOPIC_TBL_JsonToCfe_t JMSG_TOPIC_TBL_GetJsonToCfe(JMSG_PLATFORM_TopicPlugin
 
    JMSG_TOPIC_TBL_JsonToCfe_t JsonToCfeFunc = NULL;
    
-   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin))
+   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin,"JSON-to-cFE function retrieval failed"))
    {
       JsonToCfeFunc = PluginFuncTbl[TopicPlugin].JsonToCfe;
    }
@@ -387,7 +387,7 @@ const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetTopic(JMSG_PLATFORM_TopicPlugin_
 
    JMSG_TOPIC_TBL_Topic_t *Topic = NULL;
    
-   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin))
+   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin,"Topic table entry retrieval failed"))
    {
       Topic = &JMsgTopicTbl->Data.Topic[TopicPlugin];
    }
@@ -411,7 +411,7 @@ JMSG_LIB_TopicProtocol_Enum_t JMSG_TOPIC_TBL_GetTopicProtocol(JMSG_PLATFORM_Topi
 
    JMSG_LIB_TopicProtocol_Enum_t TopicProtocol = JMSG_LIB_TopicProtocol_UNDEF;
    
-   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin))
+   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin,"Topic table protocol retrieval failed"))
    {
       TopicProtocol = JMsgTopicTbl->Data.Topic[TopicPlugin].Protocol;
    }
@@ -478,7 +478,7 @@ uint8 JMSG_TOPIC_TBL_MsgIdToTopicPlugin(CFE_SB_MsgId_t MsgId)
 ** Function: JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback
 **
 ** Register the callback function that will be called when a topic is enabled
-** or disabled and the table owner needs to manage netwrok layer subscriptions. 
+** or disabled and the table owner needs to manage network layer subscriptions. 
 **
 */
 bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
@@ -487,7 +487,7 @@ bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin
    
    bool RetStatus = false;
    
-   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin))
+   if (JMSG_TOPIC_TBL_ValidTopicPlugin(TopicPlugin,"Network subscription callback registration failed"))
    {
       JMsgTopicTbl->Data.Topic[TopicPlugin].SubscriptionCallback = SubscriptionCallback;
       RetStatus = true;
@@ -502,7 +502,6 @@ bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin
 ** Function: JMSG_TOPIC_TBL_RegisterPlugin
 **
 ** Register a user topic plugin.
-** TODO: Verify the TopicPlugin ID is in the USR range.
 **
 */
  CFE_SB_MsgId_t JMSG_TOPIC_TBL_RegisterPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
@@ -511,14 +510,26 @@ bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin
                                               JMSG_TOPIC_TBL_PluginTest_t PluginTest)
 {
 
+   CFE_SB_MsgId_t MsgId = PKTUTIL_UNUSED_MSG_ID;
+   
    const JMSG_TOPIC_TBL_Class_t *TopicTbl = JMSG_LIB_GetTopicTbl();
  
-   PluginFuncTbl[TopicPlugin].CfeToJson  = CfeToJson;
-   PluginFuncTbl[TopicPlugin].JsonToCfe  = JsonToCfe;
-   PluginFuncTbl[TopicPlugin].PluginTest = PluginTest;
+   /*
+   ** Don't use JMSG_TOPIC_TBL_ValidTopicPlugin() because it checks other
+   ** criteria that are acceptable during registration.
+   */
+   if (JMSG_TOPIC_TBL_ValidTopicPluginId(TopicPlugin,"Register topic table failed"))
+   {
 
-   return  CFE_SB_ValueToMsgId(TopicTbl->Data.Topic[TopicPlugin].Cfe);
- 
+      PluginFuncTbl[TopicPlugin].CfeToJson  = CfeToJson;
+      PluginFuncTbl[TopicPlugin].JsonToCfe  = JsonToCfe;
+      PluginFuncTbl[TopicPlugin].PluginTest = PluginTest;
+
+      MsgId = CFE_SB_ValueToMsgId(TopicTbl->Data.Topic[TopicPlugin].Cfe);
+   
+   }
+   
+   return MsgId;
   
 } /* End JMSG_TOPIC_TBL_RegisterPlugin() */
    
@@ -597,8 +608,7 @@ bool JMSG_TOPIC_TBL_SendTlmCmd(void *DataObjPtr, const CFE_MSG_Message_t *MsgPtr
 **      JMSG_LIB because when it is called the app's SubscriptionCallback()
 **      function is called for every enabled topic table entry.
 **   2. JMSG_TOPIC_TBL_SubscribeToTopicMsg() to configure individual entries.
-**   TODO: Current design requires code changes to the JMSG network app's
-**   TODO: constructor. Create a scheme that is table or EDS based.
+**
 */
 void JMSG_TOPIC_TBL_SubscribeToAll(JMSG_TOPIC_TBL_TopicSubscribeToEnum_t SubscribeTo)
 {
@@ -741,12 +751,13 @@ bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_PLATFORM_TopicPlugin_Enum_t Top
 **
 ** In addition to being in range, valid means that the ID has been defined.
 */
-bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin)
+bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
+                                     const char *CallerIdStr)
 {
 
    bool RetStatus = false;
    
-   if (TopicPlugin < JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
+   if (JMSG_TOPIC_TBL_ValidTopicPluginId(TopicPlugin, CallerIdStr))
    {
       if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled &&
          ((JMsgTopicTbl->Data.Topic[TopicPlugin].SbRole == JMSG_LIB_TopicSbRole_PUBLISH)||
@@ -755,17 +766,43 @@ bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugi
          RetStatus = true;
       }
    }
-   else
-   {
-      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_INDEX_ERR_EID, CFE_EVS_EventType_ERROR, 
-                        "Table topic plugin ID %d is out of range. ID must be less than %d",
-                        TopicPlugin, JMSG_PLATFORM_TOPIC_PLUGIN_MAX);
-   }
 
    return RetStatus;
    
 
 } /* End JMSG_TOPIC_TBL_ValidTopicPlugin() */
+
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_ValidTopicPluginId
+**
+** Verifies Topic plugin identifier is valid.
+**
+** Notes:
+**   1. CallerIdStr is used in error event to identify the context of the
+**      validation. 
+** 
+*/
+bool JMSG_TOPIC_TBL_ValidTopicPluginId(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
+                                       const char *CallerIdStr)
+{
+
+   bool RetStatus = false;
+   
+   if (TopicPlugin < JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
+   {
+      RetStatus = true;
+   }
+   else
+   {
+      CFE_EVS_SendEvent(JMSG_TOPIC_TBL_INDEX_ERR_EID, CFE_EVS_EventType_ERROR, 
+                        "%s: Table topic plugin ID %d is out of range. ID must be less than %d",
+                        CallerIdStr, TopicPlugin, JMSG_PLATFORM_TOPIC_PLUGIN_MAX);
+   }
+
+   return RetStatus;
+   
+} /* End JMSG_TOPIC_TBL_ValidTopicPluginId() */
 
 
 /******************************************************************************

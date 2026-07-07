@@ -70,7 +70,7 @@ typedef struct
    ** JSON message data
    */
    
-   char  JMsgPayload[128+OS_MAX_PATH_LEN+JMSG_PLATFORM_TOPIC_STRING_MAX_LEN]; // 128 covers characters beyond script filename and in-message script text
+   char  JMsgPayload[128+OS_MAX_PATH_LEN+JMSG_PLATFORM_JMSG_PAYLOAD_STRING_MAX_LEN]; // 128 covers characters beyond script filename and in-message script text
    
    uint16  JsonObjCnt;
    uint32  CfeToJMsgCnt;

@@ -18,7 +18,10 @@
 ** Notes:
 **   1. Allows a cFS app to send JMSG commands to a system external 
 **      to the cFS target. The command parameters are contained in a CSV
-**      string.  
+**      string.
+**   2. The JsonToCfe() function is provided for teh less common situation
+**      when a an external system to the cFS needs to command a cFS
+**      using the JMSG CSV interface.
 **
 */
 
@@ -75,6 +78,7 @@ static CJSON_Obj_t JsonTblObjs[] =
 
 static const char *NullCsvCmd = "{\"name\": \"null\", \"parameters\": \"\none\"}";
 
+static const char *TestParamStr[] = {"zero","one"};
 
 /******************************************************************************
 ** Function: JMSG_TOPIC_CSV_CMD_Constructor
@@ -112,7 +116,9 @@ void JMSG_TOPIC_CSV_CMD_Constructor(JMSG_TOPIC_CSV_CMD_Class_t *JMsgTopicCsvCmdP
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_CfeToJson_t
-**
+**   2. It is the user's responsibility to ensure that the JMsgPayload buffer
+**      length is adequate. An event message when a memory overrrun/corruption
+**      occurs. 
 */
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 {
@@ -123,17 +129,30 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 
    *JMsgPayload = NullCsvCmd;
    
-   //TODO: Add string protection?
    PayloadLen = sprintf(JMsgTopicCsvCmd->JMsgPayload,
                 "{\"name\": \"%s\", \"parameters\": \"%s\"}",
                 CsvMsg->Name, CsvMsg->ParamText);
 
    if (PayloadLen > 0)
    {
-      *JMsgPayload = JMsgTopicCsvCmd->JMsgPayload;
-   
-      ++JMsgTopicCsvCmd->CfeToJMsgCnt;
-      RetStatus = true;
+      if (PayloadLen <= sizeof(JMsgTopicCsvCmd->JMsgPayload))
+      {
+         *JMsgPayload = JMsgTopicCsvCmd->JMsgPayload;
+      
+         ++JMsgTopicCsvCmd->CfeToJMsgCnt;
+         RetStatus = true;
+      }
+      else
+      {
+         CFE_EVS_SendEvent(JMSG_TOPIC_CSV_CMD_CFE2JSON_EID, CFE_EVS_EventType_ERROR,
+                           "JMSG CSV Command payload %d byte buffer overrun (memory corrupted)",
+                           (uint16)(PayloadLen-sizeof(JMsgTopicCsvCmd->JMsgPayload)));
+      }
+   }
+   else
+   {
+      CFE_EVS_SendEvent(JMSG_TOPIC_CSV_CMD_CFE2JSON_EID, CFE_EVS_EventType_ERROR,
+                        "JMSG CSV Command payload conversion error");      
    }
    
    return RetStatus;
@@ -148,7 +167,9 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
-**   2. Test messages:
+**   2. Below is a null test message that theoritically could be used in a 
+**      test. However, it isn't very practical. Also a network transport app
+**      like UDP/MQTT is required.
 **      {"name": "null", "parameters": "none" }
 */
 static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint16 PayloadLen)
@@ -216,6 +237,9 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 **
 ** Notes:
 **   1. Param is not used
+**   2. The test message can be viewed in the JMSG_LIB_TOPIC_CSV_CMD
+**      telemetry window.
+**   3. See JMSG_DEMO for a functional example based on practical use cases. 
 **
 */
 static void PluginTest(bool Init, int16 Param)
@@ -223,12 +247,13 @@ static void PluginTest(bool Init, int16 Param)
 
    JMSG_LIB_TopicCsvCmd_Payload_t *Payload = &JMsgTopicCsvCmd->CsvCmd.Payload;
    
-
+   uint16 TestParam;
+   
    if (Init)
    {
 
       JMsgTopicCsvCmd->PluginTestCnt = 1;
-	  
+     
       strcpy(Payload->Name, "Test");
      
       CFE_EVS_SendEvent(JMSG_TOPIC_CSV_CMD_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
@@ -240,8 +265,11 @@ static void PluginTest(bool Init, int16 Param)
       JMsgTopicCsvCmd->PluginTestCnt++;      
    }
 
-   sprintf(Payload->ParamText, "\"Param\": %d", JMsgTopicCsvCmd->PluginTestCnt);
- 
+   TestParam = JMsgTopicCsvCmd->PluginTestCnt % 2;
+   
+   sprintf(Payload->ParamText, "\"cmd-code\": %d, \"ex_int\": %d, \"ex_str\": \"%s\"",
+           JMsgTopicCsvCmd->PluginTestCnt, TestParam, TestParamStr[TestParam]);
+    
    CFE_EVS_SendEvent(JMSG_TOPIC_CSV_CMD_PLUGIN_TEST_EID, CFE_EVS_EventType_DEBUG,
                      "JMSG CSV telemetry plugin topic test text payload: %s", Payload->ParamText);
                         

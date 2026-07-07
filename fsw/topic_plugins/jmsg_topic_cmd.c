@@ -18,7 +18,7 @@
 **
 ** Notes:
 **   1. This only supports a remote commanding use case which is 
-**      converting an binary encoded command message into a SB message.
+**      converting a binary encoded command message into a SB message.
 **   2. JsonToCfe() performs the same EDS processing as CI_LAB.
 **
 */
@@ -36,7 +36,7 @@
 
 #include "jmsg_topic_cmd.h"
 
-
+ 
 /************************************/
 /** Local File Function Prototypes **/
 /************************************/
@@ -117,9 +117,12 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
-**   2. See the CI_LAB app for EDS processing details
-**   3. Encoded app_c_demo commands that can be used for testing. The communciation
-**      mechanism depends on the app using JMSG_LIB.
+**   2. Since JSON payload contains the entire message and the the decoded
+**      message is sent on the SB, the CfeMsg parameter is not used. 
+**      JMsgTopicCmd->MsgPackedBuf is used for temporary storage.
+**   3. See the CI_LAB app for EDS processing details
+**   4. Encoded APP_C_DEMO commands that can be used for testing. The
+**      communication mechanism depends on the app using JMSG_LIB.
 **      NOOP: 185cc0000001007a
 **      Start Histogram: 185cc00000010a70
 **      
@@ -213,15 +216,14 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
                                     "EdsLib_DataTypeDB_GetTypeInfo(): %d",(int)Status);
                   return false;
                }
-
                Status = CFE_SB_TransmitBuffer(JMsgTopicCmd->SbBufPtr, false);
                if (Status == CFE_SUCCESS)
                {
-                  JMsgTopicCmd->SbBufPtr = NULL;  // Set NULL so a new buffer will be obtained next time around
                   const uint8 *Buf = (const uint8 *)&JMsgTopicCmd->SbBufPtr;
                   CFE_EVS_SendEvent(JMSG_TOPIC_CMD_JSON2CFE_EID, CFE_EVS_EventType_INFORMATION,
                                     "Command plugin successfully sent SB message 0x%02X%02X 0x%02X%02X",
                                     Buf[0],Buf[1],Buf[2],Buf[3]);
+                  JMsgTopicCmd->SbBufPtr = NULL;  // Set NULL so a new buffer will be obtained next time around
                   JMsgTopicCmd->JMsgToCfeCnt++;
                   RetStatus = true;
                }
@@ -265,25 +267,28 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 /******************************************************************************
 ** Function: PluginTest
 **
-** Test plugin stub 
-**
 ** Notes:
-**   None
-**
+**   1. The JsonToCfe() callback function is called directly so a meaningful
+**      test can be performed without requiring a JMSG network app being
+**      installed.
 */
 static void PluginTest(bool Init, int16 Param)
 {
-
+   static const char *TestCmd = APP_C_DEMO_NOOP_HEXTXT;
+   CFE_MSG_Message_t *CfeMsg = NULL;
+   
    if (Init)
    {
          
       JMsgTopicCmd->SbTestCnt = 0;
       
       CFE_EVS_SendEvent(JMSG_TOPIC_CMD_INIT_SB_MSG_TEST_EID, CFE_EVS_EventType_INFORMATION,
-                        "Command topic does not have an automated built in test");
+                        "JMSG command plugin topic test started");
+
    }
    else
    {   
+      JsonToCfe(&CfeMsg, TestCmd, strlen(APP_C_DEMO_NOOP_HEXTXT));
       JMsgTopicCmd->SbTestCnt++;
    }
    

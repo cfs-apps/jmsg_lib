@@ -69,7 +69,7 @@ typedef struct
    ** JSON message data
    */
    
-   char  JMsgPayload[JMSG_PLATFORM_TOPIC_NAME_MAX_LEN+4+sizeof(JMSG_LIB_TlmDateTime_String_t)+JMSG_PLATFORM_TOPIC_STRING_MAX_LEN+64]; // See EDS definitions. 64 is for keywords, quotes, spaces and commas
+   char  JMsgPayload[JMSG_PLATFORM_TOPIC_NAME_MAX_LEN+4+sizeof(JMSG_LIB_TlmDateTime_String_t)+JMSG_PLATFORM_JMSG_PAYLOAD_STRING_MAX_LEN+64]; // See EDS definitions. 64 is for keywords, quotes, spaces and commas
    
    uint16  JsonObjCnt;
    uint32  CfeToJMsgCnt;
@@ -80,7 +80,7 @@ typedef struct
    */
    
    uint32 PluginTestCnt;
-   
+      
 } JMSG_TOPIC_CSV_CMD_Class_t;
 
 

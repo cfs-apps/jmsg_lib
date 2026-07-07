@@ -117,6 +117,9 @@ void JMSG_TOPIC_CSV_TLM_Constructor(JMSG_TOPIC_CSV_TLM_Class_t *JMsgTopicCsvTlmP
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_CfeToJson_t
+**   2. It is the user's responsibility to ensure that the JMsgPayload buffer
+**      length is adequate. An event message when a memory overrrun/corruption
+**      occurs. 
 **
 */
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
@@ -128,18 +131,32 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 
    *JMsgPayload = NullCsvTlm;
    
-   //TODO: Add string protection?
    PayloadLen = sprintf(JMsgTopicCsvTlm->JMsgPayload,
                 "{\"name\": \"%s\", \"seq-count\": %d, \"date-time\": \"%s\",  \"parameters\": \"%s\"}",
                 ScriptMsg->Name, ScriptMsg->SeqCount, ScriptMsg->DateTime, ScriptMsg->ParamText);
 
    if (PayloadLen > 0)
    {
-      *JMsgPayload = JMsgTopicCsvTlm->JMsgPayload;
-   
-      ++JMsgTopicCsvTlm->CfeToJMsgCnt;
-      RetStatus = true;
+      if (PayloadLen <= sizeof(JMsgTopicCsvTlm->JMsgPayload))
+      {
+         *JMsgPayload = JMsgTopicCsvTlm->JMsgPayload;
+      
+         ++JMsgTopicCsvTlm->CfeToJMsgCnt;
+         RetStatus = true;
+      }
+      else
+      {
+         CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_CFE2JSON_EID, CFE_EVS_EventType_ERROR,
+                           "JMSG CSV Telemetry payload %d byte buffer overrun (memory corrupted)",
+                           (uint16)(PayloadLen-sizeof(JMsgTopicCsvTlm->JMsgPayload)));
+      }
    }
+   else
+   {
+      CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_CFE2JSON_EID, CFE_EVS_EventType_ERROR,
+                        "JMSG CSV Telemetry payload conversion error");      
+   }
+
    
    return RetStatus;
    
@@ -220,23 +237,23 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 **
 ** Notes:
 **   1. Param is not used
+**   2. The test message can be viewed in the JMSG_LIB_TOPIC_CSV_TLM
+**      telemetry window.
+**   3. See JMSG_DEMO for a functional example based on practical use cases.
 **
 */
 static void PluginTest(bool Init, int16 Param)
 {
 
    JMSG_LIB_TopicCsvTlm_Payload_t *Payload = &JMsgTopicCsvTlm->CsvTlm.Payload;
-   
 
    if (Init)
    {
 
       JMsgTopicCsvTlm->PluginTestCnt = 1;
 	  
-
       strcpy(Payload->Name, "Test");
       strcpy(Payload->DateTime, "00/00/0000 12:34:56");
-      strcpy(Payload->ParamText, "\"one\": 1");
 
       CFE_EVS_SendEvent(JMSG_TOPIC_CSV_TLM_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
                         "JMSG CSV telemetry plugin topic test started");
@@ -244,6 +261,7 @@ static void PluginTest(bool Init, int16 Param)
    }
    else
    {                 
+      sprintf(Payload->ParamText, "\"param\": %d",JMsgTopicCsvTlm->PluginTestCnt);
       JMsgTopicCsvTlm->PluginTestCnt++;      
    }
 

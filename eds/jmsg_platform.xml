@@ -29,7 +29,7 @@
 
     <Define name="CHAR_BLOCK" value="256"  shortDescription="Serves as a base number of characters to process in a loop. Other lengths should be multiples of this" />
    
-    <Define name="TOPIC_STRING_MAX_LEN" value="${JMSG_PLATFORM/CHAR_BLOCK}*2"  shortDescription="TODO: EDS toolchain seems to have a max length of less than 4096" />
+    <Define name="JMSG_PAYLOAD_STRING_MAX_LEN" value="${JMSG_PLATFORM/CHAR_BLOCK}*2"  shortDescription="Note EDS toolchain imposes a max string length and it seems to be less than 4096" />
 
     <DataTypeSet>
     
@@ -95,8 +95,8 @@
       <EnumeratedDataType name="TopicPlugin" shortDescription="Used as indices so values start at 0. User name interface is 1..N" >
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
-          <Enumeration label="CMD"     value="${TOPIC_PLUGIN_CMD}"     shortDescription="Commands encoded hextex." />
-          <Enumeration label="TLM"     value="${TOPIC_PLUGIN_TLM}"     shortDescription="Telemetry encoded hextex." />
+          <Enumeration label="CMD"     value="${TOPIC_PLUGIN_CMD}"     shortDescription="Commands encoded hextex" />
+          <Enumeration label="TLM"     value="${TOPIC_PLUGIN_TLM}"     shortDescription="Telemetry encoded hextex" />
           <Enumeration label="CSV_CMD" value="${TOPIC_PLUGIN_CSV_CMD}" shortDescription="CSV command" />
           <Enumeration label="CSV_TLM" value="${TOPIC_PLUGIN_CSV_TLM}" shortDescription="CSV telemetry" />
           <Enumeration label="SCR_CMD" value="${TOPIC_PLUGIN_SCR_CMD}" shortDescription="Script command execution" />

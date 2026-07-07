@@ -46,9 +46,9 @@
          or specify the remote script to be executed. Telemetry parameters are embedded in the message and the two end users
          must agree on the key:value pair definitions. 
       -->      
-	   <StringDataType name="CmdScriptString" length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
-      <StringDataType name="CmdParamString"  length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
-	   <StringDataType name="TlmParamString"  length="${JMSG_PLATFORM/TOPIC_STRING_MAX_LEN}" shortDescription="" />
+	   <StringDataType name="CmdScriptString" length="${JMSG_PLATFORM/JMSG_PAYLOAD_STRING_MAX_LEN}" shortDescription="" />
+      <StringDataType name="CmdParamString"  length="${JMSG_PLATFORM/JMSG_PAYLOAD_STRING_MAX_LEN}" shortDescription="" />
+	   <StringDataType name="TlmParamString"  length="${JMSG_PLATFORM/JMSG_PAYLOAD_STRING_MAX_LEN}" shortDescription="" />
 
       <EnumeratedDataType name="TopicProtocol" shortDescription="JMSG protocol/format options">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
@@ -101,7 +101,7 @@
       <!--
          I didn't see a way to define a command that is needed by both JMSG_MQTT and
          JMSG_UDP without impacting their command codes. Therefore I created a telemetry
-         packet that they can subscribe to and respond to as if it is a command.
+         packet that they can subscribe to and respond to as if it were a command.
       -->
       <ContainerDataType name="TopicSubscribeReqTlm_Payload" shortDescription="Request a topic subscription">
         <EntryList>
@@ -122,9 +122,12 @@
       
       <!--
        Even though this message contains a command for the destination platform, it 
-		 is defined as a telemetry message because (1) It is sent out of the host platform
-		 to a target and (2) the CCSDS command packet header doesn't add value whereas the
-		 telemetry packet timestamp is helpful in terms of when the command message was sent.
+		 is defined as a telemetry message because
+    
+         1. It is sent out of the host platform to a target
+     
+         2. The CCSDS command packet header doesn't add value whereas the telemetry
+            packet timestamp is helpful in terms of when the command message was sent.
       -->
       <ContainerDataType name="TopicScriptCmd_Payload" shortDescription="Send a script to be executed">
         <EntryList>

@@ -13,7 +13,7 @@
     GNU Affero General Public License for more details.
 
     Purpose:
-      Provide an example script that is run in ressponse to a JMSG command 
+      Provide an example script that is run in response to a JMSG command 
     
     Notes:
       None

@@ -27,6 +27,7 @@
 
 #include "jmsg_topic_tlm.h"
 
+
 /************************************/
 /** Local File Function Prototypes **/
 /************************************/
@@ -63,6 +64,7 @@ void JMSG_TOPIC_TLM_Constructor(JMSG_TOPIC_TLM_Class_t *JMsgTopicTlmPtr,
    PluginFuncTbl->JsonToCfe  = JsonToCfe;  
    PluginFuncTbl->PluginTest = PluginTest;
    
+OS_printf(">>>>JMSG_TOPIC_TLM_Constructor()-WrappedTlmMid = %d\n",(int)CFE_SB_MsgIdToValue(WrappedTlmMid));
    CFE_MSG_Init(CFE_MSG_PTR(JMsgTopicTlm->WrappedTlmMsg), WrappedTlmMid, sizeof(KIT_TO_WrappedSbMsgTlm_t));
          
 } /* End JMSG_TOPIC_TLM_Constructor() */
@@ -76,6 +78,8 @@ void JMSG_TOPIC_TLM_Constructor(JMSG_TOPIC_TLM_Class_t *JMsgTopicTlmPtr,
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_CfeToJson_t
 **   2. The SB message's payload is another complete SB message (includes headers)
+**   3. The network app must ensure the JMsgPayload buffer is large enough
+**      to hold the largest telemetry message.
 **
 */
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
@@ -158,18 +162,22 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 /******************************************************************************
 ** Function: PluginTest
 **
-** TODO: Implement hmsg_topic_tlm plugin test 
+** TODO: Implement jmsg_topic_tlm plugin test 
 **
 ** Notes:
-**   1. KIT_TO's packet table entry for JMSG_TEST_PLUGIN_TOPICID must have
-**      the forward attribute set to true.
-**   2. The jmsg_topics.json entry must be set to subscribe to
-**      KIT_TO_PUB_WRAPPED_TLM_TOPICID
-**   3. A walking bit pattern is used in the discrete data to help validation.
+**   1. The JsonToCfe() callback function is called directly so a test could
+**      be performed without requiring a JMSG network app being installed and
+**      KIT_TO's packet forwarding doesn't have to be configured. The downside
+**      is that the test isn't aligned with a practical use case and performs
+**      limited verification.  
 **
 */
 static void PluginTest(bool Init, int16 Param)
 {
+
+   static const char *TestTlm = APP_C_DEMO_NOOP_HEXTXT;
+   CFE_MSG_Message_t *CfeMsg = NULL;
+   
    
    if (Init)
    {
@@ -177,10 +185,21 @@ static void PluginTest(bool Init, int16 Param)
       JMsgTopicTlm->SbTestCnt = 0;
       
       CFE_EVS_SendEvent(JMSG_TOPIC_TLM_INIT_SB_MSG_TEST_EID, CFE_EVS_EventType_INFORMATION,
-                        "Telemetry topic does not have an automated built in test");
+                        "JMSG telemetry plugin topic test started");
    }
    else
-   {   
+   {
+      // CfeMsg set to wrapped telemetry message
+      if (JsonToCfe(&CfeMsg, TestTlm, strlen(TestTlm)))
+      {
+CFE_MSG_ApId_t ApId;
+CFE_MSG_GetApId(CfeMsg, &ApId);
+OS_printf("Sending SB message 0x%04X(%d)\n", (int)ApId, (int)ApId);
+const uint8 *Buf = (const uint8 *)&CfeMsg;
+OS_printf("SB message 0x%02X%02X 0x%02X%02X\n",Buf[0],Buf[1],Buf[2],Buf[3]);
+
+         CFE_SB_TransmitMsg(CfeMsg, true);
+      }
       JMsgTopicTlm->SbTestCnt++;
    }
    

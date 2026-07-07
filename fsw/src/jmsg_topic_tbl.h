@@ -357,8 +357,8 @@ bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin
 /******************************************************************************
 ** Function: JMSG_TOPIC_TBL_RegisterPlugin
 **
-** Register a user topic plugin.
-** TODO: Verify the TopicPlugin ID is in the USR range.
+** Register a user topic plugin. Returns PKTUTIL_UNUSED_MSG_ID if TopicPlugin
+** is invalid.
 **
 */
  CFE_SB_MsgId_t JMSG_TOPIC_TBL_RegisterPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
@@ -412,7 +412,7 @@ bool JMSG_TOPIC_TBL_SendTlmCmd(void *DataObjPtr, const CFE_MSG_Message_t *MsgPtr
 **   1. This should only be used when only one JMSG network app is using
 **      JMSG_LIB because when it is called the app's SubscriptionCallback()
 **      function is called for every enabled topic table entry.
-**   2. JMSG_TOPIC_TBL_SubscribeToTopicMsg() to configure individual entries.
+**   2. Calls JMSG_TOPIC_TBL_SubscribeToTopicMsg() to configure individual entries.
 **   TODO: Current design requires code changes to the JMSG network app's
 **   TODO: constructor. Create a scheme that is table or EDS based.
 **
@@ -449,7 +449,21 @@ bool JMSG_TOPIC_TBL_UnsubscribeFromTopicMsg(JMSG_PLATFORM_TopicPlugin_Enum_t Top
 ** In addition to being in range, valid means that the TopicPlugin has been
 ** defined.
 */
-bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin);
+bool JMSG_TOPIC_TBL_ValidTopicPlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
+                                     const char *CallerIdStr);
 
+
+/******************************************************************************
+** Function: JMSG_TOPIC_TBL_ValidTopicPluginId
+**
+** Verifies Topic plugin identifier is valid.
+**
+** Notes:
+**   1. CallerIdStr is used in error event to identify the context of the
+**      validation. 
+** 
+*/
+bool JMSG_TOPIC_TBL_ValidTopicPluginId(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin,
+                                       const char *CallerIdStr);
 
 #endif /* _jmsg_topic_tbl_ */

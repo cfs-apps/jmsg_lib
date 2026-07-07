@@ -37,6 +37,21 @@
 #include "jmsg_lib_platform_cfg.h"
 #include "jmsg_topic_tbl.h"
 
+
+/***********************/
+/** Macro Definitions **/
+/***********************/
+
+/*
+** Hard coding APP_C_DEMO' NOOP command complicates maintenance, but this
+** complexity was traded against not adding an ini file dependency with
+** APP_C_DEMO which would be required if the message were created at 
+** runtime.
+*/
+
+#define  APP_C_DEMO_NOOP_HEXTXT  "185cc0000001007a"   // Used for testing
+
+
 /******************************************************************************
 ** Application Macros
 */

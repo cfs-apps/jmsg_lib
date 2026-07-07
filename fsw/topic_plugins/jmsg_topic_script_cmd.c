@@ -18,8 +18,10 @@
 ** Notes:
 **   1. Allows a cFS app to manage the excecution of scripts external to
 **      the cFS target. The scripts could be on the same processor or on
-**      a remote system.  Scripts can be embedded in the JSMG or resident
+**      a remote system.  Scripts can be embedded in the JSMG or in a file
 **      on the external system.
+**   2. The JsonToCfe() function is provided however there currently aren't
+**      use cases for the cFS target to execute python scripts. 
 **
 */
 
@@ -113,6 +115,9 @@ void JMSG_TOPIC_SCRIPT_CMD_Constructor(JMSG_TOPIC_SCRIPT_CMD_Class_t *JMsgTopicS
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_CfeToJson_t
+**   2. It is the user's responsibility to ensure that the JMsgPayload buffer
+**      length is adequate. An event message when a memory overrrun/corruption
+**      occurs. 
 **
 */
 static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
@@ -124,17 +129,30 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 
    *JMsgPayload = NullScriptCmdMsg;
    
-   //TODO: Add string protection?
    PayloadLen = sprintf(JMsgTopicScriptCmd->JMsgPayload,
                 "{\"command\": %d, \"script-file\": \"%s\", \"script-text\": \"%s\"}",
                 ScriptMsg->Command, ScriptMsg->ScriptFile, ScriptMsg->ScriptText);
 
    if (PayloadLen > 0)
    {
-      *JMsgPayload = JMsgTopicScriptCmd->JMsgPayload;
-   
-      ++JMsgTopicScriptCmd->CfeToJMsgCnt;
-      RetStatus = true;
+      if (PayloadLen <= sizeof(JMsgTopicScriptCmd->JMsgPayload))
+      {
+         *JMsgPayload = JMsgTopicScriptCmd->JMsgPayload;
+      
+         ++JMsgTopicScriptCmd->CfeToJMsgCnt;
+         RetStatus = true;
+      }
+      else
+      {
+         CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_CMD_CFE2JSON_EID, CFE_EVS_EventType_ERROR,
+                           "JMSG Script Command payload %d byte buffer overrun (memory corrupted)",
+                           (uint16)(PayloadLen-sizeof(JMsgTopicScriptCmd->JMsgPayload)));
+      }
+   }
+   else
+   {
+      CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_CMD_CFE2JSON_EID, CFE_EVS_EventType_ERROR,
+                        "JMSG Script Command payload conversion error");      
    }
    
    return RetStatus;
@@ -149,10 +167,10 @@ static bool CfeToJson(const char **JMsgPayload, const CFE_MSG_Message_t *CfeMsg)
 **
 ** Notes:
 **   1. Signature must match JMSG_TOPIC_TBL_JsonToCfe_t
-**   2. Test messages:
+**   2. Below is a null test message that theoritically could be used in a 
+**      test. However, it isn't very practical since there currently aren't
+**      use cases for the cFS target to execute python scripts. 
 **      {"command": 0, "script-file": "null-file", "script-text": "null-script" }
-**      {"command": 1, "script-file": "null-file", "script-text": "null-script" }  //TODO
-**      {"command": 2, "script-file": "null-file", "script-text": "null-script" }  //TODO
 */
 static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint16 PayloadLen)
 {
@@ -178,7 +196,7 @@ static bool JsonToCfe(CFE_MSG_Message_t **CfeMsg, const char *JMsgPayload, uint1
 ** Function: LoadJsonData
 **
 ** Notes:
-**  1. See file prologue for full/partial table load scenarios
+**  1. All JSON objects must be defined even if they are unused.
 */
 static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 {
@@ -213,12 +231,14 @@ static bool LoadJsonData(const char *JMsgPayload, uint16 PayloadLen)
 /******************************************************************************
 ** Function: PluginTest
 **
-** Generate and send JMSG Script topic messages on SB that are read back by
-** JMSG_UDP and cause JMSG's to be generated from the SB messages.  
+** Generate and send JMSG Script topic messages on SB.
 **
 ** Notes:
 **   1. Param is not used
-**
+**   2. The test message can be viewed in the JMSG_LIB_TOPIC_SCRIPT_CMD
+**      telemetry window.
+**   3. See JMSG_DEMO for examples on how to send the JMSG_LIB_TOPIC_SCRIPT_CMD
+**      for a protocol like UDP and run scripts remote to the cFS target
 */
 static void PluginTest(bool Init, int16 Param)
 {
@@ -230,22 +250,30 @@ static void PluginTest(bool Init, int16 Param)
    {
 
       JMsgTopicScriptCmd->PluginTestCnt = 1;
-	  
-      Payload->Command = JMSG_LIB_ExecScriptCmd_RUN_SCRIPT_TEXT;
-      strncpy(Payload->ScriptFile, "Undefined", OS_MAX_PATH_LEN);
-      sprintf(Payload->ScriptText, "print(\"Hello World %d\")", JMsgTopicScriptCmd->PluginTestCnt);
-
-      CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_CMD_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
+	   CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_CMD_PLUGIN_TEST_EID, CFE_EVS_EventType_INFORMATION,
                         "JMSG script command plugin topic test started");
 
    }
    else
    {
                     
-      JMsgTopicScriptCmd->PluginTestCnt++;
-      sprintf(Payload->ScriptText, "print(\"Hello World %d\")", JMsgTopicScriptCmd->PluginTestCnt);
+      if (JMsgTopicScriptCmd->PluginTestCnt % 2 == 0)
+      {
+         Payload->Command = JMSG_LIB_ExecScriptCmd_RUN_SCRIPT_TEXT;
+         strncpy(Payload->ScriptFile, "Undefined", OS_MAX_PATH_LEN);
+         sprintf(Payload->ScriptText, "print(\"Hello World %d\")", JMsgTopicScriptCmd->PluginTestCnt);
+         
+      }
+      else
+      {
+         Payload->Command = JMSG_LIB_ExecScriptCmd_RUN_SCRIPT_FILE;
+         strncpy(Payload->ScriptFile, "hello_world.py", OS_MAX_PATH_LEN);         
+         sprintf(Payload->ScriptText, "Undefined");
+      }
       
+      JMsgTopicScriptCmd->PluginTestCnt++;
    }
+
 
    CFE_EVS_SendEvent(JMSG_TOPIC_SCRIPT_CMD_PLUGIN_TEST_EID, CFE_EVS_EventType_DEBUG,
                      "JMSG script command plugin topic test text payload: %s", Payload->ScriptText);

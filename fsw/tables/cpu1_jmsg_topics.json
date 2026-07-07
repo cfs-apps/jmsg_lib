@@ -9,7 +9,7 @@
                     "   'mqtt': Use MQTT, jmsg_mqtt app must be installed",
                     "   'udp':  Use UDP,  jmsg_udp  app must be installed",
                     "'sb-role': Define message's role from a SB perpective:",
-                    "   'pub': read (subscribe to) a JSON message from an external source and publish it on the SB",
+                    "   'pub': read a JSON message from an external source and publish it on the SB",
                     "   'sub': read a SB message (subscribe to) and publish it to an external destination",
                     "KIT_TO PUB_WRAPPED_TLM_TOPICID: Set sb-role to sub so plugin receives wrapped KIT_TO telemetry",
                     "KIT_TO SUB_WRAPPED_TLM_TOPICID: Set sb-role to pub so plugin sends wrapped telemetry to KIT_TO",

@@ -151,7 +151,7 @@ void TPLUG_RPI_DEMO_Constructor(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin)
 
    TPlugRpiDemo.JsonObjCnt = (sizeof(JsonTblObjs)/sizeof(CJSON_Obj_t));
 
-   /* TODO: Confirm no race ocndition if JSON being produced while this initialization is taking place becuase message init occurs after the callback subscription */ 
+   /* TODO: Confirm no race condition if JSON message being produced while this initialization is taking place because message init occurs after the callback subscription */ 
    
    TPlugRpiDemo.SbMsgId = JMSG_TOPIC_TBL_RegisterPlugin(TopicPlugin, CfeToJson, JsonToCfe, PluginTest);
 
