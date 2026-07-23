@@ -17,9 +17,7 @@
       JMSG script_cmd, csv_cmd and csv_tlm topics
     
     Notes:
-      1. Only one topic can be tested at a time that is defined
-         by the INI file USE_CASE parameter
-      2. Use case tests verify JMSG topic messages. These messages
+      1. Use case tests verify JMSG topic messages. These messages
          are designed for end users to customize content such as 
          telemetry parameters. That verification is performed by the
          end user app.
@@ -36,7 +34,13 @@ import json
 config = configparser.ConfigParser()
 config.read('jmsg_demo.ini')
 
-USE_CASE = config.get('APP','USE_CASE')
+SCRIPT_CMD = 1
+CSV_CMD    = 2
+CSV_TLM    = 3
+UDP_RPI    = 4
+USE_CASE = { SCRIPT_CMD:'SCRIPT_CMD', CSV_CMD:'CSV_CMD', CSV_TLM:'CSV_TLM', UDP_RPI:'UDP_RPI'}
+demo_use_case = SCRIPT_CMD
+
 RX_LOOP_DELAY = config.getint('APP','RX_LOOP_DELAY')
 TX_LOOP_DELAY = config.getint('APP','TX_LOOP_DELAY')
 
@@ -55,19 +59,18 @@ PY_APP_PORT  = config.getint('NETWORK','PY_APP_PORT')
 
 
 def tx_thread():
-    
     i = 1
     while True:
         start_time = time.perf_counter()
         cont = input ("Press <Enter> to send\n\n")
         jmsg = ''
-        if USE_CASE == 'SCRIPT_CMD':
+        if demo_use_case == SCRIPT_CMD:
             jmsg = JMSG_TOPIC_SCR_CMD_NAME + "{\"command\": 1, \"script-file\": \"Undefined\", \"script-text\": \"print('Hello world')\"}"
-        elif USE_CASE == 'CSV_CMD':
+        elif demo_use_case == CSV_CMD: 
             jmsg = JMSG_TOPIC_CSV_CMD_NAME + "{\"name\": \"UDP CSV CMD\", \"parameters\": \"None\"}"
-        elif USE_CASE == 'CSV_TLM':
+        elif demo_use_case == CSV_TLM:
             jmsg = JMSG_TOPIC_CSV_TLM_NAME + "{\"name\": \"UDP CSV TLM\", \"seq-count\": 99, \"date-time\": \"0\", \"parameters\": \"None\"}"
-        elif USE_CASE == 'CSV_RPI':
+        elif demo_use_case == CSV_RPI:
             end_time = time.perf_counter()
             delta_time = end_time - start_time
             floati = float(i)
@@ -99,11 +102,11 @@ def rx_thread():
                     jmsg_str = jmsg.decode('utf-8')
                     print(f'  Received from {host} JMSG {len(jmsg_str)}: {jmsg_str}')
                     jmsg_str = jmsg_str.replace("\x00", "").replace("\x01", "")
-                    if USE_CASE == 'SCRIPT_CMD':
+                    if demo_use_case == SCRIPT_CMD:
                         process_scr_cmd_jmsg(jmsg_str)
-                    elif USE_CASE == 'CSV_CMD' or USE_CASE == 'CSV_RPI':
+                    elif demo_use_case == CSV_CMD or demo_use_case == CSV_RPI:
                         process_csv_cmd_jmsg(jmsg_str)
-                    elif USE_CASE == 'CSV_TLM':
+                    elif demo_use_case == CSV_TLM:
                         process_csv_tlm_jmsg(jmsg_str)
                 print('*****\n')
                 time.sleep(RX_LOOP_DELAY)                
@@ -141,14 +144,18 @@ def process_csv_tlm_jmsg(jmsg_str):
 
 
 if __name__ == "__main__":
-
+    
+    print('\nUse Case:\n')
+    for key, value in USE_CASE.items():
+        print(f'{key} - {value}')
+    demo_use_case = int(input("\nEnter use case numeric ID> "))
+    print(f'Starting use case {demo_use_case}-{USE_CASE[demo_use_case]}\n')
+    
     tx = threading.Thread(target=tx_thread)
     tx.start()
 
     rx = threading.Thread(target=rx_thread)
     rx.start()
    
-
- 
     #process_jmsg(TEST1_JMSG)
     #process_jmsg(TEST2_JMSG)

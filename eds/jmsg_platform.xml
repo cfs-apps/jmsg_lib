@@ -63,7 +63,7 @@
       <!--
          Since MAX_TOPIC_PLUGIN_CNT is needed as a constant in other EDS definitions
          all of the TopicPlugin enumeration values are defined as constants. Their 
-         value must start at zero and increment by 1 since the topic plugin IDs are
+         values must start at zero and increment by 1 since the topic plugin IDs are
          used as array indices.
       -->
       

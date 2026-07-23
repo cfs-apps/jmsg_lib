@@ -28,11 +28,11 @@
    
       "start": true,
       
-      "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-1",
-      "KIT_TO_PUB_WRAPPED_TLM_TOPICID": "cfe-2",
-      "JMSG_LIB_TOPIC_CSV_CMD_TOPICID": "cfe-3",
-      "JMSG_LIB_TOPIC_CSV_TLM_TOPICID": "cfe-4",
-      "JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID": "cfe-5",
+      "KIT_TO_SUB_WRAPPED_TLM_TOPICID": "cfe-0",
+      "KIT_TO_PUB_WRAPPED_TLM_TOPICID": "cfe-1",
+      "JMSG_LIB_TOPIC_CSV_CMD_TOPICID": "cfe-2",
+      "JMSG_LIB_TOPIC_CSV_TLM_TOPICID": "cfe-3",
+      "JMSG_LIB_TOPIC_SCRIPT_CMD_TOPICID": "cfe-4",
       
       "end": true
 
@@ -42,7 +42,7 @@
        {
           "id": "CMD",
           "name":  "basecamp/cfs/cmd",
-          "cfe-1": 0,
+          "cfe-0": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "pub",
@@ -51,7 +51,7 @@
        {
           "id": "TLM",
           "name":  "basecamp/cfs/tlm",
-          "cfe-2": 0,
+          "cfe-1": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",
@@ -60,7 +60,7 @@
        {
           "id": "CSV_CMD",
           "name":  "basecamp/csv/cmd",
-          "cfe-3": 0,
+          "cfe-2": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",
@@ -69,7 +69,7 @@
        {
           "id": "CSV_TLM",
           "name":  "basecamp/csv/tlm",
-          "cfe-4": 0,
+          "cfe-3": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "pub",
@@ -78,7 +78,7 @@
        {
           "id": "SCRIPT_CMD",
           "name":  "basecamp/script/cmd",
-          "cfe-5": 0,
+          "cfe-4": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",
@@ -87,7 +87,7 @@
        {
           "id": "USR_1",
           "name":  "basecamp/rpi/demo",
-          "cfe-6": 0,
+          "cfe-5": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "pub",
@@ -96,7 +96,7 @@
        {
           "id": "USR_2",
           "name":  "spare",
-          "cfe-7": 0,
+          "cfe-6": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",
@@ -105,7 +105,7 @@
        {
           "id": "USR_3",
           "name":  "spare",
-          "cfe-8": 0,
+          "cfe-7": 0,
           "cfe": 0,
           "protocol": "udp",
           "sb-role": "sub",

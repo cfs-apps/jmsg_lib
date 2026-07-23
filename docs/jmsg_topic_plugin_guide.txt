@@ -307,7 +307,7 @@ E. From Basecamp open the following telemetry pages and the Discrete payload
    - JMSG_DEMO/Application/MQTT_DISCRETE_TLM   
 
 *. Open Basecamp's JMSG_MQTT/Application/STATUS_TLM telemetry page to verify
-   the TxUdpMsgCnt is incrementing and the RxUdpMsgCnt equlas the number of times
+   the TxUdpMsgCnt is incrementing and the RxUdpMsgCnt equals the number of times
    you hit <Enter> in the Python terminal window.
    
    
