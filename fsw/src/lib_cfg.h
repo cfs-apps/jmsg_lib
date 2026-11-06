@@ -62,10 +62,11 @@
 ** 1.0 - Initial release tested with jmsg_mqtt and jmsg_udp
 ** 1.1 - Updates for JMSG project initial release
 ** 3.1 - Compatible with Basecamp 3.x new app version management
+** 4.0 - Updated to cFS 7.0 (Basecamp 4.0 release)
 */
 
-#define  JMSG_LIB_MAJOR_VER      3
-#define  JMSG_LIB_MINOR_VER      1
+#define  JMSG_LIB_MAJOR_VER      4
+#define  JMSG_LIB_MINOR_VER      0
 
 
 /******************************************************************************
