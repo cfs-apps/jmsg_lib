@@ -34,7 +34,7 @@
 /** Macro Definitions **/
 /***********************/
 
-#define JSON_MAX_TOPIC_LEN  JMSG_PLATFORM_TOPIC_NAME_MAX_LEN  // Shorter & more ledgable for table use
+#define JSON_TNAME_MAX_LEN  EdsParam_JMSG_PLATFORM_TOPIC_NAME_MAX_LEN  // Shorter length to keep table columns aligned
 
 
 /********************************** **/
@@ -58,49 +58,49 @@ static CJSON_Obj_t JsonTblObjs[] =
    /* Table                     Data                                             core-json             length of query       */
    /* Data Address,             Len,                Updated, Data Type,  Float,  query string,         string(exclude '\0')  */
    
-   { &TblData.Topic[0].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[0].name",     (sizeof("topic[0].name")-1)}},
+   { &TblData.Topic[0].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[0].name",     (sizeof("topic[0].name")-1)}},
    { &TblData.Topic[0].Cfe,     2,                  false,   JSONNumber, false, { "topic[0].cfe",      (sizeof("topic[0].cfe")-1)}},
    { &TblData.Topic[0].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[0].protocol", (sizeof("topic[0].protocol")-1)}},
    { &TblData.Topic[0].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[0].sb-role",  (sizeof("topic[0].sb-role")-1)}},
    { &TblData.Topic[0].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[0].enabled",  (sizeof("topic[0].enabled")-1)}},
 
-   { &TblData.Topic[1].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[1].name",     (sizeof("topic[1].name")-1)}},
+   { &TblData.Topic[1].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[1].name",     (sizeof("topic[1].name")-1)}},
    { &TblData.Topic[1].Cfe,     2,                  false,   JSONNumber, false, { "topic[1].cfe",      (sizeof("topic[1].cfe")-1)}},
    { &TblData.Topic[1].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[1].protocol", (sizeof("topic[1].protocol")-1)}},
    { &TblData.Topic[1].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[1].sb-role",  (sizeof("topic[1].sb-role")-1)}},
    { &TblData.Topic[1].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[1].enabled",  (sizeof("topic[1].enabled")-1)}},
 
-   { &TblData.Topic[2].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[2].name",     (sizeof("topic[2].name")-1)}},
+   { &TblData.Topic[2].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[2].name",     (sizeof("topic[2].name")-1)}},
    { &TblData.Topic[2].Cfe,     2,                  false,   JSONNumber, false, { "topic[2].cfe",      (sizeof("topic[2].cfe")-1)}},
    { &TblData.Topic[2].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[2].protocol", (sizeof("topic[2].protocol")-1)}},
    { &TblData.Topic[2].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[2].sb-role",  (sizeof("topic[2].sb-role")-1)}},
    { &TblData.Topic[2].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[2].enabled",  (sizeof("topic[2].enabled")-1)}},
 
-   { &TblData.Topic[3].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[3].name",     (sizeof("topic[3].name")-1)}},
+   { &TblData.Topic[3].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[3].name",     (sizeof("topic[3].name")-1)}},
    { &TblData.Topic[3].Cfe,     2,                  false,   JSONNumber, false, { "topic[3].cfe",      (sizeof("topic[3].cfe")-1)}},
    { &TblData.Topic[3].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[3].protocol", (sizeof("topic[3].protocol")-1)}},
    { &TblData.Topic[3].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[3].sb-role",  (sizeof("topic[3].sb-role")-1)}},
    { &TblData.Topic[3].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[3].enabled",  (sizeof("topic[3].enabled")-1)}},
 
-   { &TblData.Topic[4].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[4].name",     (sizeof("topic[4].name")-1)}},
+   { &TblData.Topic[4].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[4].name",     (sizeof("topic[4].name")-1)}},
    { &TblData.Topic[4].Cfe,     2,                  false,   JSONNumber, false, { "topic[4].cfe",      (sizeof("topic[4].cfe")-1)}},
    { &TblData.Topic[4].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[4].protocol", (sizeof("topic[4].protocol")-1)}},
    { &TblData.Topic[4].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[4].sb-role",  (sizeof("topic[4].sb-role")-1)}},
    { &TblData.Topic[4].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[4].enabled",  (sizeof("topic[4].enabled")-1)}},
 
-   { &TblData.Topic[5].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[5].name",     (sizeof("topic[5].name")-1)}},
+   { &TblData.Topic[5].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[5].name",     (sizeof("topic[5].name")-1)}},
    { &TblData.Topic[5].Cfe,     2,                  false,   JSONNumber, false, { "topic[5].cfe",      (sizeof("topic[5].cfe")-1)}},
    { &TblData.Topic[5].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[5].protocol", (sizeof("topic[5].protocol")-1)}},
    { &TblData.Topic[5].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[5].sb-role",  (sizeof("topic[5].sb-role")-1)}},
    { &TblData.Topic[5].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[5].enabled",  (sizeof("topic[5].enabled")-1)}},
 
-   { &TblData.Topic[6].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[6].name",     (sizeof("topic[6].name")-1)}},
+   { &TblData.Topic[6].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[6].name",     (sizeof("topic[6].name")-1)}},
    { &TblData.Topic[6].Cfe,     2,                  false,   JSONNumber, false, { "topic[6].cfe",      (sizeof("topic[6].cfe")-1)}},
    { &TblData.Topic[6].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[6].protocol", (sizeof("topic[6].protocol")-1)}},
    { &TblData.Topic[6].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[6].sb-role",  (sizeof("topic[6].sb-role")-1)}},
    { &TblData.Topic[6].EnaStr,  JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[6].enabled",  (sizeof("topic[6].enabled")-1)}},
 
-   { &TblData.Topic[7].Name,    JSON_MAX_TOPIC_LEN, false,   JSONString, false, { "topic[7].name",     (sizeof("topic[7].name")-1)}},
+   { &TblData.Topic[7].Name,    JSON_TNAME_MAX_LEN, false,   JSONString, false, { "topic[7].name",     (sizeof("topic[7].name")-1)}},
    { &TblData.Topic[7].Cfe,     2,                  false,   JSONNumber, false, { "topic[7].cfe",      (sizeof("topic[7].cfe")-1)}},
    { &TblData.Topic[7].ProtStr, JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[7].protocol", (sizeof("topic[7].protocol")-1)}},
    { &TblData.Topic[7].SbStr,   JSON_MAX_KW_LEN,    false,   JSONString, false, { "topic[7].sb-role",  (sizeof("topic[7].sb-role")-1)}},
@@ -110,7 +110,7 @@ static CJSON_Obj_t JsonTblObjs[] =
 
 
 // Table is populated by topic plugin constructors & plugin regitrations
-static JMSG_TOPIC_TBL_PluginFuncTbl_t PluginFuncTbl[JMSG_PLATFORM_TOPIC_PLUGIN_MAX];
+static JMSG_TOPIC_TBL_PluginFuncTbl_t PluginFuncTbl[EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX];
 
 /******************************************************************************
 ** Function: JMSG_TOPIC_TBL_Constructor
@@ -131,7 +131,7 @@ void JMSG_TOPIC_TBL_Constructor(JMSG_TOPIC_TBL_Class_t *JMsgTopicTblPtr,
    JMsgTopicTbl->JsonObjCnt = (sizeof(JsonTblObjs)/sizeof(CJSON_Obj_t));
 
    
-   for (i=0; i < JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
+   for (i=0; i < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
    {
       TblData.Topic[i].Enabled = false;
       JMsgTopicTbl->Data.Topic[i].Enabled  = false;
@@ -167,7 +167,7 @@ bool JMSG_TOPIC_TBL_DisablePlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin)
    
    bool RetStatus = false;
    
-   if (TopicPlugin < JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
+   if (TopicPlugin < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
    {
       if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled)
       {
@@ -210,7 +210,7 @@ bool JMSG_TOPIC_TBL_DumpCmd(osal_id_t  FileHandle)
    sprintf(DumpRecord,"   \"topic\": [\n");
    OS_write(FileHandle,DumpRecord,strlen(DumpRecord));
 
-   for (i=0; i < JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
+   for (i=0; i < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
    {
       if (JMsgTopicTbl->Data.Topic[i].Enabled)
       {
@@ -249,7 +249,7 @@ bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin)
    
    bool RetStatus = false;
    
-   if (TopicPlugin < JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
+   if (TopicPlugin < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
    {      
       if (JMsgTopicTbl->Data.Topic[TopicPlugin].Enabled)
       {
@@ -292,7 +292,7 @@ bool JMSG_TOPIC_TBL_EnablePlugin(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin)
 ** pointer to the JSON topic string in JsonMsgTopic.
 ** 
 ** Notes:
-**   1. TopicPlugin must be less than JMSG_PLATFORM_TOPIC_PLUGIN_MAX
+**   1. TopicPlugin must be less than EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX
 **
 */
 JMSG_TOPIC_TBL_CfeToJson_t JMSG_TOPIC_TBL_GetCfeToJson(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlugin, 
@@ -329,7 +329,7 @@ const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetDisabledTopic(JMSG_PLATFORM_Topi
 
    JMSG_TOPIC_TBL_Topic_t *Topic = NULL;
 
-   if (TopicPlugin < JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
+   if (TopicPlugin < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
    {
       if ((JMsgTopicTbl->Data.Topic[TopicPlugin].SbRole == JMSG_LIB_TopicSbRole_PUBLISH)||
           (JMsgTopicTbl->Data.Topic[TopicPlugin].SbRole == JMSG_LIB_TopicSbRole_SUBSCRIBE))
@@ -341,7 +341,7 @@ const JMSG_TOPIC_TBL_Topic_t *JMSG_TOPIC_TBL_GetDisabledTopic(JMSG_PLATFORM_Topi
    {
       CFE_EVS_SendEvent(JMSG_TOPIC_TBL_INDEX_ERR_EID, CFE_EVS_EventType_ERROR, 
                         "Table topic plugin ID %d is out of range. It must less than %d",
-                        TopicPlugin, JMSG_PLATFORM_TOPIC_PLUGIN_MAX);
+                        TopicPlugin, EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX);
    }
    
    return Topic;
@@ -434,7 +434,7 @@ bool JMSG_TOPIC_TBL_LoadCmd(APP_C_FW_TblLoadOptions_Enum_t LoadType, const char 
 
    bool  RetStatus = false;
 
-   if (CJSON_ProcessFile(Filename, JMsgTopicTbl->JsonBuf, JMSG_PLATFORM_JSON_TOPIC_TBL_MAX_CHAR, LoadJsonData))
+   if (CJSON_ProcessFile(Filename, JMsgTopicTbl->JsonBuf, EdsParam_JMSG_PLATFORM_JSON_TOPIC_TBL_MAX_CHAR, LoadJsonData))
    {
       JMsgTopicTbl->Loaded = true;
       RetStatus = true;
@@ -451,16 +451,17 @@ bool JMSG_TOPIC_TBL_LoadCmd(APP_C_FW_TblLoadOptions_Enum_t LoadType, const char 
 ** Return a topic plugin ID for a message ID
 ** 
 ** Notes:
-**   1. JMSG_PLATFORM_TOPIC_PLUGIN_UNDEF is returned if the message ID isn't found.
+**   1. EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_UNDEF is returned if the 
+**      message ID isn't found.
 **
 */
 uint8 JMSG_TOPIC_TBL_MsgIdToTopicPlugin(CFE_SB_MsgId_t MsgId)
 {
    
-   uint8  TopicPlugin = JMSG_PLATFORM_TOPIC_PLUGIN_UNDEF;
+   uint8  TopicPlugin = EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_UNDEF;
    uint32 MsgIdValue = CFE_SB_MsgIdToValue(MsgId);
   
-   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=0; i < JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
+   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=0; i < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
    {
       if (MsgIdValue == JMsgTopicTbl->Data.Topic[i].Cfe)
       {
@@ -510,7 +511,7 @@ bool JMSG_TOPIC_TBL_RegisterConfigSubscriptionCallback(JMSG_PLATFORM_TopicPlugin
                                               JMSG_TOPIC_TBL_PluginTest_t PluginTest)
 {
 
-   CFE_SB_MsgId_t MsgId = PKTUTIL_UNUSED_MSG_ID;
+   CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
    
    const JMSG_TOPIC_TBL_Class_t *TopicTbl = JMSG_LIB_GetTopicTbl();
  
@@ -578,12 +579,12 @@ bool JMSG_TOPIC_TBL_SendTlmCmd(void *DataObjPtr, const CFE_MSG_Message_t *MsgPtr
    
    JMSG_LIB_TopicTblTlm_Payload_t *Payload = &JMsgTopicTbl->TopicTblTlm.Payload;
 
-   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=JMSG_PLATFORM_TopicPlugin_Enum_t_MIN; i <= JMSG_PLATFORM_TopicPlugin_Enum_t_MAX; i++)
+   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MIN; i <= EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MAX; i++)
    {
       JMSG_LIB_PluginDescr_t *PluginDescr  = &Payload->TopicPlugin[i];
       const JMSG_TOPIC_TBL_Topic_t *Topic = &JMsgTopicTbl->Data.Topic[i];
       
-      strncpy(PluginDescr->Name, Topic->Name, JMSG_PLATFORM_TOPIC_NAME_MAX_LEN);
+      strncpy(PluginDescr->Name, Topic->Name, EdsParam_JMSG_PLATFORM_TOPIC_NAME_MAX_LEN);
       PluginDescr->Enabled  = Topic->Enabled;
       PluginDescr->Protocol = Topic->Protocol;
       PluginDescr->SbRole   = Topic->SbRole;
@@ -620,7 +621,7 @@ void JMSG_TOPIC_TBL_SubscribeToAll(JMSG_TOPIC_TBL_TopicSubscribeToEnum_t Subscri
    uint16 SubscribeErr = 0;
    
  
-   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=JMSG_PLATFORM_TopicPlugin_Enum_t_MIN; i <= JMSG_PLATFORM_TopicPlugin_Enum_t_MAX; i++)
+   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MIN; i <= EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MAX; i++)
    {
       TopicSubscription = JMSG_TOPIC_TBL_SubscribeToTopicMsg(i, SubscribeTo);
       switch (TopicSubscription)
@@ -789,7 +790,7 @@ bool JMSG_TOPIC_TBL_ValidTopicPluginId(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlu
 
    bool RetStatus = false;
    
-   if (TopicPlugin < JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
+   if (TopicPlugin < EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX)
    {
       RetStatus = true;
    }
@@ -797,7 +798,7 @@ bool JMSG_TOPIC_TBL_ValidTopicPluginId(JMSG_PLATFORM_TopicPlugin_Enum_t TopicPlu
    {
       CFE_EVS_SendEvent(JMSG_TOPIC_TBL_INDEX_ERR_EID, CFE_EVS_EventType_ERROR, 
                         "%s: Table topic plugin ID %d is out of range. ID must be less than %d",
-                        CallerIdStr, TopicPlugin, JMSG_PLATFORM_TOPIC_PLUGIN_MAX);
+                        CallerIdStr, TopicPlugin, EdsParam_JMSG_PLATFORM_TOPIC_PLUGIN_MAX);
    }
 
    return RetStatus;
@@ -841,7 +842,7 @@ static bool LoadJsonData(size_t JsonFileLen)
    else
    {
 
-      for (JMSG_PLATFORM_TopicPlugin_Enum_t i=JMSG_PLATFORM_TopicPlugin_Enum_t_MIN; i <= JMSG_PLATFORM_TopicPlugin_Enum_t_MAX; i++)
+      for (JMSG_PLATFORM_TopicPlugin_Enum_t i=EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MIN; i <= EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MAX; i++)
       {
 
          TblData.Topic[i].Enabled = (strcmp(TblData.Topic[i].EnaStr, "true") == 0);

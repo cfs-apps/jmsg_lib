@@ -76,7 +76,7 @@ void JMSG_TOPIC_PLUGIN_Constructor(const JMSG_TOPIC_TBL_Data_t *TopicTbl,
                                    uint32 PluginTestTlmTopicId)
 {
    
-   for (enum JMSG_PLATFORM_TopicPlugin i=JMSG_PLATFORM_TopicPlugin_Enum_t_MIN; i < JMSG_PLATFORM_TOPIC_PLUGIN_MAX; i++)
+   for (JMSG_PLATFORM_TopicPlugin_Enum_t i=EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MIN; i < EdsDataType_EdsEnum_JMSG_PLATFORM_TopicPlugin_t_MAX; i++)
    {
       switch (i)
       {

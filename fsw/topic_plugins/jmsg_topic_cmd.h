@@ -46,6 +46,8 @@
 #define JMSG_TOPIC_CMD_INIT_SB_MSG_TEST_EID  (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 0)
 #define JMSG_TOPIC_CMD_CFE2JSON_EID          (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 1)
 #define JMSG_TOPIC_CMD_JSON2CFE_EID          (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 2)
+#define JMSG_TOPIC_CMD_EDS_DECODE_EID        (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 3)
+
 
 /**********************/
 /** Type Definitions **/
@@ -58,8 +60,8 @@ typedef struct
    ** JMsg message data
    */
    
-   CFE_SB_Buffer_t                 *SbBufPtr;
-   CFE_HDR_Message_PackedBuffer_t  MsgPackedBuf;
+   CFE_SB_Buffer_t  *SbBufPtr;
+   EdsPackedBuffer_CFE_HDR_CommandHeader_t  MsgPackedBuf;  //TODO: Buffer size not coupled/configured with JMSG max size
 
    uint32  CfeToJMsgCnt;
    uint32  JMsgToCfeCnt;

@@ -38,7 +38,7 @@
 /** Macro Definitions **/
 /***********************/
 
-#define NAME_LEN        JMSG_PLATFORM_TOPIC_NAME_MAX_LEN
+#define NAME_LEN        EdsParam_JMSG_PLATFORM_TOPIC_NAME_MAX_LEN
 #define SCRIPT_TXT_LEN  sizeof(JMSG_LIB_TlmParamString_String_t)
 
 
