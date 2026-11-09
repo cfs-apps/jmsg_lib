@@ -46,7 +46,7 @@
 #define JMSG_TOPIC_CMD_INIT_SB_MSG_TEST_EID  (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 0)
 #define JMSG_TOPIC_CMD_CFE2JSON_EID          (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 1)
 #define JMSG_TOPIC_CMD_JSON2CFE_EID          (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 2)
-#define JMSG_TOPIC_CMD_EDS_DECODE_EID        (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 3)
+#define JMSG_TOPIC_CMD_EDS_DECODE_EID        (JMSG_PLATFORM_TopicPluginBaseEid_CMD + 3)  // Used for all EDS decode functions 
 
 
 /**********************/

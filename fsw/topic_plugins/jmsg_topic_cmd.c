@@ -20,6 +20,7 @@
 **   1. This only supports a remote commanding use case which is 
 **      converting a binary encoded command message into a SB message.
 **   2. JsonToCfe() performs the same EDS processing as CI_LAB.
+**   3. TODO: May need a strategy to filter some event messages
 **
 */
 
@@ -151,17 +152,18 @@ static CFE_Status_t DecodeInputHeader(CFE_SB_Buffer_t         *IngestBufPtr,
    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &CmdHdrInfo);
    if (EdsStatus != EDSLIB_SUCCESS)
    {
-        OS_printf("EdsLib_DataTypeDB_GetTypeInfo(): %d\n", (int)EdsStatus);
-        ResultStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+      CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                        "Error accessing EDS database, EdsLib_DataTypeDB_GetTypeInfo() status = %d", (int)EdsStatus);
+      ResultStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
    }
    else if (MaxSize->Bits < CmdHdrInfo.Size.Bits)
    {
-        /* sanity check - validate the incoming packet is at least the size of a command header */
-        OS_printf("CI_LAB: Size mismatch, BitSize=%lu (packet) / %lu (min)\n",
-                  (unsigned long)MaxSize->Bits,
-                  (unsigned long)CmdHdrInfo.Size.Bits);
+      /* sanity check - validate the incoming packet is at least the size of a command header */
+      CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                        "Message header size mismatch, BitSize=%lu(message) vs %lu(database)",
+                        (unsigned long)MaxSize->Bits,(unsigned long)CmdHdrInfo.Size.Bits);
 
-        ResultStatus = CFE_STATUS_WRONG_MSG_LENGTH;
+      ResultStatus = CFE_STATUS_WRONG_MSG_LENGTH;
    }
    else
    {
@@ -174,7 +176,9 @@ static CFE_Status_t DecodeInputHeader(CFE_SB_Buffer_t         *IngestBufPtr,
                                                                ProcessedSize);
       if (EdsStatus != EDSLIB_SUCCESS)
       {
-         OS_printf("EdsLib_DataTypeDB_UnpackPartialObject(Header): %d\n", (int)EdsStatus);
+         CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                           "Error unpacking message header EDS objects, EdsLib_DataTypeDB_GetTypeInfo() status = %d",
+                           (int)EdsStatus);
          ResultStatus = CFE_STATUS_VALIDATION_FAILURE;
       }
       else
@@ -221,7 +225,6 @@ static CFE_Status_t DecodeInputMessage(void *SourceBuffer, size_t SourceSize,
    {
       CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
                         "JMSG command topic failed to allocate a SB message buffer");
-
       ResultStatus = CFE_SB_BUF_ALOC_ERR;
    }
    else
@@ -243,7 +246,8 @@ static CFE_Status_t DecodeInputMessage(void *SourceBuffer, size_t SourceSize,
       
       if (EdsStatus != CFE_MISSIONLIB_SUCCESS)
       {
-         OS_printf("CFE_MissionLib_GetTopicInfo(): %d\n", (int)EdsStatus);
+         CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                           "Error accessing message EDS mission lib, CFE_MissionLib_GetTopicInfo() status = %d", (int)EdsStatus);
          ResultStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
       }
       else if (EdsLib_Is_Valid(TopicInfo.ParentIntfId))
@@ -253,8 +257,8 @@ static CFE_Status_t DecodeInputMessage(void *SourceBuffer, size_t SourceSize,
       }
       else
       {
-         OS_printf("CI_LAB_DecodeInputMessage(): No EDS definition for TopicId=%u\n",
-                   (unsigned int)ListenerParams.Telecommand.TopicId);
+         CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                           "No message EDS definition for TopicId=%u", (unsigned int)ListenerParams.Telecommand.TopicId);
          ResultStatus = CFE_STATUS_VALIDATION_FAILURE;
       }
    }
@@ -303,16 +307,19 @@ static CFE_Status_t DecodeInputPayload(CFE_SB_Buffer_t         *IngestBufPtr,
    EdsStatus = EdsLib_IntfDB_FindAllArgumentTypes(EDS_DB, CFE_SB_TELECOMMAND_ID, ParentIntfId, &EdsId, 1);
    if (EdsStatus != EDSLIB_SUCCESS)
    {
-      OS_printf("EdsLib_IntfDB_FindAllArgumentTypes(): %d\n", (int)EdsStatus);
+      CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                        "Error accessing message payload EDS arguments, EdsLib_IntfDB_FindAllArgumentTypes() status = %d", (int)EdsStatus);
       ResultStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
    }
    else
    {
-      /* Note, this is invoked even if the message is already fully decoded, as it also serves
-       * to identify the message and check against defined constraints.
-       * For example, on the CI_LAB_CMD interface, the previous lookup would have
-       * yielded the EdsId of CI_LAB/CommandBase, but this will update the EdsId
-       * to e.g. CI_LAB/NoopCmd (with NoopCmd being the same size as CommandBase) */
+      /*
+      ** Note, this is invoked even if the message is already fully decoded, as it also serves
+      ** to identify the message and check against defined constraints.
+      ** For example, on the CI_LAB_CMD interface, the previous lookup would have
+      ** yielded the EdsId of CI_LAB/CommandBase, but this will update the EdsId
+      ** to e.g. CI_LAB/NoopCmd (with NoopCmd being the same size as CommandBase)
+      */
       EdsStatus = EdsLib_DataTypeDB_UnpackPartialObjectVarSize(EDS_DB,
                                                                &EdsId,
                                                                IngestBufPtr,
@@ -321,7 +328,9 @@ static CFE_Status_t DecodeInputPayload(CFE_SB_Buffer_t         *IngestBufPtr,
                                                                ProcessedSize);
       if (EdsStatus != EDSLIB_SUCCESS)
       {
-         OS_printf("EdsLib_DataTypeDB_UnpackPartialObject(Payload): %d\n", (int)EdsStatus);
+         CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                           "Error unpacking message payload EDS, EdsLib_DataTypeDB_UnpackPartialObject(Payload) status = %d", (int)EdsStatus);
+         OS_printf(": %d\n", (int)EdsStatus);
          ResultStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
       }
    }
@@ -337,7 +346,9 @@ static CFE_Status_t DecodeInputPayload(CFE_SB_Buffer_t         *IngestBufPtr,
                                                                 ProcessedSize);
       if (EdsStatus != EDSLIB_SUCCESS)
       {
-         OS_printf("EdsLib_DataTypeDB_VerifyUnpackedObject(): %d\n", (int)EdsStatus);
+         CFE_EVS_SendEvent(JMSG_TOPIC_CMD_EDS_DECODE_EID, CFE_EVS_EventType_ERROR,
+                           "Error verifying message payload EDS, EdsLib_DataTypeDB_VerifyUnpackedObjectVarSize() status = %d",
+                           (int)EdsStatus);
          ResultStatus = CFE_STATUS_VALIDATION_FAILURE;
       }
    }
