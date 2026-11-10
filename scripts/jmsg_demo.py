@@ -48,7 +48,7 @@ JMSG_MAX_LEN = config.getint('JMSG','JMSG_MAX_LEN')
 JMSG_TOPIC_SCR_CMD_NAME = config.get('JMSG','JMSG_TOPIC_SCR_CMD_NAME')
 JMSG_TOPIC_CSV_CMD_NAME = config.get('JMSG','JMSG_TOPIC_CSV_CMD_NAME')
 JMSG_TOPIC_CSV_TLM_NAME = config.get('JMSG','JMSG_TOPIC_CSV_TLM_NAME')
-JMSG_TOPIC_CSV_RPI_NAME = config.get('JMSG','JMSG_TOPIC_CSV_RPI_NAME')
+JMSG_TOPIC_UDP_RPI_NAME = config.get('JMSG','JMSG_TOPIC_UDP_RPI_NAME')
 RUN_SCRIPT_TEXT_CMD     = config.getint('JMSG','RUN_SCRIPT_TEXT_CMD')
 RUN_SCRIPT_FILE_CMD     = config.getint('JMSG','RUN_SCRIPT_FILE_CMD')
 
@@ -70,7 +70,7 @@ def tx_thread():
             jmsg = JMSG_TOPIC_CSV_CMD_NAME + "{\"name\": \"UDP CSV CMD\", \"parameters\": \"None\"}"
         elif demo_use_case == CSV_TLM:
             jmsg = JMSG_TOPIC_CSV_TLM_NAME + "{\"name\": \"UDP CSV TLM\", \"seq-count\": 99, \"date-time\": \"0\", \"parameters\": \"None\"}"
-        elif demo_use_case == CSV_RPI:
+        elif demo_use_case == UDP_RPI:
             end_time = time.perf_counter()
             delta_time = end_time - start_time
             floati = float(i)
@@ -104,7 +104,7 @@ def rx_thread():
                     jmsg_str = jmsg_str.replace("\x00", "").replace("\x01", "")
                     if demo_use_case == SCRIPT_CMD:
                         process_scr_cmd_jmsg(jmsg_str)
-                    elif demo_use_case == CSV_CMD or demo_use_case == CSV_RPI:
+                    elif demo_use_case == CSV_CMD or demo_use_case == UDP_RPI:
                         process_csv_cmd_jmsg(jmsg_str)
                     elif demo_use_case == CSV_TLM:
                         process_csv_tlm_jmsg(jmsg_str)
